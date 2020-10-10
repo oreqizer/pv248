@@ -1,0 +1,69 @@
+## Peer Reviews
+
+You can optionally participate in peer reviews, both as a reviewer
+and as a review recipient. Reviewers get points for their effort,
+the recipients do not, but instead get (hopefully) useful
+information.
+
+### Requesting Reviews
+
+If you would like to have your code reviewed, you can issue the
+following command:
+
+    $ pv248 review --request hw1
+
+Substitute other assignments for ‹hw1› as appropriate. You can
+request a review on an assignment which you did not pass yet.  You
+may get up to 3 reviews for any given request. The reviewer will
+work with the submission that was current at the time they agreed to
+do the review. Make sure you submit the code you want reviewed
+before requesting the review.
+
+The ‹pv248 update› command will indicate whether someone reviewed
+your code, by printing a line of the form:
+
+    A reviews/hw1.from.xlogin
+
+To read the review, look at the files in
+‹~/pb161/reviews/hw1.from.xlogin› -- you will find a copy of your
+submitted sources along with comments provided by the reviewer.
+After you read your review, you should write a few sentences for the
+reviewer into ‹note.txt› in the review directory (please wrap lines
+to 80 columns) and then run:
+
+    $ pb161 review --accept 100
+
+Instead of 100, you can use a smaller number, indicating what percentage of
+the points the reviewer deserves for their job. Please make sure that you
+grade the review honestly -- the reviews will be screened for abuse and
+depending on the type of misconduct, one or both parties will be punished.
+
+### Writing Reviews
+
+To participate as a reviewer, start with the following command:
+
+    $ pv248 review --list
+
+You will get a list of review requests for which you are an eligible
+reviewer.  In particular, only assignments that you have already
+successfully solved will show up. If you like one of the entries,
+note its number (e.g. 7) and type:
+
+    $ pv248 review --checkout 7
+    $ cd ~/pv248/reviews/
+    $ ls
+
+There will be a directory for each of the reviews you agreed to
+write. Each directory contains the source code submitted for review,
+along with further instructions (the file ‹readme.txt›).
+
+When inserting your comments, please use double ‹##› to make the
+comment stand out, like this:
+
+    ## A longer comment should be wrapped to 80 columns or less,
+    ## and each line should start with the ## marker.
+
+You can write up to 10 reviews, each for a maximum of 0.3 points (and a total
+of 3 points). The limit is applied at checkout time: once you agree to do a
+particular review, you cannot change your mind and ‘uncheckout’ it to reclaim
+one of the 10 slots.

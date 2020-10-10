@@ -1,0 +1,106 @@
+## Homework
+
+The general principles outlined here apply to all assignments. The
+first and most important rule is, use your brain -- the
+specifications are not exhaustive and sometimes leave room for
+different interpretations. Do your best to apply the most sensible
+one. Do not try to find loopholes (all you are likely to get is
+failed tests). Technically correct is «not» the best kind of
+correct.
+
+Think about pre- and postconditions. Aim for weakest preconditions
+that still allow you to guarantee the postconditions required by the
+assignment. If your preconditions are too strong (i.e. you disallow
+inputs that are not ruled out by the spec) you will likely fail the
+tests.
+
+Do not print anything that you are not specifically directed to.
+Programs which print garbage (i.e. anything that wasn't specified)
+will fail tests.
+
+You can use the «standard library». Third-party libraries are not
+allowed, unless specified as part of the assignment. Make sure that
+your classes and methods use the correct spelling, and that you
+accept and/or return the correct types. In most cases, either the
+‘syntax’ or the ‘sanity’ test suite will catch problems of this
+kind, but we cannot guarantee that it always will -- do not rely on
+it.
+
+If you don't get everything right the first time around, do not
+despair. The «expectation» is that most of the time, you will pass
+in the «second or third week». In the real world, the first
+delivered version of your product will rarely be perfect, or even
+acceptable, despite your best effort to fulfill every customer
+requirement. Only very small programs can be realistically written
+completely correctly in one go.
+
+If you strongly disagree with a test outcome and you believe you
+adhered to the specification and resolved any ambiguities in a
+sensible fashion, please use the online chat or the discussion forum
+in the IS to discuss the issue (see ‹advisors.txt› for details).
+
+### Submitting Solutions
+
+The easiest way to submit a solution is this:
+
+    $ ssh aisa.fi.muni.cz
+    $ cd ~/pv248/hw1
+    <edit files until satisfied>
+    $ pv248 submit
+
+If you prefer to work in some other directory, you may need to
+specify which homework you wish to submit, like this: ‹pv248 submit
+hw1›. The number of times you submit is not limited (but see also
+below).
+
+NB. «Only» the files listed in the assignment will be submitted and
+evaluated. Please put your «entire» solution into «existing files».
+
+You can check the status of your submissions by issuing the
+following command:
+
+    $ pv248 status
+
+In case you already submitted a solution, but later changed it, you
+can see the differences between your most recent submitted version
+and your current version by issuing:
+
+    $ pv248 diff
+
+The lines starting with ‹-› have been removed since the submission,
+those with ‹+› have been added and those with neither are common to
+both versions.
+
+### Evaluation
+
+There are three sets of automated tests which are executed on the
+solutions you submit:
+
+ • The first set is called «syntax» and runs immediately after you
+   submit. Only 2 checks are performed: the code can be loaded (no
+   syntax errors) and passes mypy.
+   
+ • The next step is «sanity» and runs every midnight. Its main role
+   is to check that your program meets basic semantic requirements,
+   e.g.  that it recognizes correct inputs and produces correctly
+   formatted outputs. The ‘sanity’ test suite is for your information
+   only and does not guarantee that your solution will be accepted.
+   The ‘sanity’ test suite is only executed if you passed ‘syntax’.
+   
+ • Finally the «verity» test suite covers most of the specified
+   functionality and runs once a week -- every Wednesday at midnight,
+   right after the deadline. If you pass the verity suite, the
+   assignment is considered complete and you are awarded the
+   corresponding number of points. The verity suite will «not» run
+   unless the code passes ‘sanity’.
+
+If you pass on the first or the second run of the full test suite (7
+or 14 days after the assignment is given), you are entitled to a
+bonus point. If you pass at one of the next 2 attempts, you are
+entitled to half a bonus point. After that, you have 4 more attempts
+to get it right. See ‹grading.txt› for more details.
+
+Only the most recent submission is evaluated, and each submission is
+evaluated at most once in the ‘sanity’ and once in the ‘verity’
+mode. You will find your latest evaluation results in the IS in
+notepads (one per assignment).

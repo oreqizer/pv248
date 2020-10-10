@@ -1,0 +1,42 @@
+## Advisors
+
+It is hard to anticipate what problems you will run into while
+programming, and which concepts you will find hard to understand.
+Normally, those issues would be resolved in the seminar, but this
+semester, we won't have that luxury.
+
+Instead, we will do our best to give you extended text materials and
+examples, so that you can resolve as many issues as possible on your
+own. Of course, that will sometimes fail: for that reason, you will
+be able to «interactively» ask for «help online». Unfortunately, as
+much as we would like to, we cannot provide help 24/7 – there will
+instead be a few slots in which one of the teachers will be
+specifically available. You can ask questions at other times, and we
+will provide a ‘best effort’ service: if someone is available, they
+may answer the question, but please do not rely on this. For this,
+we will use the online chat available at https://lounge.fi.muni.cz –
+use your faculty login and password to get in, and join the channel
+(room) ##pv248 (double sharp). The schedule is as follows:
+
+│ day │ start │  end  │            person │
+├┄┄┄┄┄│┄┄┄┄┄┄┄│┄┄┄┄┄┄┄│┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤
+│ Tue │ 16:00 │ 18:00 │ (Lukáš Korenčik)  │
+│ Tue │ 18:00 │ 20:00 │ Petr Ročkai       │
+│ Thu │ 16:00 │ 18:00 │ Vladimír Štill    │
+│ Fri │ 16:00 │ 18:00 │ Petr Ročkai       │
+
+Please note that the Tuesday 16:00 slot is a backup, in case there
+is too much demand in the three remaining slots. Please only use it
+if you didn't manage to get a word in at other times. It will be
+either cancelled or made permanent after a few weeks, depending on
+traffic in the remaining slots.
+
+The other option is of course the discussion forum in IS, where you
+can ask questions, though this is not nearly as interactive, and the
+delay can be considerable (please be patient).
+
+Please also note that the online chat is meant for «programming
+discussion»: if you have questions about organisation or technical
+issues, use the discussion forum instead. Since exercises won't be
+published until Wednesday, the first session will be held on
+Thursday, 8th of October.

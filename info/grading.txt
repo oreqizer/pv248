@@ -1,0 +1,128 @@
+## Grading
+
+To pass the subject, you need to collect a total of 18 points (by
+any means). The points can be obtained as follows (these are upper
+limits):
+
+ • 12 points for homework (6 assignments, 2 points each)
+ •  9 points for weekly exercises, 
+ •  6 points for finishing your homework early,
+ •  3 points for peer review.
+
+You need to pass the 18 point mark by 17th of February, one week
+after the last deadline of the last homework (this gives you some
+space to collect the remaining points via peer review).
+
+### Homework
+
+There will be 6 assignments, one every two weeks. There will be 8
+deadlines for each of them, one week apart and each deadline gives
+you one chance to pass the automated test suite. If you pass on the
+first or second deadline, you get 1 extra point for the assignment.
+For the third and fourth deadlines, the bonus is reduced to 0.5
+point. Afterwards, you only get the baseline 2 points.
+
+The deadline schedule is as follows:
+
+│     │  given │  try 1 │  try 2 │  try 3 │  try 4 │
+├┄┄┄┄┄│┄┄┄┄┄┄┄▻│┄┄┄┄┄┄┄▻┼┄┄┄┄┄┄┄▻│┄┄┄┄┄┄┄▻┼┄┄┄┄┄┄┄▻┤
+│     │        │    3 points     │    2.5 points   │
+│ hw1 │  7.10. │ 14.10. │ 21.10. │ 28.10. │  4.11. │
+│ hw2 │ 21.10. │ 28.10. │  4.11. │ 11.11. │ 18.11. │
+│ hw3 │  4.11. │ 11.11. │ 18.11. │ 25.11. │  2.12. │
+│ hw4 │ 18.11. │ 25.11. │  2.12. │  9.12. │ 16.12. │
+│ hw5 │  2.12. │  9.12. │ 16.12. │ 23.12. │ 30.12. │
+│ hw6 │ 16.12. │ 23.12. │ 30.12. │   6.1. │  13.1. │
+
+
+│     │  given │  try 5 │  try 6 │  try 7 │  try 8 │
+├┄┄┄┄┄│┄┄┄┄┄┄┄▻│┄┄┄┄┄┄┄▻┼┄┄┄┄┄┄┄▻┼┄┄┄┄┄┄┄▻┼┄┄┄┄┄┄┄▻┤
+│     │        │              2 points             │
+│ hw1 │  7.10. │ 11.11. │ 18.11. │ 25.11. │  2.12. │
+│ hw2 │ 21.10. │ 25.11. │  2.12. │  9.12. │ 16.12. │
+│ hw3 │  4.11. │  9.12. │ 16.12. │ 23.12. │ 30.12. │
+│ hw4 │ 18.11. │ 23.12. │ 30.12. │   6.1. │  13.1. │
+│ hw5 │  2.12. │   6.1. │  13.1. │  20.1. │  27.1. │
+│ hw6 │ 16.12. │  20.1. │  27.1. │   3.2. │  10.2. │
+
+The test suite is strictly binary: you either pass or you fail. More
+details and guidelines are in ‹homework.txt›.
+
+### Weekly Exercises
+
+Besides homework assignments, the main source of points will be
+weekly exercises. Like with homework, you are not required to do any
+of these (except to get sufficient points to pass the course). How
+you split points between homework and the weekly exercises is up to
+you.
+
+Each week, you will be able to submit a fixed subset of the
+exercises given to you (i.e. we will select usually 2, sometimes
+perhaps 3 exercises, which you can submit and get the point). Each
+week, you will be able to get up to one point (so in theory,
+12 points are available, but the maximum you can earn this way is
+capped at 9). The point will be split between the exercises, i.e.
+it will be possible to earn fractional points in a given week, too.
+
+If bonuses are present in an exercise, those are not required in
+submissions (nor they are rewarded with points).
+
+The exercises have test cases enclosed: it is sufficient to pass
+those test cases to earn the associated points. The deadlines to
+earn points are as follows (you will have 2 weeks to solve each
+set):
+
+│ chapter │  given │ deadline │
+├◅┄┄┄┄┄┄┄▻│◅┄┄┄┄┄┄▻┼◅┄┄┄┄┄┄┄┄▻┤
+│      01 │  7.10. │   21.10. │
+│      02 │ 14.10. │   28.10. │
+│      03 │ 21.10. │    4.11. │
+│      04 │ 28.10. │   11.11. │
+│      05 │  4.11. │   18.11. │
+│      06 │ 11.11. │   25.11. │
+│      07 │ 18.11. │    2.12. │
+│      08 │ 25.11. │    9.12. │
+│      09 │  2.12. │   16.12. │
+│      10 │  9.12. │   23.12. │
+│      11 │ 16.12. │   30.12. │
+│      12 │ 23.12. │     6.1. │
+
+### Peer Review
+
+Reading code is an important skill – sometimes more so than writing
+it. While the space to practice reading code in this subject is
+limited, you will still be able to earn a few points doing just
+that. The rules for peer review are as follows:
+
+ • «only homework» is eligible for reviews (not the weekly
+   exercises),
+ • you can submit any code (even completely broken) for peer review,
+ • to write a review for any given submission, you must have already
+   passed the respective assignment yourself,
+ • there are no deadlines for requesting or providing peer reviews
+   (other than the deadline on passing the subject),
+ • writing a review is worth 0.3 points and you can write at most
+   10.
+
+It is okay to point out correctness problems during peer reviews,
+with the expectation that this might help the recipient pass the
+assignment. This is the «only» allowed form of cooperation (more on
+that below).
+
+### Plagiarism
+
+Copying someone else's work or letting someone else copy yours will
+earn you -6 points per instance. You are also responsible for
+keeping your solutions private. If you only use the ‹pv248› command
+on ‹aisa›, it will make your ‹~/pv248› directory inaccessible to
+anyone else (this also applies to school-provided UNIX
+workstations). Keep it that way. If you work on your solution using
+other computers, make sure they are secure. Do not publish your
+solutions anywhere (on the internet or otherwise). All parties in a
+copying incident will be treated equally.
+
+No cooperation is allowed (not even design-level discussion about
+how to solve the exercise) on homework and on weekly exercises
+«which you submit». If you want to study with your classmates, that
+is okay – but only cooperate on exercises which are not going to be
+submitted by either party.

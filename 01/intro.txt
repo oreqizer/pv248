@@ -1,0 +1,26 @@
+# Python Intro
+
+There are two sets of exercises in the first week (exercises within
+each set are related). The first set is an evaluator of simple
+expressions in reverse polish notation (files prefixed ‹rpn_›) and
+the other is about planar analytic geometry (simple geometric
+objects, their attributes, transformations on them and interactions
+between them; these files are prefixed ‹geom_›). Each of the two
+blocks is split into three exercises.
+
+One thing that you will need but might not be familiar with is
+«variadic functions»: see ‹varargs.py› for an introduction.
+
+The order in which the exercises were meant to be solved is this:
+
+ 1. ‹rpn_un.py›
+ 2. ‹rpn_bin.py› (can be submitted)
+ 3. ‹rpn_gen.py›
+
+ 4. ‹geom_types.py›
+ 5. ‹geom_intersect.py› (can be submitted)
+ 6. ‹geom_dist.py›
+
+It is okay to flip the two blocks, but the exercises within each
+block largely build on each other and cannot be as easily skipped or
+reordered.

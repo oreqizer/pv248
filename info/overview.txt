@@ -1,0 +1,31 @@
+## Course Overview
+
+Welcome to PV248 Programming in Python. In a normal semester, the
+course consists of lectures, seminars and assignments. This is not a
+normal semester: the course will be entirely online, and your
+primary source of information will be this collection of code
+examples and exercises. There are a few lecture recordings from
+previous years, but only one or so is in English.
+
+Since this is a programming subject, most of the coursework – and
+grading – will center around actual programming. There will be 2
+types of programs that you will write in this seminar: tiny programs
+for weekly exercises (15-20 minutes each) and small programs for
+homework (a few hundred lines).
+
+Writing programs is hard and this course won't be entirely easy
+either. You will need to put in effort to pass the subject.
+Hopefully, you will have learned something by the end of it.
+
+Further details on the organisation of this course are in this
+directory:
+
+ • ‹grading.txt› -- what is graded and how; what you need to pass,
+ • ‹homework.txt› -- general guidelines that govern assignments,
+ • ‹reviews.txt› -- writing and receiving peer reviews,
+ • ‹advisors.txt› -- whom to talk to and how when you need help.
+
+Study materials for each week are in directories ‹01› through ‹13›.
+Start by reading ‹intro.txt›. Assignments are in directories ‹hw1›
+through ‹hw6› and will be made available according to the schedule
+shown in ‹grading.txt›.
