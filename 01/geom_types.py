@@ -100,14 +100,23 @@ class Line:
 
 
 class Segment:
+    def __init__(self, a, b):
+        sub = b - a
+        self.point = a
+        self.vec = Vector(sub.x, sub.y)
+
+    def __repr__(self):
+        return 'Segment({point} + {vec})'.format(point=self.point, vec=self.vec)
+
     def length(self):
-        pass
+        return self.vec.length()
 
     def translated(self, vec):
-        pass
+        base = self.point + vec
+        return Segment(base, base + self.vec)
 
     def point_point(self):
-        pass
+        return (self.point, self.point + self.vec)
 
 # And finally a circle, using a center (a ‹Point›) and a radius (a
 # ‹float›).
@@ -115,16 +124,17 @@ class Segment:
 
 class Circle:
     def __init__(self, c, r):
-        pass
+        self.c = c
+        self.r = r
 
     def center(self):
-        pass
+        return self.c
 
     def radius(self):
-        pass
+        return self.r
 
     def translated(self, vec):
-        pass
+        return Circle(self.c + vec, self.r)
 
 # As always, write a few test cases to check that your code works.
 # Please make sure that your implementation is finished before
