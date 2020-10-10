@@ -11,17 +11,35 @@ class Point:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return 'Point({x}, {y})'.format(x=self.x, y=self.y)
+
+    def __eq__(self, other):  # self == other
+        return self.x == other.x and self.y == other.y
+
+    def __add__(self, vec):  # self + vector
+        return Point(self.x + vec.x, self.y + vec.y)
+
     def __sub__(self, other):  # self - other
         return Point(self.x - other.x, self.y - other.y)
 
     def translated(self, vec):
-        return Point(self.x + vec.x, self.y + vec.y)
+        return self + vec
 
 
 class Vector:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def __repr__(self):
+        return 'Vector({x}, {y})'.format(x=self.x, y=self.y)
+
+    def __eq__(self, other):  # self == other
+        return self.x == other.x and self.y == other.y
+
+    def __add__(self, other):  # self + other
+        return Vector(self.x + other.x, self.y + other.y)
 
     def length(self):
         return sqrt(self.x ** 2 + self.y ** 2)
@@ -30,7 +48,7 @@ class Vector:
         return self.x * other.x + self.y * other.y
 
     def angle(self, other):  # in radians
-        pass
+        return acos(self.dot(other) / (self.length() * other.length()))
 
 # Let us define a line next. Whether you use a point and a vector or
 # two points is up to you (the constructor should take two points).
@@ -49,19 +67,34 @@ class Vector:
 
 
 class Line:
+    def __init__(self, a, b):
+        sub = b - a
+        self.point = a
+        self.vec = Vector(sub.x, sub.y)
+
+    def __repr__(self):
+        return 'Line({point} + {vec})'.format(point=self.point, vec=self.vec)
+
     def __eq__(self, other):
         if not isinstance(other, Line):
             return False
-        pass  # continue the implementation
+        p1, p2 = other.point_point()
+        return self.has_point(p1) and self.has_point(p2)
+
+    def has_point(self, point):
+        m = self.vec.y / self.vec.x
+        b = self.point.y - (self.point.x / self.vec.x) * self.vec.y
+        return point.y == m*point.x + b
 
     def translated(self, vec):
-        pass
+        base = self.point + vec
+        return Line(base, base + self.vec)
 
     def point_point(self):
-        pass
+        return (self.point, self.point + self.vec)
 
     def point_vector(self):
-        pass
+        return (self.point, self.vec)
 
 # The ‹Segment› class is a finite version of the same.
 
