@@ -1,7 +1,7 @@
 # We first import all the classes from the previous exercise, since
 # we will want to use them.
 
-from math import isclose
+from math import isclose, sqrt, asin, cos
 from geom_types import Point, Vector, Line, Segment, Circle
 
 # We will want to compute intersection points of a few object type
@@ -71,7 +71,22 @@ def intersect_line_segment(p, s):
 
 
 def intersect_line_circle(p, c):
-    pass
+    offset = Vector(c.c.x, c.c.y)
+
+    n = p.set_vector(p.vec.normal())
+    n_origin = n.translated(Vector(-n.point.x, -n.point.y))
+
+    p_shifted = p.translated(Vector(-c.c.x, -c.c.y))
+    intersect = intersect_line_line(p_shifted, n_origin)[0]
+    dist = sqrt(intersect.x**2 + intersect.y**2)
+    if dist > c.r:
+        return []
+    if isclose(dist, c.r):
+        return [intersect.translated(offset)]
+
+    ratio = cos(asin(dist / c.r))
+    shift = p.vec.normalize() * ratio * c.r
+    return [intersect.translated(shift) + offset, intersect.translated(shift * -1) + offset]
 
 # It's probably quite obvious that users won't like the above API.
 # Let's make a single ‹intersect()› that will work on anything (that
@@ -81,7 +96,20 @@ def intersect_line_circle(p, c):
 
 
 def intersect(a, b):
-    pass
+    if type(a) != Line:
+        a, b = b, a
+
+    if type(a) != Line:
+        return []
+
+    if type(b) == Line:
+        return intersect_line_line(a, b)
+    if type(b) == Segment:
+        return intersect_line_segment(a, b)
+    if type(b) == Circle:
+        return intersect_line_circle(a, b)
+
+    return []
 
 # Test cases follow. Note that the tests use line equality which you
 # implemented in ‹geom_types›. The last exercise for this week can
@@ -91,8 +119,8 @@ def intersect(a, b):
 def test_main():
     test_line_line()
     test_line_segment()
-    #test_line_circle()
-    #test_intersect()
+    test_line_circle()
+    test_intersect()
 
 
 def test_line_line():

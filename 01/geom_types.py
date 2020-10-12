@@ -41,6 +41,9 @@ class Vector:
     def __add__(self, other):  # self + other
         return Vector(self.x + other.x, self.y + other.y)
 
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar)
+
     def length(self):
         return sqrt(self.x ** 2 + self.y ** 2)
 
@@ -50,6 +53,12 @@ class Vector:
     def angle(self, other):  # in radians
         return acos(self.dot(other) / (self.length() * other.length()))
 
+    def normal(self):
+        return Vector(self.y, -self.x)
+
+    def normalize(self):
+        l = self.length()
+        return Vector(self.x / l, self.y / l)
 
 # Let us define a line next. Whether you use a point and a vector or
 # two points is up to you (the constructor should take two points).
@@ -97,6 +106,11 @@ class Line:
     def point_vector(self):
         return (self.point, self.vec)
 
+    def set_vector(self, vec):
+        copy = Line(*self.point_point())
+        copy.vec = vec
+        return copy
+
 # The ‹Segment› class is a finite version of the same.
 
 
@@ -127,6 +141,9 @@ class Circle:
     def __init__(self, c, r):
         self.c = c
         self.r = r
+
+    def __repr__(self):
+        return 'Circle(center={c}, radius={r})'.format(c=self.c, r=self.r)
 
     def center(self):
         return self.c
