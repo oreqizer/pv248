@@ -46,7 +46,23 @@ def intersect_line_line(p, q):
 
 
 def intersect_line_segment(p, s):
-    pass
+    line_res = intersect_line_line(p, Line(*s.point_point()))
+    if type(line_res) == Line:
+        return s
+
+    if len(line_res) == 0:
+        return []
+
+    c = line_res[0]
+    p1, p2 = s.point_point()
+    min_x = min(p1.x, p2.x)
+    min_y = min(p1.y, p2.y)
+    max_x = max(p1.x, p2.x)
+    max_y = max(p1.y, p2.y)
+    if c.x < min_x or c.x > max_x or c.y < min_y or c.y > max_y:
+        return []
+
+    return line_res
 
 # Intersecting lines with circles is a little more tricky. Checking
 # e.g. MathWorld sounds like a good idea. It might be helpful to
@@ -74,7 +90,7 @@ def intersect(a, b):
 
 def test_main():
     test_line_line()
-    #test_line_segment()
+    test_line_segment()
     #test_line_circle()
     #test_intersect()
 
