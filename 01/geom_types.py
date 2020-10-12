@@ -50,6 +50,7 @@ class Vector:
     def angle(self, other):  # in radians
         return acos(self.dot(other) / (self.length() * other.length()))
 
+
 # Let us define a line next. Whether you use a point and a vector or
 # two points is up to you (the constructor should take two points).
 # Whichever you choose, make both representations available using
@@ -84,7 +85,7 @@ class Line:
     def has_point(self, point):
         m = self.vec.y / self.vec.x
         b = self.point.y - (self.point.x / self.vec.x) * self.vec.y
-        return point.y == m*point.x + b
+        return isclose(point.y, m*point.x + b)
 
     def translated(self, vec):
         base = self.point + vec
