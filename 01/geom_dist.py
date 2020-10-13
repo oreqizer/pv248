@@ -1,6 +1,6 @@
 from math import isclose, sqrt
 from geom_types import *  # as before
-from geom_intersect import intersect_line_line
+from geom_intersect import intersect_line_line, intersect_line_circle
 
 # In case there are no intersections, it makes sense to ask about
 # distances of two objects. In this case, it also makes sense to
@@ -28,20 +28,39 @@ def distance_line_line(p, q):
 
 
 def distance_point_circle(a, c):
-    pass
+    from_center = distance_point_point(a, c.c)
+    return abs(from_center - c.r)
 
 # A similar idea works for circles and lines. Note that if they
 # intersect, we set the distance to 0.
 
 
 def distance_line_circle(p, c):
-    pass
+    intersect = intersect_line_circle(p, c)
+    if len(intersect) != 0:
+        return 0
+    n = p.vec.normal()
+    cross = intersect_line_line(p, Line(c.c, c.c.translated(n)))[0]
+    return distance_point_point(cross, c.c) - c.r
 
 # And finally, let's do the friendly dispatch function:
 
 
-def distance(a, b):
-    pass
+def distance(a, b, repeated = False):
+    if type(a) == Point and type(b) == Point:
+        return distance_point_point(a, b)
+    if type(a) == Point and type(b) == Line:
+        return distance_point_line(a, b)
+    if type(a) == Line and type(b) == Line:
+        return distance_line_line(a, b)
+    if type(a) == Point and type(b) == Circle:
+        return distance_point_circle(a, b)
+    if type(a) == Line and type(b) == Circle:
+        return distance_line_circle(a, b)
+    if not repeated:
+        return distance(b, a, True)
+    return 0
+    
 
 # Probably time for some testcases. That wraps up the seminar for
 # today.
@@ -51,8 +70,8 @@ def test_main():
     test_point_point()
     test_point_line()
     test_line_line()
-    #test_point_circle()
-    #test_line_circle()
+    test_point_circle()
+    test_line_circle()
     #test_distance()
 
 
