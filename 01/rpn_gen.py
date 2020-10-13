@@ -10,22 +10,45 @@
 # a function which implements it. The function ‹f› should take as
 # many arguments as ‹arity› specifies.
 
+from operator import add
+from functools import reduce
+
+
 class Evaluator:
-    def __init__( self ):
-        pass
-    def add_op( self, name, arity, f ):
-        pass
-    def evaluate( self, rpn ):
-        pass
+    def __init__(self):
+        self.operators = {}
+
+    def add_op(self, name, arity, fn):
+        self.operators[name] = (arity, fn)
+
+    def evaluate(self, rpn):
+        stack = []
+        for e in rpn:
+            if isinstance(e, (int, float)):
+                stack.append(e)
+                continue
+
+            arity, fn = self.operators[e]
+            if arity == 0:
+                stack = [fn(*stack)]
+                continue
+
+            nums = []
+            for _ in range(arity):
+                nums.insert(0, stack.pop())
+            stack.append(fn(*nums))
+        return stack
+
 
 def example():
     e = Evaluator()
-    e.add_op( '*', 2, lambda x, y: x * y )
-    e.add_op( '+', 2, lambda x, y: x + y )
-    print( e.evaluate( [ 1, 2, '+', 7, '*' ] ) ) # expect [21]
+    e.add_op('*', 2, lambda x, y: x * y)
+    e.add_op('+', 2, lambda x, y: x + y)
+    print(e.evaluate([1, 2, '+', 7, '*']))  # expect [21]
 
 # «Bonus 1»: Allow ‹arity = 0› to mean ‘greedy’. The function passed
 # to ‹add_op› in this case must accept any number of arguments.
+
 
 bonus_1 = True   # enable / disable tests for bonus 1
 
@@ -39,32 +62,32 @@ bonus_1 = True   # enable / disable tests for bonus 1
 
 # Then, you can continue to ‹geom_types.py›.
 
-from functools import reduce
-from operator import add
 
 def test_main():
     e = Evaluator()
-    e.add_op( '*', 2, lambda x, y: x * y )
-    e.add_op( '+', 2, lambda x, y: x + y )
-    assert e.evaluate( [ 1, 2, '+', 7, '*' ] ) == [21]
+    e.add_op('*', 2, lambda x, y: x * y)
+    e.add_op('+', 2, lambda x, y: x + y)
+    assert e.evaluate([1, 2, '+', 7, '*']) == [21]
 
-    e.add_op( 'neg', 1, lambda x: -x )
-    assert e.evaluate( [ 3, 'neg' ] )  == [ -3 ]
+    e.add_op('neg', 1, lambda x: -x)
+    assert e.evaluate([3, 'neg']) == [-3]
 
-    e.add_op( 'four', 4, lambda a, b, c, d: a - b * c + d )
-    e.add_op( 'second', 5, lambda a, b, c, d, e: b )
+    e.add_op('four', 4, lambda a, b, c, d: a - b * c + d)
+    e.add_op('second', 5, lambda a, b, c, d, e: b)
 
     # The following test case should evaluate as follows: ‹[ 2, 4,
     # 7, 'neg', 8, 'four' ]› → ‹[ 2, 4, -7, 8, 'four' ]› → ‹2 - 4 *
     # -7 + 8›.
 
-    assert e.evaluate( [ 1, 2, 3, 4, 5, 'second', 4, 7, 'neg',
-                         8, 'four' ] ) == [ 38 ]
+    assert e.evaluate([1, 2, 3, 4, 5, 'second', 4, 7, 'neg',
+                       8, 'four']) == [38]
+
 
 def test_bonus_1():
     e = Evaluator()
-    e.add_op( 'sum', 0, lambda *x: reduce( add, x ) )
-    assert e.evaluate( [ 2, -3, 4, 9, 'sum' ] ) == [ 12 ]
+    e.add_op('sum', 0, lambda *x: reduce(add, x))
+    assert e.evaluate([2, -3, 4, 9, 'sum']) == [12]
+
 
 if __name__ == "__main__":
     test_main()
