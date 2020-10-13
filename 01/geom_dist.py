@@ -1,5 +1,6 @@
-from math import isclose
+from math import isclose, sqrt
 from geom_types import *  # as before
+from geom_intersect import intersect_line_line
 
 # In case there are no intersections, it makes sense to ask about
 # distances of two objects. In this case, it also makes sense to
@@ -7,18 +8,21 @@ from geom_types import *  # as before
 
 
 def distance_point_point(a, b):
-    pass
+    diff = b - a
+    return sqrt(diff.x**2 + diff.y**2)
 
 
-def distance_point_line(a, p):
-    pass
+def distance_point_line(p, a):
+    n = a.vec.normal()
+    cross = intersect_line_line(a, Line(p, p.translated(n)))[0]
+    return distance_point_point(cross, p)
 
 # If we already have the point-line distance, it's easy to also find
 # the distance of two parallel lines:
 
 
 def distance_line_line(p, q):
-    pass
+    return distance_point_line(q.point, p)
 
 # Circles vs points are rather easy, too:
 
@@ -47,9 +51,9 @@ def test_main():
     test_point_point()
     test_point_line()
     test_line_line()
-    test_point_circle()
-    test_line_circle()
-    test_distance()
+    #test_point_circle()
+    #test_line_circle()
+    #test_distance()
 
 
 def test_point_point():
