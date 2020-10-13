@@ -2,8 +2,19 @@
 # simple RPN (Reverse Polish Notation) evaluator. The entry point
 # will be a single function, with the following prototype:
 
-def rpn_eval( rpn ):
-    pass
+def rpn_eval(rpn):
+    stack = []
+    for e in rpn:
+        if e == "neg":
+            stack[-1] *= -1
+            continue
+        
+        if e == "recip":
+            stack[-1] = 1/stack[-1]
+            continue
+
+        stack.append(e)
+    return stack
 
 # The ‹rpn› argument is a list with two kinds of objects in it:
 # numbers (of type ‹int›, ‹float› or similar) and operators (for
@@ -20,28 +31,30 @@ def rpn_eval( rpn ):
 # implementation works as expected.  You are free to add your own
 # test cases. When you are done, you can continue with ‹rpn_bin.py›.
 
+
 def test_main():
-    rpn_num = [ 5 ]
-    assert rpn_eval( rpn_num ) == [ 5 ]
+    rpn_num = [5]
+    assert rpn_eval(rpn_num) == [5]
 
-    rpn_neg = [ 1, "neg" ]
-    assert rpn_eval( rpn_neg ) == [ -1 ]
+    rpn_neg = [1, "neg"]
+    assert rpn_eval(rpn_neg) == [-1]
 
-    rpn_rec = [ 2, "recip" ]
-    assert rpn_eval( rpn_rec ) == [ 1/2 ]
+    rpn_rec = [2, "recip"]
+    assert rpn_eval(rpn_rec) == [1/2]
 
-    rpn_n = [ -1/7, "recip" ]
-    assert rpn_eval( rpn_n ) == [ -7 ]
+    rpn_n = [-1/7, "recip"]
+    assert rpn_eval(rpn_n) == [-7]
 
-    rpn_simp = [ 1, "recip", "neg" ]
-    assert rpn_eval( rpn_simp ) == [ -1 ]
+    rpn_simp = [1, "recip", "neg"]
+    assert rpn_eval(rpn_simp) == [-1]
 
-    rpn = [ 4, "neg", "recip", "neg", "neg", "recip", "neg",
-            "recip", "recip" ]
-    assert rpn_eval( rpn ) == [ 4 ]
+    rpn = [4, "neg", "recip", "neg", "neg", "recip", "neg",
+           "recip", "recip"]
+    assert rpn_eval(rpn) == [4]
 
-    rpn_nums = [ 5, 1/9, "recip", 2, "neg", "recip", -1, "neg" ]
-    assert rpn_eval( rpn_nums ) == [ 5, 9, -1/2, 1 ]
+    rpn_nums = [5, 1/9, "recip", 2, "neg", "recip", -1, "neg"]
+    assert rpn_eval(rpn_nums) == [5, 9, -1/2, 1]
+
 
 if __name__ == "__main__":
     test_main()
