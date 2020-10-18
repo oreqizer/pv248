@@ -1,21 +1,27 @@
 # Object Model
 
-In this lecture, we will look at the role of objects and their
-semantics. In particular, we will look at the basic structure of a
+In this lecture, we will look at the role and the semantics of
+objects.  In particular, we will look at the basic structure of a
 Python program and note that pretty much everything is an object.
 
 │ Objects
 │
 │  • the basic ‘unit’ of OOP
+│  • also known as ‘instances’
 │  • they bundle «data» and «behaviour»
 │  • provide «encapsulation»
+│  • «local› (object) «invariants»
 │  • make code re-use easier
-│  • also known as ‘instances’
 
-The traditional notion of an object, as an entity that encapsulates
-both data and behaviour, holds quite well in Python. Let's, for a
-moment, forget the standard story about how the data is enclosed in
-a wall made of methods (which is not really helpful). This does not
+In object-oriented programming, an object is the basic building
+block of a program. Please note that in some contexts, objects are
+instead called instances, or class instances. We will use both terms
+interchangeably.
+
+The traditional notion of an object holds that it is an entity which
+bundles data and behaviour. This view works quite well in Python.
+However, for the time being, let's forget the standard story about
+how the data is enclosed in a wall made of methods. This does not
 work in Python anyway, since attributes (data) are public.
 
 The real benefit is that holding data in discrete packages,
@@ -29,16 +35,20 @@ objects). The constraints which govern valid states are what we call
 The methods (behaviour) are then written in such a way that they
 move the object from valid states to other valid states: in other
 words, they «preserve invariants». In a correctly designed API, it
-is should be impossible to get an object into an invalid state by
-only interacting with it through its public interface.
+should be impossible to get an object into an invalid state by only
+interacting with it through its public interface.
+
+Finally, objects make it simpler to re-use code, through
+polymorphism, composition and inheritance. This was, in fact, one of
+the original motivations for OOP.
 
 │ Classes
 │
-│  • «templates» for «objects» (‹class Foo: pass›)
 │  • each (Python) object «belongs» to a class
-│  • «classes» themselves «are» also «objects»
+│  • «templates» for «objects»
 │  • «calling» a class creates an instance
 │    ◦ ‹my_foo = Foo()›
+│  • «classes» themselves «are» also «objects»
 
 Like with plain old data, where values are classified into «data
 types», it is often advantageous to classify «objects» (which are a
@@ -60,42 +70,45 @@ new empty object, it will also immediately call the ‹__init__›
 method of that object, forwarding any arguments passed to the
 original call.
 
+Finally, and this is specific to Python, classes are themselves
+objects, and it is possible to interact with them at runtime. We
+will get back to this idea shortly.
+
 │ Types vs Objects
 │
 │  • «class» system is a «type» system
-│  • ‘duck typing’: quacks, walks like a duck
 │  • since Python 3, types «are» classes
 │  • everything is «dynamic» in Python
-│    ◦ you can create new classes «at» «runtime»
-│    ◦ you can «pass classes» as function «parameters»
+│    ◦ variables are not type-constrained
 
-In fact, all data types in Python are actually classes. Each object
-«dynamically» belongs to a class: in Python, variables do not carry
-types (i.e. each variable in Python can hold a value of any type).
-However, values (objects) do, and it is impossible to accidentally
-«coerce» an object into a different class – we say that Python has a
-strong dynamic type system.
+Since classes are essentially data types, a class system is
+essentially a type system. In fact, all data types in Python are
+actually classes. Each object «dynamically» belongs to a class: in
+Python, variables do not carry types (i.e. each variable in Python
+can hold a value of any type). However, values (objects) do, and it
+is impossible to accidentally «coerce» an object into a different
+class – we say that Python has a strong dynamic type system.
 
 │ Poking at Classes
 │
-│  • ‹{}.__class__›
-│  • ‹{}.__class__.__class__›
-│  • ‹(0).__class__›
-│  • ‹[].__class__›
-│  • compare ‹type(0)›, etc.
-│
-│  • ‹n = numbers.Number(); n.__class__›
+│  • you can «pass classes» as function «parameters»
+│  • you can «create classes» at runtime
+│  • and interact with existing classes:
+│    ◦ ‹{}.__class__›, ‹(0).__class__›
+│    ◦ ‹{}.__class__.__class__›
+│    ◦ compare ‹type(0)›, etc.
+│    ◦ ‹n = numbers.Number(); n.__class__›
 
 Of course, since this is Python, classes also exist at runtime: and
 as we will eventually learn, everything in Python that exists at
 runtime is an object. Hence, classes are also objects with
 attributes and methods and it is possible to interact with them like
-with any other object.  This is not directly useful, but it does
-serve to illustrate a point about Python.
+with any other object. This is rarely useful, but it does serve to
+illustrate a point about Python.
 
-To demonstrate the point about classes being objects, here are some
-examples of valid Python expressions. Try them yourself and think
-about what this means.
+To demonstrate that classes really are objects, the slide gives a
+few examples of valid Python expressions. Try them yourself and
+think about what they mean.
 
 │ Encapsulation
 │
@@ -117,8 +130,9 @@ within a class. If some outside code changes the data (attributes)
 directly and breaks the invariant, it is going to get exactly what
 it asked for.
 
-The partitioning of program state that is achieved is also known as
-«loose coupling».
+The partitioning of program state that is achieved through
+encapsulation is also known as «loose coupling». This is an
+important property of good programs.
 
 │ Loose Coupling
 │
@@ -128,13 +142,13 @@ The partitioning of program state that is achieved is also known as
 │  • good programs are «loosely» coupled
 │  • cf. modularity, composability
 
-Coupling is a measure of how tangled the program is – how many
-things break when you change one thing, and how far away from the
-change. Consider a ticket booking system that started out as a small
-local thing, with only a few venues. But the system grew and now you
-are adding venues from another city – but for that, you need to
-change how venues are stored, since you did not have a ‘city’ field
-(they were all local).
+Coupling is a measure of how tangled the program is – how many other
+things break when you change one thing, and how far away the damage
+spreads out from the change. Consider a ticket booking system that
+started out as a small local thing, with only a few venues. But the
+system grew and now you are adding venues from another city – but
+for that, you need to change how venues are stored, since you do not
+have a ‘city’ field (they were all local).
 
 In a loosely coupled system, you add the attribute (or a database
 column) and that's pretty much it: you may need to adjust a few
@@ -145,19 +159,20 @@ In a tightly coupled system, on the other hand, it could easily turn
 out that now the reservation emails are completely jumbled. This
 might sound like a stretch, but consider a system which stores all
 the attributes in a list, and each component simply hard-codes the
-meaning of each index. So ‹reservation[4]› is the venue name, and
-‹reservation[7]› is the customer's family name. But you add the
-city, say as index 5, and now all other fields have shifted, and
-your entire application is completely broken and you are sending out
-mails that start ‘Dear Britney Spears’. Of course, this is terrible
-programming and the example is slightly artificial, but things like
-this do happen.
+meaning of each index.
+
+So ‹reservation[4]› is the venue name, and ‹reservation[7]› is the
+customer's family name. But you add the city, say as index 5, and
+now all other fields have shifted, and your entire application is
+completely broken and you are sending out mails that start ‘Dear
+Britney Spears’. Of course, this is terrible programming and the
+example is slightly artificial, but things like this do happen.
 
 │ Polymorphism
 │
 │  • objects are (at least in Python) «polymorphic»
 │  • different implementation, same interface
-│  • only the «interface» matters for composition
+│    ◦ only the «interface» matters for composition
 │  • facilitates «genericity» and «code re-use»
 │  • cf. ‘duck typing’
 
@@ -166,7 +181,8 @@ is «polymorphism», where different objects can fill the same role.
 This encourages loose coupling, because polymorphic objects separate
 the interface from the implementation quite strictly. If a function
 must be able to work with objects of different types, it can only do
-so through a fairly well-defined interface.
+so through a fairly well-defined interface. The same principle
+applies to object composition.
 
 One area where polymorphism is very important is generic functions:
 consider ‹len›, which is a builtin Python function that gives you a
@@ -211,7 +227,7 @@ exactly this:
  • user-defined data types (records, classes) allow us to give
    structure to our data once and use it in many places.
 
-Generic programming is a technique, which mainly gives additional
+Generic programming is a technique which mainly gives additional
 power to functions and objects. Under normal circumstances,
 «functions» are parametrized by «values» which are all of the same
 «type». That is, functions take arguments, which have fixed types,
@@ -222,14 +238,15 @@ With generic programming, the «types» can also vary. In Python,
 generic programming is so pervasive that you may fail to even notice
 it. You can often pass sets or lists into the same function, without
 even thinking about it. Or integers vs floating-point numbers. And
-so on. However, this is not a given. This level of flexibility is
-also part of the reason why Python programs «execute slowly».
+so on. However, this is not a given. On the other hand, this level
+of flexibility is also part of the reason why Python programs
+«execute slowly».
 
 │ Attributes
 │
 │  • «data» members of objects
 │  • each «instance» gets its «own copy»
-│  • like variables scoped to object lifetime
+│    ◦ like variables scoped to object lifetime
 │  • they get names and values
 
 Objects can have attributes (and in fact, most objects do).
@@ -250,8 +267,8 @@ implemented in Python.
 │ Methods
 │
 │  • functions (procedures) tied to objects
-│  • they can access the object (‹self›)
 │  • «implement» the «behaviour» of the object
+│  • they can access the object (‹self›)
 │  • their signatures (usually) provide the interface
 │  • methods are also objects
 
@@ -453,13 +470,14 @@ of the superclass whenever appropriate.
 │  • saying ‹foo.x› means ‹foo.__dict__["x"]›
 │    ◦ if that fails, ‹type(foo).__dict__["x"]› follows
 │    ◦ then superclasses of ‹type(foo)›, according to MRO
+│  • this is what makes «monkey patching» possible
 
-As mentioned earlier, object attributes behave like dictonaries, and
-in many cases, that's exactly how they are implemented in Python. It
-is possible to interact with this dictionary directly, through the
-(magic) attribute ‹__dict__›. The exceptions are built-in objects
-like ‹int›, ‹str› or ‹list› and slot-based objects (more on those in
-a later lecture).
+As we have seen earlier, object attributes behave like dictionaries,
+and in many cases, that's exactly how they are implemented in
+Python. It is possible to interact with this dictionary directly,
+through the (magic) attribute ‹__dict__›. The exceptions are
+built-in objects like ‹int›, ‹str› or ‹list› and slot-based objects
+(more on those in a later lecture).
 
 On objects with dictionaries, saying ‹foo.x› is interpreted to mean
 ‹foo.__dict__['x']›. If the attribute (or method!) is not in the
@@ -475,9 +493,9 @@ method to the object on the left of the dot.
 It is possible to add new methods and attributes to objects with
 dictionaries at runtime (by simply adding them through the
 ‹__dict__› pseudo-attribute). This is often called ‘monkey
-patching’. This is not possible with objects without dictionaries
-(though methods can still be added to their «classes», which do have
-dictionaries).
+patching’. It is, however, not possible with objects without
+dictionaries (though methods can still be added to their «classes»,
+which do have dictionaries).
 
 │ Writing Classes
 │
@@ -505,7 +523,7 @@ in most other languages.
 
 While Python is object-based to the extreme, unlike some other
 languages (e.g. Java), free-standing functions are allowed, and
-common. Groups of related functions are grouped into modules
+common. Groups of related functions are bundled into modules
 (possibly along with some classes). Unlike in C, there is no single
 global namespace for functions. Like everything else in Python,
 functions are also objects. For instance:
@@ -548,7 +566,9 @@ In Python, there is no special syntax for creating modules: each
 source file can be imported as a module. It is customary that
 modules do not execute any ‘top level’ code (that is, statements
 outside of functions or classes), though this is not enforced in any
-way. There is, however, special syntax for «loading» modules: the
+way.
+
+There is, however, special syntax for «loading» modules: the
 ‹import› keyword. On ‹import foo›, Python will look for a file named
 ‹foo.py›, first in the current directory and if that fails, in the
 standard library (which is located in a system-specific location).

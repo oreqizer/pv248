@@ -1,0 +1,20 @@
+# Python Intro
+
+In the second week, there is one set of 3 related and another set of
+3 standalone exercises. The first set is a mock ‘reimplement a
+legacy system’ story. If something appears to be stupid, blame the
+original authors. They were overworked programmers too, probably
+fresh out of school.
+
+The first set contains:
+
+ 1. ‹ts3_escape.py›
+ 2. ‹ts3_normalize.py› (this one can be submitted)
+ 3. ‹ts3_render.py› [tbd]
+
+The second set contains exercises which make use of the basic
+built-in classes, like ‹dict›, ‹set›, ‹list›, ‹str› and so on:
+
+ • ‹merge.py› (this one can be submitted)
+ • ‹rewrite.py› – fun with rewrite systems
+ • ‹magic.py› – identifying file types

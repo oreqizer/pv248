@@ -20,16 +20,8 @@ use your faculty login and password to get in, and join the channel
 
 │ day │ start │  end  │            person │
 ├┄┄┄┄┄│┄┄┄┄┄┄┄│┄┄┄┄┄┄┄│┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┤
-│ Tue │ 16:00 │ 18:00 │ (Lukáš Korenčik)  │
 │ Tue │ 18:00 │ 20:00 │ Petr Ročkai       │
 │ Thu │ 16:00 │ 18:00 │ Vladimír Štill    │
-│ Fri │ 16:00 │ 18:00 │ Petr Ročkai       │
-
-Please note that the Tuesday 16:00 slot is a backup, in case there
-is too much demand in the three remaining slots. Please only use it
-if you didn't manage to get a word in at other times. It will be
-either cancelled or made permanent after a few weeks, depending on
-traffic in the remaining slots.
 
 The other option is of course the discussion forum in IS, where you
 can ask questions, though this is not nearly as interactive, and the

@@ -1,0 +1,380 @@
+# Memory Management & Builtin Types
+
+│ Memory
+│
+│  • most program «data» is stored in ‘memory’
+│    ◦ an array of byte-«addressable» data storage
+│    ◦ «address space» managed by the OS
+│    ◦ 32 or 64 bit «numbers» as addresses
+│  • typically backed by RAM
+
+Programs primarily consist of two things: code, which drives the
+CPU, and data, which drives the program. Even though data has
+similar influence over the program as the program has over the
+processor, we usually think of data as «passive»: it sits around,
+waiting for the program to do about it. The program goes through
+conditionals and loops and at each turn, a piece of data decides
+which branch to take and whether to terminate the loop or perform
+another iteration. But of course, we are used to think about this in
+terms of the program reading and changing the data.
+
+Both the data and the program is stored in «memory». This memory is,
+from a programmer's viewpoint, a big array of bytes. There might be
+holes in it (indices which you cannot access), but otherwise the
+analogy works quite well.  Importantly, addresses are really just
+indices, that is, numbers.
+
+On the lowest level, most of the memory is the large-capacity
+dynamic random-access memory installed in the computer, though some
+of the bits and pieces are stored in static RAM on the CPU (cache)
+or even in the registers. The hardware, the operating system and the
+compiler (or interpreter) all conspire to hide this, though, and let
+us pretend that the memory is just an array of bytes.
+
+│ Language vs Computer
+│
+│  • programs use «high-level» concepts
+│    ◦ objects, procedures, closures
+│    ◦ values can be passed around
+│  • the computer has a «single array of bytes»
+│    ◦ and a bunch of registers
+
+When we write programs, we use high-level abstractions all the time:
+from simple functions, through objects all the way to lexical
+closures. Let us first consider a very simple procedure, with no
+local variables, no arguments and no return value. You could be
+excused for thinking that it is the most mundane thing imaginable.
+
+However, consider that a procedure like that must be able to
+«return» to its caller, and for that, it needs to remember a return
+address. And this is true for any procedure that is currently
+executing. This gives rise to an «execution stack», one of the most
+ubiquitous structures for organizing memory.
+
+Contrast this with the flat array of bytes that is available at the
+lowest level of a computer. It is quite clear that even the simplest
+programs written in the simplest programming languages need to
+organize this flat memory, and that it is not viable to do this
+manually.
+
+│ Memory Management
+│
+│  • deciding «where» to store «data»
+│  • high-level objects are stored in flat memory
+│    ◦ they have a given (usually fixed) size
+│    ◦ have limited «lifetime»
+
+This is the domain of «memory management». It is an umbrella term
+that covers a wide range of techniques, from very simple to quite
+complicated. The basic job of a memory management subsystem is to
+decide «where» to place «data».
+
+This data could be more or less anything: in case of the execution
+stack we have mentioned earlier, the data is the return addresses
+and the organizational principle is a stack. As procedures are
+called, a new address is pushed on top of the stack, and when it
+returns, an address is popped off. The stack is implemented as a
+single pointer: the address of the top of the stack. Pushing moves
+the address in one direction, while popping moves it in the opposite
+direction. Other than that, the data is stored directly in the flat
+and otherwise unstructured memory. Notably, even an extremely simple
+idea like this gives us very powerful abstraction.
+
+However, when we say «memory management», we usually have something
+a little more sophisticated in mind. We owe the simplicity of the
+stack to the fact that «lifetimes» of procedures are strictly
+nested. That is, the procedure which started executing last will
+always be the first to finish. That means that the data associated
+with that procedure can be forgotten before the data associated with
+its caller. This principle naturally extends to procedures with
+local variables.
+
+│ Memory Management Terminology
+│
+│  • «object»: an entity with an address and size
+│    ◦ can contain «references» to other objects
+│    ◦ «not» the same as language-level object
+│  • lifetime: when is the object valid
+│    ◦ «live»: references exist to the object
+│    ◦ «dead»: the object is unreachable – garbage
+
+Not everything in a program is this simple. Some data needs to be
+available for a long time, while other pieces of data can be thrown
+away almost immediately. Some pieces of data can refer to other
+pieces of data (that is, pointers exist). In the context of memory
+management, such pieces of data are called «objects», which is of
+course somewhat confusing.
+
+These two properties (object lifetime and existence of pointers) are
+the most important aspects of a memory object, and of memory
+management in general. Unsurprisingly, they are also closely
+related. An object is «alive» if anything else that is alive refers
+to it. Additionally, local variables are always alive, since they
+are directly reachable through the ‘stack pointer’ (the address of
+the top of the execution stack).
+
+Objects which are not alive are dead: what happens to those objects
+does not matter for further execution of the program. Since their
+addresses have been forgotten, the program can never look at the
+object again, and the memory it occupies can be safely reclaimed.
+
+│ Memory Management by Type
+│
+│  • «manual»: ‹malloc› and ‹free› in C
+│  • «static automatic»
+│    ◦ e.g. stack variables in C and C++
+│  • «dynamic automatic»
+│    ◦ pioneered by LISP, widely used
+
+There are three basic types of memory management. There is the
+manual memory management provided by the C library through the
+‹malloc› and ‹free› functions. It is called manual because no effort
+is made to track the lifetimes of objects automatically. The
+programmer is fully responsible for ensuring that objects are
+released by calling ‹free› when their lifetime ends.
+
+If ‹free› is called too soon, the program may get very confused when
+it tries to store two different objects in the same place in memory.
+If it is called too late (i.e. never), the program «leaks» memory:
+it will be unable re-use memory which is occupied by dead objects.
+This is wasteful, and can cause the program to crash because it no
+longer has space to store new objects.
+
+Even though it completely ignores lifetimes, the machinery behind
+this ‘manual’ memory management is rather sophisticated. It needs to
+keep track of which pieces of memory are available, and upon request
+(a call to ‹malloc›), it needs to be able to «quickly» locate a
+suitable address. This address must be such that the next N bytes,
+where N was provided as a parameter to ‹malloc›, are currently
+unused. How to do this efficiently is a topic almost worth its own
+course.
+
+In comparison, the «static automatic» approach, which corresponds to
+the execution stack is rather simple, if efficient. It is automatic
+in the sense that the programmer does not need to explicitly deal
+with lifetimes, though in this case, that is achieved because their
+structure is extremely rigid.
+
+Finally, «dynamic automatic» memory management combines the ‘good’
+aspects of both: the lifetimes can be arbitrary and are tracked
+automatically.
+
+│ Automatic Memory Management
+│
+│  • «static» vs «dynamic»
+│    ◦ when do we make decisions about lifetime
+│    ◦ compile time vs run time
+│  • «safe» vs «unsafe»
+│    ◦ can the program read unused memory?
+
+The «static» vs «dynamic» aspect of an automatic memory management
+system governs when the decisions are made about object lifetime. In
+a static system, the lifetime is computed ahead of time, e.g. by the
+compiler. In a dynamic system, such decisions are made at runtime.
+
+Another aspect of memory management is «safety». A program which
+uses safe memory management can never get into a situation when it
+attempts to use the same piece of memory for two different objects.
+There are multiple ways to achieve this, though by far the most
+common is to use a «dynamic automatic» approach to memory
+management, which is naturally safe. This is because memory
+associated with an object is never reclaimed as long as a reference
+(a pointer) to the object exists.
+
+However, other options exist: a program with local variables but no
+pointers is also naturally safe, though its memory use is rather
+restricted. A system with both static lifetimes and with pointers is
+available in e.g. Rust (though the principle is much older, see also
+«linear types»).
+
+│ Object Lifetime
+│
+│  • the time between ‹malloc› and ‹free›
+│  • another view: when is the object «needed»
+│    ◦ often impossible to tell
+│    ◦ can be safely «over-approximated»
+│    ◦ at the expense of «memory leaks»
+
+│ Static Automatic
+│
+│  • usually binds «lifetime» to «lexical scope»
+│  • no passing references up the call stack
+│    ◦ may or may not be enforced
+│  • no «lexical closures»
+│  • examples: C, C++
+
+│ Dynamic Automatic
+│
+│  • over-approximate lifetime «dynamically»
+│  • usually «easiest» for the «programmer»
+│    ◦ until you need to debug a «space leak»
+│  • reference counting, mark & sweep collectors
+│  • examples: Java, almost every dynamic language
+
+│ Reference Counting
+│
+│  • attach a «counter» to each object
+│  • whenever a reference is made, increase
+│  • whenever a reference is lost, decrease
+│  • the object is «dead» when the counter «hits 0»
+│  • fails to reclaim «reference cycles»
+
+│ Mark and Sweep
+│
+│  • start from a «root set» (in-scope variables)
+│  • follow references, «mark» every object encountered
+│  • «sweep»: throw away all unmarked memory
+│  • usually «stops the program» while running
+│  • garbage is retained until the GC runs
+
+│ Memory Management in CPython
+│
+│  • primarily based on «reference counting»
+│  • «optional» mark & sweep collector
+│    ◦ enabled by default
+│    ◦ configure via ‹import gc›
+│    ◦ reclaims cycles
+
+│ Refcounting Advantages
+│
+│  • «simple» to implement in a ‘managed’ language
+│  • reclaims objects «quickly»
+│  • «no need» to «pause» the program
+│  • easily made «concurrent»
+
+│ Refcounting Problems
+│
+│  • significant «memory overhead»
+│  • problems with «cache locality»
+│  • bad performance for data «shared» between «threads»
+│  • fails to reclaim cyclic structures
+
+│ Data Structures
+│
+│  • an abstract description of data
+│  • leaves out low-level details
+│  • makes «writing» programs easier
+│  • makes «reading» programs easier, too
+
+│ Building Data Structures
+│
+│  • there are two kinds of types in python
+│    ◦ «built-in», implemented in C
+│    ◦ «user-defined» (includes libraries)
+│  • both kinds are based on «objects»
+│    ◦ but built-ins only «look» that way
+
+│ Mutability
+│
+│  • some objects can be modified
+│    ◦ we say they are «mutable»
+│    ◦ otherwise, they are «immutable»
+│  • immutability is an «abstraction»
+│    ◦ physical memory is always mutable
+│  • in python, immutability is not ‘recursive’
+
+│ Built-in: ‹int›
+│
+│  • «arbitrary precision» integer
+│    ◦ no «overflows» and other nasty behaviour
+│  • it is an object, i.e. held by «reference»
+│    ◦ uniform with any other kind of object
+│    ◦ immutable
+│  • both of the above make it «slow»
+│    ◦ «machine» integers only in C-based modules
+
+│ Additional Numeric Objects
+│
+│  • ‹bool›: ‹True› or ‹False›
+│    ◦ how much is ‹True + True›?
+│    ◦ is ‹0› true? is empty string?
+│  • ‹numbers.Real›: «floating point» numbers
+│  • ‹numbers.Complex›: a pair of above
+
+│ Built-in: ‹bytes›
+│
+│  • a sequence of bytes (raw data)
+│  • exists for «efficiency» reasons
+│    ◦ in the abstract is just a tuple
+│  • models data as stored in files
+│    ◦ or incoming through a socket
+│    ◦ or as stored in «raw memory»
+
+│ Properties of ‹bytes›
+│
+│  • can be indexed and iterated
+│    ◦ both create objects of type ‹int›
+│    ◦ try this sequence: ‹id(x[1])›, ‹id(x[2])›
+│  • mutable version: ‹bytearray›
+│    ◦ the equivalent of C ‹char› arrays
+
+│ Built-in: ‹str›
+│
+│  • immutable unicode strings
+│    ◦ «not» the same as bytes
+│    ◦ bytes must be «decoded» to obtain ‹str›
+│    ◦ (and ‹str› «encoded» to obtain ‹bytes›)
+│  • represented as utf-8 sequences in CPython
+│    ◦ implemented in ‹PyCompactUnicodeObject›
+
+│ Built-in: ‹tuple›
+│
+│  • an immutable sequence type
+│    ◦ the number of elements is fixed
+│    ◦ so is the type of each element
+│  • «but» elements themselves may be mutable
+│    ◦ ‹x = []› then ‹y = (x, 0)›
+│    ◦ ‹x.append(1)› → ‹y == ([1], 0)›
+│  • implemented as a C array of object references
+
+│ Built-in: ‹list›
+│
+│  • a mutable version of ‹tuple›
+│    ◦ items can be assigned ‹x[3] = 5›
+│    ◦ items can be ‹append›-ed
+│  • implemented as a dynamic array
+│    ◦ many operations are amortised ⟦O(1)⟧
+│    ◦ ‹insert› is ⟦O(n)⟧
+
+│ Built-in: ‹dict›
+│
+│  • implemented as a «hash table»
+│  • some of the most «performance-critical» code
+│    ◦ dictionaries appear «everywhere» in python
+│    ◦ heavily «hand-tuned» C code
+│  • both keys and values are «objects»
+
+│ Hashes and Mutability
+│
+│  • dictionary keys must be «hashable»
+│    ◦ this implies «recursive» immutability
+│  • what would happen if a key is mutated?
+│    ◦ most likely, the «hash» would change
+│    ◦ all hash tables with the key become invalid
+│    ◦ this would be very expensive to fix
+
+│ Built-in: ‹set›
+│
+│  • implements the «math» concept of a «set»
+│  • also a hash table, but with «keys only»
+│    ◦ a separate C implementation
+│  • «mutable» -- items can be added
+│    ◦ but they must be hashable
+│    ◦ hence cannot be changed
+
+│ Built-in: ‹frozenset›
+│
+│  • an immutable version of ‹set›
+│  • always hashable (since all items must be)
+│    ◦ can appear in ‹set› or another ‹frozenset›
+│    ◦ can be used as a key in ‹dict›
+│  • the C implementation is shared with ‹set›
+
+│ Efficient Objects: ‹__slots__›
+│
+│  • fixes the «attribute names» allowed in an object
+│  • saves memory: consider 1-attribute object
+│    ◦ with ‹__dict__›: 56 + 112 bytes
+│    ◦ with ‹__slots__›: 48 bytes
+│  • makes code «faster»: no need to hash anything
+│    ◦ more compact in memory → better cache efficiency
