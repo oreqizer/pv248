@@ -30,14 +30,45 @@
 # converting the database ‘later’.
 
 import copy
+from re import sub
 
 
 class Document:
-    pass
+    prefix = "$document$ "
 
+    def __init__(self, text):
+        if text.startswith(Document.prefix):
+            self.text = text[len(Document.prefix):]
+            return
+
+        self.text = text
+
+    @staticmethod
+    def maybe(text):
+        if text.startswith(Document.prefix):
+            return True
+
+        return False
 
 class Template:
-    pass
+    prefix = "$template$ "
+
+    def __init__(self, text):
+        if text.startswith(Template.prefix):
+            self.text = text[len(Template.prefix):]
+            return
+
+        self.text = text
+
+    @staticmethod
+    def maybe(text):
+        if text.startswith(Template.prefix):
+            return True
+
+        cleared = sub(r"(\${2,}|\#{2,})\{", "", text)
+        if "#{" in cleared or "${" in cleared:
+            return True
+        return False
 
 # Each of the above classes should have an attribute called ‹text›,
 # which is a string and contains only the actual text, without the
@@ -47,8 +78,18 @@ class Template:
 
 
 def ts3_normalize(tree):
-    pass
+    if type(tree) == list:
+        return [ts3_normalize(e) for e in tree]
+    if type(tree) == dict:
+        return {k: ts3_normalize(v) for k, v in tree.items()}
+    if type(tree) == int:
+        return tree
+    if type(tree) == str:
+        if Template.maybe(tree):
+            return Template(tree)
+        return Document(tree)
 
+    return tree
 
 def test_map():
 

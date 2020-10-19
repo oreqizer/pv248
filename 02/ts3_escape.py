@@ -45,98 +45,10 @@ in ${country}. The production uses these rare-earth metals:
 
 
 def ts3_escape(string):
-    dollars = 0
-    res1 = ""
-    for c in string:
-        if c == "$":
-            dollars += 1
-            continue
-    
-        if dollars > 0 and c == "{":
-            res1 += (dollars + 1) * "$" + "{"
-            dollars = 0
-            continue
-
-        if dollars > 0 and c != "{":
-            res1 += dollars * "$" + c
-            dollars = 0
-            continue
-
-        res1 += c
-
-    if dollars > 0:
-        res1 += dollars * "$"
-    
-    hashtags = 0
-    res2 = ""
-    for c in res1:
-        if c == "#":
-            hashtags += 1
-            continue
-    
-        if hashtags > 0 and c == "{":
-            res2 += (hashtags + 1) * "#" + "{"
-            hashtags = 0
-            continue
-
-        if hashtags > 0 and c != "{":
-            res2 += hashtags * "#" + c
-            hashtags = 0
-            continue
-    
-        res2 += c
-
-    if hashtags > 0:
-        res2 += hashtags * "#"
-
-    return res2
+    return string.replace("#{", "##{").replace("${", "$${")
 
 def ts3_unescape(string):
-    dollars = 0
-    res1 = ""
-    for c in string:
-        if c == "$":
-            dollars += 1
-            continue
-
-        if dollars >= 2 and c == "{":
-            res1 += (dollars - 1) * "$" + "{"
-            dollars = 0
-            continue
-
-        if dollars > 0 and c != "{":
-            res1 += dollars * "$" + c
-            dollars = 0
-            continue
-
-        res1 += c
-
-    if dollars > 0:
-        res1 += dollars * "$"
-
-    hashtags = 0
-    res2 = ""
-    for c in res1:
-        if c == "#":
-            hashtags += 1
-            continue
-
-        if hashtags >= 2 and c == "{":
-            res2 += (hashtags - 1) * "#" + "{"
-            hashtags = 0
-            continue
-
-        if hashtags > 0 and c != "{":
-            res2 += hashtags * "#" + c
-            hashtags = 0
-            continue
-
-        res2 += c
-
-    if hashtags > 0:
-        res2 += hashtags * "#"
-
-    return res2
+    return string.replace("##{", "#{").replace("$${", "${")
 
 def test_main():
 
