@@ -22,7 +22,7 @@
 template_1 = '''The product ‘${product}’ is made by ${manufacturer}
 in ${country}. The production uses these rare-earth metals:
 #{ingredients.rare_earth_metals} and these toxic substances:
-#{ingredients.toxic}.''';
+#{ingredients.toxic}.'''
 
 # The system does not treat ‹$› and ‹#› specially, unless they are
 # followed by a left brace. This is a rare combination, but it turns
@@ -43,47 +43,136 @@ in ${country}. The production uses these rare-earth metals:
 # such string could not have been returned from ‹ts3_escape›.
 # Once you are done, continue to ‹ts3_normalize.py›.
 
-def ts3_escape( string ):
-    pass
 
-def ts3_unescape( string ):
-    pass
+def ts3_escape(string):
+    dollars = 0
+    res1 = ""
+    for c in string:
+        if c == "$":
+            dollars += 1
+            continue
+    
+        if dollars > 0 and c == "{":
+            res1 += (dollars + 1) * "$" + "{"
+            dollars = 0
+            continue
 
+        if dollars > 0 and c != "{":
+            res1 += dollars * "$" + c
+            dollars = 0
+            continue
 
+        res1 += c
+
+    if dollars > 0:
+        res1 += dollars * "$"
+    
+    hashtags = 0
+    res2 = ""
+    for c in res1:
+        if c == "#":
+            hashtags += 1
+            continue
+    
+        if hashtags > 0 and c == "{":
+            res2 += (hashtags + 1) * "#" + "{"
+            hashtags = 0
+            continue
+
+        if hashtags > 0 and c != "{":
+            res2 += hashtags * "#" + c
+            hashtags = 0
+            continue
+    
+        res2 += c
+
+    if hashtags > 0:
+        res2 += hashtags * "#"
+
+    return res2
+
+def ts3_unescape(string):
+    dollars = 0
+    res1 = ""
+    for c in string:
+        if c == "$":
+            dollars += 1
+            continue
+
+        if dollars >= 2 and c == "{":
+            res1 += (dollars - 1) * "$" + "{"
+            dollars = 0
+            continue
+
+        if dollars > 0 and c != "{":
+            res1 += dollars * "$" + c
+            dollars = 0
+            continue
+
+        res1 += c
+
+    if dollars > 0:
+        res1 += dollars * "$"
+
+    hashtags = 0
+    res2 = ""
+    for c in res1:
+        if c == "#":
+            hashtags += 1
+            continue
+
+        if hashtags >= 2 and c == "{":
+            res2 += (hashtags - 1) * "#" + "{"
+            hashtags = 0
+            continue
+
+        if hashtags > 0 and c != "{":
+            res2 += hashtags * "#" + c
+            hashtags = 0
+            continue
+
+        res2 += c
+
+    if hashtags > 0:
+        res2 += hashtags * "#"
+
+    return res2
 
 def test_main():
 
     pairs = [
-        ( "", "" ),
-        ( "aa", "aa" ),
-        ( "$", "$" ),
-        ( "{", "{" ),
-        ( "${", "$${" ),
-        ( "$${", "$$${" ),
-        ( "$$ {", "$$ {" ),
-        ( "${$", "$${$" ),
-        ( "$$${", "$$$${" ),
-        ( "ab${ nabc$$${{tsk$$$${asd${${}}}aa$a{",
-          "ab$${ nabc$$$${{tsk$$$$${asd$${$${}}}aa$a{" ),
+        ("", ""),
+        ("aa", "aa"),
+        ("$", "$"),
+        ("{", "{"),
+        ("${", "$${"),
+        ("$${", "$$${"),
+        ("$$ {", "$$ {"),
+        ("${$", "$${$"),
+        ("$$${", "$$$${"),
+        ("ab${ nabc$$${{tsk$$$${asd${${}}}aa$a{",
+         "ab$${ nabc$$$${{tsk$$$$${asd$${$${}}}aa$a{"),
 
-        ( "#", "#" ),
-        ( "#{", "##{" ),
-        ( "#{{", "##{{" ),
-        ( "####{", "#####{" ),
-        ( "#}{", "#}{" ),
-        ( "$#{", "$##{" ),
-        ( "#${", "#$${" ),
+        ("#", "#"),
+        ("#{", "##{"),
+        ("#{{", "##{{"),
+        ("####{", "#####{"),
+        ("#}{", "#}{"),
+        ("$#{", "$##{"),
+        ("#${", "#$${"),
 
-        ( "$#{}${##}##{$}%${##${$$${{${", 
-          "$##{}$${##}###{$}%$${##$${$$$${{$${" )
+        ("$#{}${##}##{$}%${##${$$${{${",
+         "$##{}$${##}###{$}%$${##$${$$$${{$${")
     ]
 
     for unescaped, escaped in pairs:
-        err = "ts3_escape( '{}' ) did not match '{}'".format( unescaped, escaped )
-        assert ts3_escape( unescaped ) == escaped, err
-        err = "ts3_unescape( '{}' ) did not match '{}'".format( escaped, unescaped )
-        assert ts3_unescape( escaped ) == unescaped, err
+        err = "ts3_escape( '{}' ) did not match '{}'".format(
+            unescaped, escaped)
+        assert ts3_escape(unescaped) == escaped, err
+        err = "ts3_unescape( '{}' ) did not match '{}'".format(
+            escaped, unescaped)
+        assert ts3_unescape(escaped) == unescaped, err
+
 
 if __name__ == "__main__":
     test_main()
-
