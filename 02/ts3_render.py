@@ -47,6 +47,9 @@
 # path, e.g. ${abc${d}}, throw an error (but see also bonus 2
 # below).
 
+from ts3_normalize import ts3_normalize
+
+
 def ts3_render(tree):
     pass
 
@@ -78,61 +81,62 @@ def ts3_render(tree):
 # leads to a document with text ".outside.2", the outer path is
 # "path.outside.2".
 
-from ts3_normalize import ts3_normalize
 
-def assert_throws( *args, **kwargs ):
+def assert_throws(*args, **kwargs):
 
     ex = kwargs['ex']
     f = kwargs['f']
 
     try:
-        f( *args )
-        raise AssertionError( "expected " + str( ex ) + " to be thrown" )
+        f(*args)
+        raise AssertionError("expected " + str(ex) + " to be thrown")
     except ex:
         return
+
 
 def test_scalar_individual():
 
     template = "Here is input: ${input}"
 
     # Document
-    t = { '$template': template, 'input': "blahblah" }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: blahblah"
+    t = {'$template': template, 'input': "blahblah"}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: blahblah"
 
     # Document with '${'
-    t = { '$template': template, 'input': "$document$ blah ${t}" }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: blah ${t}"
+    t = {'$template': template, 'input': "$document$ blah ${t}"}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: blah ${t}"
 
     # list
-    t = { '$template': template, 'input': [1,2,3] }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: 3"
+    t = {'$template': template, 'input': [1, 2, 3]}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: 3"
 
     # dict (.default)
-    t = { '$template': template, 'input': { 'a': 7, 'default': "abc}" } }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: abc}"
+    t = {'$template': template, 'input': {'a': 7, 'default': "abc}"}}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: abc}"
 
     # int
-    t = { '$template': template, 'input': -22 }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: -22"
+    t = {'$template': template, 'input': -22}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: -22"
 
     # Template
-    t = { '$template': template, 'input': "would need ${more.input}",
-          'more': { 'input': "hello", 'output': "bye" } }
-    assert ts3_render( ts3_normalize( t ) ) == "Here is input: would need hello"
+    t = {'$template': template, 'input': "would need ${more.input}",
+         'more': {'input': "hello", 'output': "bye"}}
+    assert ts3_render(ts3_normalize(t)) == "Here is input: would need hello"
 
 
 def test_composite_individual():
 
     # list
     template = "List: #{items} and a dog."
-    t = { '$template': template, 'items': ['carrot', 'cat', 'potato'] }
-    assert ts3_render( ts3_normalize( t ) ) == "List: carrot, cat, potato and a dog."
+    t = {'$template': template, 'items': ['carrot', 'cat', 'potato']}
+    assert ts3_render(ts3_normalize(
+        t)) == "List: carrot, cat, potato and a dog."
 
     # dict, sort(!)
-    t = { '$template': template, 'items': { 'c': 'foo', 'a': 7,
-                                            'd': "$template$ ${foo}", 't': -1, },
-          'foo': [ '1' ] }
-    assert ts3_render( ts3_normalize( t ) ) == "List: 7, foo, 1, -1 and a dog."
+    t = {'$template': template, 'items': {'c': 'foo', 'a': 7,
+                                          'd': "$template$ ${foo}", 't': -1, },
+         'foo': ['1']}
+    assert ts3_render(ts3_normalize(t)) == "List: 7, foo, 1, -1 and a dog."
 
 
 def test_template():
@@ -140,20 +144,20 @@ def test_template():
     template = "Print ${name.idea} and ${name.group.3.people}.."
 
     # encountering list in path resolution means an index
-    t = { '$template': template,
-          'name': { 'idea': 'fireflies', 'group': [ 0, 1, 2, { 'people': [ 'Bernard', 'Ann' ] } ] } }
-    assert ts3_render( ts3_normalize( t ) ) == "Print fireflies and 2.."
+    t = {'$template': template,
+         'name': {'idea': 'fireflies', 'group': [0, 1, 2, {'people': ['Bernard', 'Ann']}]}}
+    assert ts3_render(ts3_normalize(t)) == "Print fireflies and 2.."
 
 
 def test_complex():
 
-    template = "${header}: show me ${person.name} and ${person.age} of #{persons} but not $${ppl}" 
-    t = { '$template': template, 'header': "automatic", 'person': { 'name': "Villa", 'age': 17 },
-          'persons': ['Villa', 'Serrat'] }
+    template = "${header}: show me ${person.name} and ${person.age} of #{persons} but not $${ppl}"
+    t = {'$template': template, 'header': "automatic", 'person': {'name': "Villa", 'age': 17},
+         'persons': ['Villa', 'Serrat']}
     t_orig = t.copy()
     res = "automatic: show me Villa and 17 of Villa, Serrat but not $${ppl}"
 
-    assert ts3_render( ts3_normalize( t ) ) == res
+    assert ts3_render(ts3_normalize(t)) == res
     assert t == t_orig
 
 
@@ -161,38 +165,41 @@ def test_composite():
 
     # composite within composite
     template = "Fields: #{fields}!#}"
-    t = { '$template': template, 'fields': [ 'CS', 'Law', '$template$ Others: #{others}' ],
-          'others': { 'field2': 'Art', 'field3': 'Archery', 'field1': '$document$ Plants' } }
+    t = {'$template': template, 'fields': ['CS', 'Law', '$template$ Others: #{others}'],
+         'others': {'field2': 'Art', 'field3': 'Archery', 'field1': '$document$ Plants'}}
 
-    assert ts3_render( ts3_normalize( t ) ) == "Fields: CS, Law, Others: Plants, Art, Archery!#}"
+    assert ts3_render(ts3_normalize(
+        t)) == "Fields: CS, Law, Others: Plants, Art, Archery!#}"
+
 
 def test_errors():
 
     # dict meets a number in the path
-    t = { '$template': "${path.0}", 'path': { 'foo': 2 } }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "${path.0}", 'path': {'foo': 2}}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
     # list meets a string in the path
-    t = { '$template': "${path.a}", 'path': ['a'] }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "${path.a}", 'path': ['a']}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
     # dict end of scalar, no 'default' key
-    t = { '$template': "a ${path}", 'path': { 'not-default': 1 } }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "a ${path}", 'path': {'not-default': 1}}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
     # composite meets int/Template/Document
-    t = { '$template': "#{comp}", 'comp': 7 }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "#{comp}", 'comp': 7}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
-    t = { '$template': "#{comp}", 'comp': "$doc" }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "#{comp}", 'comp': "$doc"}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
-    t = { '$template': "#{comp}", 'comp': "$template$ foo" }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "#{comp}", 'comp': "$template$ foo"}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
 
     # nested templates
-    t = { '$template': "#{ab${t}c}", 'ab': "wrong" }
-    assert_throws( ts3_normalize( t ), ex=RuntimeError, f=ts3_render )
+    t = {'$template': "#{ab${t}c}", 'ab': "wrong"}
+    assert_throws(ts3_normalize(t), ex=RuntimeError, f=ts3_render)
+
 
 def test_main():
 
@@ -203,6 +210,6 @@ def test_main():
     test_composite()
     test_errors()
 
+
 if __name__ == "__main__":
     test_main()
-
