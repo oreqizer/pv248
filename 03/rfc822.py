@@ -16,24 +16,34 @@
 # after the colon. In this iteration, assume that each header is
 # unique.
 
-def parse_rfc822( filename ):
-    pass
+def parse_rfc822(filename):
+    text = open(filename).read()
+    res = {}
+    for line in text.split("\n"):
+        split = line.split(": ")
+        if len(split) < 2:
+            continue
+
+        key, val = split
+        res[key] = val
+    return res
 
 # When done, go on to ‹multi822.py›.
 
 # ----%<----
 
+
 def test_main():
 
-    res = parse_rfc822( "rfc822.txt" )
-    assert len( res ) == 3
-    for k in [ "From", "To", "Subject" ]:
+    res = parse_rfc822("rfc822.txt")
+    assert len(res) == 3
+    for k in ["From", "To", "Subject"]:
         assert k in res
 
-    assert res[ "From" ] == "Petr Ročkai <xrockai@fi.muni.cz>"
-    assert res[ "To" ] == "Random X. Student <xstudent@fi.muni.cz>"
-    assert res[ "Subject" ] == "PV248"
+    assert res["From"] == "Petr Ročkai <xrockai@fi.muni.cz>"
+    assert res["To"] == "Random X. Student <xstudent@fi.muni.cz>"
+    assert res["Subject"] == "PV248"
+
 
 if __name__ == "__main__":
     test_main()
-

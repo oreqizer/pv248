@@ -9,21 +9,29 @@
 
 # Hint: check out the ‹enumerate› built-in.
 
-def grep( regex, filename ):
-    pass
+import sys
+from re import search
+from io import StringIO
+
+
+def grep(regex, filename):
+    text = open(filename).read()
+    for i, line in enumerate(text.split("\n")):
+        if search(regex, line):
+            print("{i}: {line}".format(i=i+1, line=line))
 
 # ----%<----
 
-import sys
-from io import StringIO
 
 def test_1():
-    grep( "empty", "grep1.txt" )
+    grep("empty", "grep1.txt")
+
 
 def test_2():
-    grep( "p[p|t]", "grep1.txt" )
+    grep("p[p|t]", "grep1.txt")
 
-def redirect_out( test ):
+
+def redirect_out(test):
 
     stdout = sys.stdout
     out = StringIO()
@@ -34,16 +42,18 @@ def redirect_out( test ):
     sys.stdout = stdout
     return out.getvalue()
 
+
 def test_main():
 
-    output = redirect_out( test_1 )
+    output = redirect_out(test_1)
     assert output == "4: be nonempty.\n" \
                      "6: Has some empty lines, too.\n"
-
-    output = redirect_out( test_2 )
+                     
+    output = redirect_out(test_2)
     assert output == "3: is not very long and appears to\n" \
                      "4: be nonempty.\n" \
                      "6: Has some empty lines, too.\n"
+
 
 
 # Change the code below to only run ‹test_main› if an argument
