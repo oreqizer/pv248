@@ -4,26 +4,43 @@
 # times, turn the value into a list. The right-hand-side strings
 # should be listed in the order of appearance.
 
-def parse_multirfc822( filename ):
-    pass
+def parse_multirfc822(filename):
+    text = open(filename).read()
+    res = {}
+    for line in text.split("\n"):
+        split = line.split(": ")
+        if len(split) < 2:
+            continue
+
+        key, val = split
+        if key not in res:
+            res[key] = val
+            continue
+
+        if type(res[key]) == str:
+            res[key] = [res[key]]
+
+        res[key].append(val)
+    return res
 
 
 # ----%<----
 
 def test_main():
 
-    res = parse_multirfc822( "multi822.txt" )
-    assert len( res ) == 4
-    for k in [ "From", "To", "Subject", "Cc" ]:
+    res = parse_multirfc822("multi822.txt")
+    assert len(res) == 4
+    for k in ["From", "To", "Subject", "Cc"]:
         assert k in res
 
-    assert res[ "From" ] == "Petr Ročkai <xrockai@fi.muni.cz>"
-    assert res[ "To" ] == [ "Random X. Student <xstudent@fi.muni.cz>",
-                            "Random Y. <y@fi.muni.cz>",
-                            "Random Z. <z@fi.muni.cz>" ]
-    assert res[ "Cc" ] == [ "Non-Random Z. Student <nz@fi.muni.cz>",
-                            "Non-Random W. Teacher <w@fi.muni.cz>" ]
-    assert res[ "Subject" ] == "PV248"
+    assert res["From"] == "Petr Ročkai <xrockai@fi.muni.cz>"
+    assert res["To"] == ["Random X. Student <xstudent@fi.muni.cz>",
+                         "Random Y. <y@fi.muni.cz>",
+                         "Random Z. <z@fi.muni.cz>"]
+    assert res["Cc"] == ["Non-Random Z. Student <nz@fi.muni.cz>",
+                         "Non-Random W. Teacher <w@fi.muni.cz>"]
+    assert res["Subject"] == "PV248"
+
 
 if __name__ == "__main__":
     test_main()
