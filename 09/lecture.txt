@@ -1,0 +1,171 @@
+# Python Pitfalls
+
+│ Mixing Languages
+│
+│  • for many people, Python is not a «first language»
+│  • some things «look similar» in Python and Java (C++, ...)
+│    ◦ sometimes they do the «same» thing
+│    ◦ sometimes they do something «very different»
+│    ◦ sometimes the difference is «subtle»
+
+│ Python vs Java: Decorators
+│
+│  • Java has a thing called «annotations»
+│  • looks very much like a Python decorator
+│  • in Python, decorators can drastically «change meaning»
+│  • in Java, they are just «passive metadata»
+│    ◦ other code can use them for meta-programming though
+
+│ Class Body Variables
+│
+│     class Foo: # python
+│       some_attr = 42
+│
+│  • in Java/C++, this is how you create «instance» variables
+│  • in Python, this creates «class attributes»
+│    ◦ i.e. what C++/Java would call «static» attributes
+
+│ Very Late Errors
+│
+│     if a == 2: # python
+│         priiiint("a is not 2")
+│
+│  • «no error» when «loading» this into python
+│  • it even works as long as ‹a != 2›
+│  • most languages would tell you much earlier
+
+│ Very Late Errors (cont'd)
+│
+│     try: # python
+│         foo()
+│     except TyyyypeError:
+│         print("my mistake")
+│
+│  • does not even complain when running the code
+│  • you only notice when ‹foo()› raises an exception
+
+│ Late Imports
+│
+│     if a == 2: # python
+│         import foo
+│         foo.say_hello()
+│
+│  • unless ‹a == 2›, ‹mymod› is not loaded
+│  • any «syntax» errors don't show up until ‹a == 2›
+│    ◦ it may even «fail to exist»
+
+│ Block Scope
+│
+│     for i in range(10): pass # python
+│     print(i) # not a NameError
+│
+│  • in Python, local variables are «function-scoped»
+│  • in other languages, ‹i› is confined to the loop
+
+│ Assignment Pitfalls
+│
+│     x = [ 1, 2 ] # python
+│     y = x
+│     x.append( 3 )
+│     print( y ) # prints [ 1, 2, 3 ]
+│
+│  • in Python, everything is a «reference»
+│  • assignment does «not» make copies
+
+│ Equality of Iterables
+│
+│  • ‹[0, 1] == [0, 1]› → ‹True› (obviously)
+│  • ‹range(2) == range(2)› → ‹True›
+│  • ‹list(range(2)) == [0, 1]› → ‹True›
+│  • ‹[0, 1] == range(2)› → ‹False›
+
+│ Equality of ‹bool›
+│
+│  • ‹if 0: print( "yes" )› → nothing
+│  • ‹if 1: print( "yes" )› → yes
+│  • ‹False == 0› → ‹True›
+│  • ‹True == 1› → ‹True›
+│  • ‹0 is False› → ‹False›
+│  • ‹1 is True› → ‹False›
+
+│ Equality of ‹bool› (cont'd)
+│
+│  • ‹if 2: print( "yes" )› → yes
+│  • ‹True == 2› → ‹False›
+│  • ‹False == 2› → ‹False›
+│
+│  • ‹if '': print( "yes" )› → nothing
+│  • ‹if 'x': print( "yes" )› → yes
+│  • ‹'' == False› → ‹False›
+│  • ‹'x' == True› → ‹False›
+
+│ Mutable Default Arguments
+│
+│     def foo( x = [] ): # python
+│         x.append( 7 )
+│         return x
+│     foo() # [ 7 ]
+│     foo() # [ 7, 7 ]... wait, what?
+
+│ Late Lexical Capture
+│
+│     f = [ lambda x : i * x for i in range( 5 ) ] # python
+│     f[ 4 ]( 3 ) # 12
+│     f[ 0 ]( 3 ) # 12 ... ?!
+│
+│     g = [ lambda x, i = i: i * x for i in range( 5 ) ] # python
+│     g[ 4 ]( 3 ) # 12
+│     g[ 0 ]( 3 ) # 0 ... fml
+│
+│     h = [ ( lambda x : i * x )( 3 ) for i in range( 5 ) ] # python
+│     h # [ 0, 3, 6, 12 ] ... i kid you not
+
+│ Dictionary Iteration Order
+│
+│  • in python <= 3.6
+│    ◦ small dictionaries iterate in insertion order
+│    ◦ big dictionaries iterate in ‘random’ order
+│  • in python 3.7
+│    ◦ all in insertion order, but not documented
+│  • in python >= 3.8
+│    ◦ guaranteed to iterate in insertion order
+
+│ List Multiplication
+│
+│     x = [ [ 1 ] * 2 ] * 3 # python
+│     print( x ) # [ [ 1, 1 ], [ 1, 1 ], [ 1, 1 ] ]
+│     x[ 0 ][ 0 ] = 2
+│     print( x ) # [ [ 2, 1 ], [ 2, 1 ], [ 2, 1 ] ]
+
+│ Forgotten Await
+│
+│     import asyncio # python
+│     async def foo():
+│         print( "hello" )
+│     async def main():
+│         foo()
+│     asyncio.run( main() )
+│
+│ • gives warning ‹coroutine 'foo' was never awaited›
+
+│ Python vs Java: Closures
+│
+│  • captured variables are ‹final› in Java
+│  • but they are mutable in Python
+│    ◦ and of course captured «by reference»
+│  • they are whatever you tell them to be in C++
+
+│ Explicit ‹super()›
+│
+│  • Java and C++ automatically call «parent constructors»
+│  • Python does «not»
+│  • you have to call them yourself
+
+│ Setters and Getters
+│
+│     obj.attr # python
+│     obj.attr = 4
+│
+│  • in C++ or Java, this is an assignment
+│  • in Python, it can run «arbitrary code»
+│    ◦ this often makes getters/setters redundant

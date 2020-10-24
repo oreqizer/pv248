@@ -1,0 +1,250 @@
+# Testing, Profiling
+
+│ Why Testing
+│
+│  • reading programs is hard
+│  • reasoning about programs is even harder
+│  • testing is comparatively easy
+│
+│  • difference between an example and a proof
+
+│ What is Testing
+│
+│  • based on «trial runs»
+│  • the program is «executed» with some «inputs»
+│  • the «outputs» or outcomes are «checked»
+│  • almost always «incomplete»
+
+│ Testing Levels
+│
+│  • «unit» testing
+│    ◦ individual classes
+│    ◦ individual functions
+│  • «functional»
+│    ◦ system
+│    ◦ integration
+
+│ Testing Automation
+│
+│  • «manual» testing
+│    ◦ still widely used
+│    ◦ requires human
+│  • semi-automated
+│    ◦ requires human assistance
+│  • fully «automated»
+│    ◦ can run unattended
+
+│ Testing Insight
+│
+│  • what does the test or tester know?
+│  • «black» box: «nothing» known about «internals»
+│  • «gray» box: limited knowledge
+│  • «white» box: ‘complete’ knowledge
+
+│ Why Unit Testing?
+│
+│  • allows testing «small pieces» of code
+│  • the unit is likely to be «used» in «other code»
+│    ◦ make sure your code works «before» you use it
+│    ◦ the «less code», the «easier» it is to debug
+│  • especially easier to hit all the «corner cases»
+
+│ Unit Tests with ‹unittest›
+│
+│  • ‹from unittest import TestCase›
+│  • derive your test class from ‹TestCase›
+│  • put test code into methods named ‹test_*›
+│  • run with ‹python -m unittest program.py›
+│    ◦ add ‹-v› for more verbose output
+
+│     from unittest import TestCase # python
+│
+│     class TestArith(TestCase): # python
+│         def test_add(self):
+│             self.assertEqual(1, 4 - 3)
+│         def test_leq(self):
+│             self.assertTrue(3 <= 2 * 3)
+
+│ Unit Tests with ‹pytest›
+│
+│  • a more pythonic alternative to ‹unittest›
+│    ◦ ‹unittest› is derived from JUnit
+│  • «easier to use» and less boilerplate
+│  • you can use native python ‹assert›
+│  • easier to run, too
+│    ◦ just run ‹pytest› in your source repository
+
+│ Test Auto-Discovery in ‹pytest›
+│
+│  • ‹pytest› finds your testcases for you
+│    ◦ no need to register anything
+│  • put your tests in ‹test_«.py› or ‹»_test.py›
+│  • name your testcases (functions) ‹test_*›
+
+│ Fixtures in ‹pytest›
+│
+│  • sometimes you need the same thing in many testcases
+│  • in ‹unittest›, you have the test class
+│  • ‹pytest› passes fixtures as parameters
+│    ◦ fixtures are created by a decorator
+│    ◦ they are matched based on their names
+
+│     import pytest # python
+│     import smtplib
+│
+│     @pytest.fixture # python
+│     def smtp_connection():
+│         return smtplib.SMTP("smtp.gmail.com", 587)
+│
+│     def test_ehlo(smtp_connection): # python
+│         response, msg = smtp_connection.ehlo()
+│         assert response == 250
+
+│ Property Testing
+│
+│  • writing «test inputs» is tedious
+│  • sometimes, we can «generate» them instead
+│  • useful for general properties like
+│    ◦ idempotency (e.g. serialize + deserialize)
+│    ◦ invariants (output is sorted, ...)
+│    ◦ code does not cause «exceptions»
+
+│ Using ‹hypothesis›
+│
+│  • property-based testing for Python
+│  • has «strategies» to generate «basic data» types
+│    ◦ ‹int›, ‹str›, ‹dict›, ‹list›, ‹set›, ...
+│  • «compose» built-in generators to get custom types
+│  • integrated with ‹pytest›
+
+│     import hypothesis # python
+│     import hypothesis.strategies as s
+│
+│     @hypothesis.given(s.lists(s.integers())) # python
+│     def test_sorted(x):
+│         assert sorted(x) == x # should fail
+│
+│     @hypothesis.given(x=s.integers(), y=s.integers()) # python
+│     def test_cancel(x, y):
+│         assert (x + y) - y == x # looks okay
+
+│ Going Quick and Dirty
+│
+│  • goal: minimize «time spent» on testing
+│  • manual testing usually loses
+│    ◦ but it has almost 0 initial investment
+│  • if you can write a test in 5 minutes, do it
+│  • useful for testing small scripts
+
+│ Shell 101
+│
+│  • shell scripts are very easy to write
+│  • they are ideal for testing «IO behaviour»
+│  • easily check for exit status: ‹set -e›
+│  • see what is going on: ‹set -x›
+│  • use ‹diff -u› to check expected vs actual output
+
+│ Shell Test Example
+│
+│     set -ex # shell
+│     python script.py < test1.in | tee out
+│     diff -u test1.out out
+│     python script.py < test2.in | tee out
+│     diff -u test2.out out
+
+│ Continuous Integration
+│
+│  • automated tests need to be «executed»
+│  • with many tests, this gets «tedious» to do by hand
+│  • CI builds and «tests» your project «regularly»
+│    ◦ every time you «push» some commits
+│    ◦ every night (e.g. more extensive tests)
+
+│ CI: Travis
+│
+│  • runs in the cloud (CI as a service)
+│  • trivially integrates with ‹pytest›
+│  • ‹virtualenv› out of the box for python projects
+│  • integrated with github
+│  • configure in ‹.travis.yml› in your repo
+
+│ CI: GitLab
+│
+│  • GitLab has its own CI solution (similar to travis)
+│  • also available at FI
+│  • «runs tests» when you push to your gitlab
+│  • drop a ‹.gitlab-ci.yml› in your repository
+│  • automatic deployment into heroku &c.
+
+│ CI: Buildbot
+│
+│  • written in python/twisted
+│    ◦ basically a «framework» to build a custom CI tool
+│  • «self-hosted» and somewhat «complicated» to set up
+│    ◦ more suited for «complex projects»
+│    ◦ much more flexible than most CI tools
+│  • «distributed» design
+
+│ CI: Jenkins
+│
+│  • another «self-hosted» solution, this time in «Java»
+│    ◦ «widely used» and well supported
+│  • native support for python projects (including ‹pytest›)
+│    ◦ provides a dashboard with test result graphs &c.
+│    ◦ supports publishing sphinx-generated documentation
+
+│ Print-based Debugging
+│
+│  • no need to be ashamed, everybody does it
+│  • less painful in «interpreted» languages
+│  • you can also use «decorators» for «tracing»
+│  • never forget to «clean» your program up again
+
+│     def debug(e): # python
+│         f = sys._getframe(1)
+│         v = eval(e, f.f_globals, f.f_locals)
+│         l = f.f_code.co_filename + ':'
+│         l += str(f.f_lineno) + ':'
+│         print(l, e, '=', repr(v), file=sys.stderr)
+│         
+│     x = 1
+│     debug('x + 1')
+
+│ The Python Debugger
+│
+│  • run as ‹python -m pdb program.py›
+│  • there's a built-in ‹help› command
+│  • ‹next› steps through the program
+│  • ‹break› to set a breakpoint
+│  • ‹cont› to run until end or a breakpoint
+
+│ What is Profiling
+│
+│  • measurement of «resource consumption»
+│  • «essential» info for «optimising» programs
+│  • answers questions about «bottlenecks»
+│    ◦ where is my program spending most time?
+│    ◦ less often: how is memory used in the program
+
+│ Why Profiling
+│
+│  • ‘blind’ optimisation is often «misdirected»
+│    ◦ it is like fixing bugs without triggering them
+│    ◦ program performance is hard to reason about
+│  • tells you «exactly» which point is too slow
+│    ◦ allows for «best speedup» with «least work»
+
+│ Profiling in Python
+│
+│  • provided as a «library», ‹cProfile›
+│    ◦ alternative: ‹profile› is slower, but more flexible
+│  • run as ‹python -m cProfile program.py›
+│  • outputs a list of lines/functions and their cost
+│  • use ‹cProfile.run()› to profile a single expression
+
+│     # python -m cProfile -s time fib.py
+│     
+│      ncalls  tottime  percall file:line(function)
+│     13638/2    0.032    0.016 fib.py:1(fib_rec)
+│           2    0.000    0.000 {builtins.print}
+│           2    0.000    0.000 fib.py:5(fib_mem)

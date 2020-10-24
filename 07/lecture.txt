@@ -1,0 +1,231 @@
+# Communication & HTTP with ‹asyncio›
+
+│ Running Programs (the old way)
+│
+│  • ‹os.system› is about the simplest
+│    ◦ also somewhat dangerous -- shell injection
+│    ◦ you only get the exit code
+│  • ‹os.popen› allows you to read output of a program
+│    ◦ alternatively, you can send input to the program
+│    ◦ you can't do both (would likely deadlock anyway)
+│    ◦ runs the command through a shell, same as ‹os.system›
+
+│ Low-level Process API
+│
+│  • POSIX-inherited interfaces (on POSIX systems)
+│  • ‹os.exec›: replace the current process
+│  • ‹os.fork›: split the current process in two
+│  • ‹os.forkpty›: same but with a PTY
+
+│ Detour: ‹bytes› vs ‹str›
+│
+│  • strings (class ‹str›) represent «text»
+│    ◦ that is, a sequence of unicode points
+│  • files and network connections handle «data»
+│    ◦ represented in Python as ‹bytes›
+│  • the ‹bytes› constructor can convert from ‹str›
+│    ◦ e.g. ‹b = bytes("hello", "utf8")›
+
+│ Running Programs (the new way)
+│
+│  • you can use the ‹subprocess› module
+│  • ‹subprocess› can handle bidirectional IO
+│    ◦ it also takes care of avoiding IO deadlocks
+│    ◦ set ‹input› to feed data to the subprocess
+│  • internally, ‹run› uses a ‹Popen› object
+│    ◦ if ‹run› can't do it, ‹Popen› probably can
+
+│ Getting ‹subprocess› Output
+│
+│  • available via ‹run› since «Python 3.7»
+│  • the ‹run› function returns a ‹CompletedProcess›
+│  • it has attributes ‹stdout› and ‹stderr›
+│  • both are ‹bytes› (byte sequences) by default
+│  • or ‹str› if ‹text› or ‹encoding› were set
+│  • available if you enabled ‹capture_output›
+
+│ Running Filters with ‹Popen›
+│
+│  • if you are stuck with 3.6, use ‹Popen› directly
+│  • set ‹stdin› in the constructor to ‹PIPE›
+│  • use the ‹communicate› method to send the input
+│  • this gives you the outputs (as ‹bytes›)
+
+│     import subprocess # python
+│     from subprocess import PIPE
+│     input = bytes( "x\na\nb\ny", "utf8")
+│     p = subprocess.Popen(["sort"], stdin=PIPE,
+│                          stdout=PIPE)
+│     out = p.communicate(input=input)
+│     # out[0] is the stdout, out[1] is None
+
+│ Subprocesses with ‹asyncio›
+│
+│  • ‹import asyncio.subprocess›
+│  • ‹create_subprocess_exec›, like ‹subprocess.run›
+│    ◦ but it returns a ‹Process› instance
+│    ◦ ‹Process› has a ‹communicate› async method
+│  • can run things in background (via tasks)
+│    ◦ also multiple processes at once
+
+│ Protocol-based ‹asyncio› subprocesses
+│
+│  • let ‹loop› be an implementation of the ‹asyncio› event loop
+│  • there's ‹subprocess_exec› and ‹subprocess_shell›
+│    ◦ sets up pipes by default
+│  • integrates into the asyncio «transport» layer (see later)
+│  • allows you to obtain the data piece-wise
+│  • https://docs.python.org/3/library/asyncio-protocol.html
+
+│ Sockets
+│
+│  • the socket API comes from early BSD Unix
+│  • socket represents a (possible) «network connection»
+│  • sockets are more complicated than normal files
+│    ◦ establishing connections is hard
+│    ◦ messages get lost much more often than file data
+
+│ Socket Types
+│
+│  • sockets can be «internet» or «unix domain»
+│    ◦ internet sockets connect to other computers
+│    ◦ Unix sockets live in the filesystem
+│  • sockets can be «stream» or «datagram»
+│    ◦ stream sockets are like files (TCP)
+│    ◦ you can write a continuous «stream» of data
+│    ◦ datagram sockets can send individual «messages» (UDP)
+
+│ Sockets in Python
+│
+│  • the ‹socket› module is available on all major OSes
+│  • it has a nice object-oriented API
+│    ◦ failures are propagated as exceptions
+│    ◦ buffer management is automatic
+│  • useful if you need to do low-level networking
+│    ◦ hard to use in non-blocking mode
+
+│ Sockets and ‹asyncio›
+│
+│  • ‹asyncio› provides ‹sock_*› to work with ‹socket› objects
+│  • this makes work with non-blocking sockets a lot easier
+│  • but your program needs to be written in ‹async› style
+│  • only use sockets when there is no other choice
+│    ◦ ‹asyncio› protocols are both faster and easier to use
+
+│ Hyper-Text Transfer Protocol
+│
+│  • originally a «simple» text-based, «stateless» protocol
+│  • however
+│    ◦ SSL/TLS, cryptography (https)
+│    ◦ pipelining (somewhat stateful)
+│    ◦ cookies (somewhat stateful in a different way)
+│  • typically between «client» and a «front-end» server
+│  • but also as a «back-end» protocol (web server to app server)
+
+│ Request Anatomy
+│
+│  • request «type» (see below)
+│  • «header» (text-based, like e-mail)
+│  • content
+│
+│ Request Types
+│
+│  • ‹GET› -- asks the server to send a resource
+│  • ‹HEAD› -- like ‹GET› but only send back headers
+│  • ‹POST› -- send data to the server
+
+│ Python and HTTP
+│
+│  • both «client» and «server» functionality
+│    ◦ ‹import http.client›
+│    ◦ ‹import http.server›
+│  • «TLS/SSL» wrappers are also available
+│    ◦ ‹import ssl›
+│  • «synchronous» by default
+
+│ Serving Requests
+│
+│  • derive from ‹BaseHTTPRequestHandler›
+│  • implement a ‹do_GET› method
+│  • this gets called whenever the client does a ‹GET›
+│  • also available: ‹do_HEAD›, ‹do_POST›, etc.
+│  • pass the «class» (not an instance) to ‹HTTPServer›
+
+│ Serving Requests (cont'd)
+│
+│  • ‹HTTPServer› creates a new instance of your ‹Handler›
+│  • the ‹BaseHTTPRequestHandler› machinery runs
+│  • it calls your ‹do_GET› etc. method
+│  • request data is available in instance variables
+│    ◦ ‹self.path›, ‹self.headers›
+
+│ Talking to the Client
+│
+│  • HTTP responses start with a «response code»
+│    ◦ ‹self.send_response( 200, 'OK' )›
+│  • the headers follow (set at least ‹Content-Type›)
+│    ◦ ‹self.send_header( 'Connection', 'close' )›
+│  • headers and the content need to be separated
+│    ◦ ‹self.end_headers()›
+│  • finally, send the content by writing to ‹self.wfile›
+
+│ Sending Content
+│
+│  • ‹self.wfile› is an open file
+│  • it has a ‹write()› method which you can use
+│  • sockets only accept byte sequences, not ‹str›
+│  • use the ‹bytes( string, encoding )› constructor
+│    ◦ match the encoding to your ‹Content-Type›
+
+│ HTTP and ‹asyncio›
+│
+│  • the base ‹asyncio› currently doesn't directly support HTTP
+│  • «but»: you can get ‹aiohttp› from PyPI
+│  • contains a very nice web server
+│    ◦ ‹from aiohttp import web›
+│    ◦ minimum boilerplate, fully ‹asyncio›-ready
+
+│ Aside: The Python Package Index
+│
+│  • colloquially known as PyPI (or cheese shop)
+│    ◦ do not confuse with PyPy (Python in almost-Python)
+│  • both source packages and binaries
+│    ◦ the latter known as «wheels» (PEP 427, 491)
+│    ◦ previously python «eggs»
+│  • <https://pypi.python.org>
+
+│ SSL and TLS
+│
+│  • you want to use the ‹ssl› module for handling HTTPS
+│    ◦ this is especially true server-side
+│    ◦ ‹aiohttp› and ‹http.server› are compatible
+│  • you need to deal with certificates (loading, checking)
+│  • this is a rather important but complex topic
+
+│ Certificate Basics
+│
+│  • certificate is a cryptographically signed statement
+│    ◦ it ties a server to a certain public key
+│    ◦ the client ensures the server knows the private key
+│  • the server loads the certificate and its private key
+│  • the client must «validate» the certificate
+│    ◦ this is typically a lot harder to get right
+
+│ SSL in Python
+│
+│  • start with ‹import ssl›
+│  • almost everything happens in the ‹SSLContext› class
+│  • get an instance from ‹ssl.create_default_context()›
+│    ◦ you can use ‹wrap_socket› to run an SSL handshake
+│    ◦ you can pass the context to ‹aiohttp› 
+│  • if ‹httpd› is a ‹http.server.HTTPServer›:
+│
+│     httpd.socket = ssl.wrap_socket( httpd.socket, ... ) # python
+
+│ HTTP Clients
+│
+│  • there's a very basic ‹http.client›
+│  • for a more complete library, use ‹urllib.request›
+│  • ‹aiohttp› has client functionality
+│  • all of the above can be used with ‹ssl›
+│  • another 3rd party module: Python Requests

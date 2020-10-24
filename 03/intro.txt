@@ -1,0 +1,12 @@
+# Text, JSON
+
+The first set of exercises is general text processing, while the
+second deals with more structured data (JSON and a bit of CSV).
+
+ 1. ‹grep.py›
+ 2. ‹rfc822.py›
+ 3. ‹multi822.py› – submit for 0.5 points
+
+ 4. ‹report.py› (needs report.json)
+ 5. ‹elements.py› (needs elements.csv) – submit for 0.5 points
+ 6. ‹flatten.py›

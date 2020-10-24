@@ -1,0 +1,171 @@
+# Low-level ‹asyncio›
+
+│ IO at the OS Level
+│
+│  • often defaults to «blocking»
+│    ◦ ‹read› returns when data is available
+│    ◦ this is usually OK for files
+│  • but what about network code?
+│    ◦ could work for a client
+
+│ Threads and IO
+│
+│  • there may be work to do while waiting
+│    ◦ waiting for IO can be wasteful
+│  • only the calling (OS) thread is blocked
+│    ◦ another thread may do the work
+│    ◦ «but» multiple green threads may be blocked
+
+│ Non-Blocking IO
+│
+│  • the program calls ‹read›
+│    ◦ ‹read› returns immediately
+│    ◦ even if there was no data
+│  • but how do we know when to ‹read›?
+│    ◦ we could «poll»
+│    ◦ for example call ‹read› every 30ms
+
+│ Polling
+│
+│  • trade-off between latency and throughput
+│    ◦ sometimes, polling is okay
+│    ◦ but is often too inefficient
+│  • alternative: IO dispatch
+│    ◦ useful when multiple IOs are pending
+│    ◦ wait only if «all» are blocked
+
+│ ‹select›
+│
+│  • takes a list of file descriptors
+│  • block until one of them is «ready»
+│    ◦ next ‹read› will return data immediately
+│  • can optionally specify a timeout
+│  • only useful for OS-level resources
+
+│ Alternatives to ‹select›
+│
+│  • ‹select› is a rather old interface
+│  • there is a number of more modern variants
+│  • ‹poll› and ‹epoll› system calls
+│    ◦ despite the name, they do not poll
+│    ◦ ‹epoll› is more scalable
+│  • ‹kqueue› and ‹kevent› on BSD systems
+
+│ Synchronous vs Asynchronous
+│
+│  • the ‹select› family is synchronous
+│    ◦ you call the function
+│    ◦ it may wait some time
+│    ◦ you proceed when it returns
+│  • OS threads are fully asynchronous
+
+│ The Thorny Issue of Disks
+│
+│  • a file is always ‘ready’ for reading
+│  • this may still take time to complete
+│  • there is no good solution on UNIX
+│  • POSIX AIO exists but is sparsely supported
+│  • OS threads are an option
+
+│ IO on Windows
+│
+│  • ‹select› is possible (but slow)
+│  • Windows provides real asynchronous IO
+│    ◦ quite different from UNIX
+│    ◦ the IO operation is directly issued
+│    ◦ but the function returns immediately
+│  • comes with a notification queue
+
+│ The ‹asyncio› Event Loop
+│
+│  • uses the ‹select› family of syscalls
+│  • why is it called «async» IO?
+│    ◦ ‹select› is synchronous in principle
+│    ◦ this is an implementation detail
+│    ◦ the IOs are asynchronous to each other
+
+│ How Does It Work
+│
+│  • you must use ‹asyncio› functions for IO
+│  • an «async» read does not issue an OS ‹read›
+│  • it yields back into the event loop
+│  • the «fd» is put on the ‹select› list
+│  • the coroutine is resumed when the fd is ready
+
+│ Timers
+│
+│  • ‹asyncio› allows you to set timers
+│  • the event loop keeps a list of those
+│  • and uses that to set the ‹select› timeout
+│    ◦ just uses the nearest timer expiry
+│  • when a timer expires, its owner is resumed
+
+│ Blocking IO vs ‹asyncio›
+│
+│  • all user code runs on the main thread
+│  • you «must not» call any blocking IO functions
+│  • doing so will stall the entire application
+│    ◦ in a server, clients will time out
+│    ◦ even if not, latency will suffer
+
+│ DNS
+│
+│  • POSIX: ‹getaddrinfo› and ‹getnameinfo›
+│    ◦ also the older API ‹gethostbyname›
+│  • those are all blocking functions
+│    ◦ and they can take a while
+│    ◦ but name resolution is essential
+│  • ‹asyncio› internally uses OS threads for DNS
+
+│ Signals
+│
+│  • signals on UNIX are «very» asynchronous
+│  • interact with OS threads in a messy way
+│  • ‹asyncio› hides all this using C code
+
+│ Native Coroutines (Reminder)
+│
+│  • delared using ‹async def›
+│
+│     async def foo(): # python
+│         await asyncio.sleep( 1 )
+│
+│  • calling ‹foo()› returns a suspended coroutine
+│  • which you can ‹await›
+│    ◦ or turn it into an ‹asyncio.Task›
+
+│ Tasks
+│
+│  • ‹asyncio.Task› is a nice wrapper around coroutines
+│    ◦ create with ‹asyncio.create_task()›
+│  • can be stopped prematurely using ‹cancel()›
+│  • has an API for asking things:
+│    ◦ ‹done()› tells you if the coroutine has finished
+│    ◦ ‹result()› gives you the result
+
+│
+│ Tasks and Exceptions
+│
+│  • what if a coroutine raises an exception?
+│  • calling ‹result› will re-raise it
+│    ◦ i.e. it continues propagating from ‹result()›
+│  • you can also ask directly using ‹exception()›
+│    ◦ returns ‹None› if the coroutine ended normally
+
+│ Asynchronous Context Managers
+│
+│  • normally, we use ‹with› for resource acquisition 
+│    ◦ this internally uses the context manager protocol
+│  • but sometimes you need to wait for a resource
+│    ◦ ‹__enter__()› is a subroutine and would block
+│    ◦ this won't work in «async»-enabled code
+│  • we need ‹__enter__()› to be itself a coroutine
+
+│ ‹async with›
+│
+│  • just like ‹wait› but uses ‹__aenter__()›, ‹__aexit__()›
+│    ◦ those are ‹async def›
+│  • the ‹async with› behaves like an ‹await›
+│    ◦ it will suspend if the context manager does
+│    ◦ the coroutine which owns the resource can continue
+│  • mainly used for locks and semaphores

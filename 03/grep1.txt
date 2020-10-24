@@ -1,0 +1,7 @@
+In this file we shall search for
+matches to the grep exercise; it
+is not very long and appears to
+be nonempty.
+
+Has some empty lines, too.
+

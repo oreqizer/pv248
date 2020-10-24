@@ -1,0 +1,399 @@
+# Text, JSON and XML
+
+This lecture is the first part of a two-lecture block on persistent
+storage. This week, we will first briefly look at working with
+files, and then proceed to talk about text files specifically.
+
+│ Transient Data
+│
+│  • lives in «program memory»
+│  • data structures, objects
+│  • interpreter state
+│  • often «implicit» manipulation
+│  • more on this next week
+
+│ Persistent Data
+│
+│  • (structured) text or binary «files»
+│  • relational (SQL) «databases»
+│  • object and ‘flat’ databases (NoSQL)
+│  • manipulated «explicitly»
+
+│ Persistent Storage
+│
+│  • ‘local’ «file system»
+│    ◦ stored on HDD, SSD, ...
+│    ◦ stored somwhere in a local network
+│  • ‘remote’, using an «application-level» protocol
+│    ◦ local or remote databases
+│    ◦ cloud storage &c.
+
+│ Reading Files
+│
+│  • opening files: ‹open('file.txt', 'r')›
+│  • files can be «iterated»
+│
+│     f = open( 'file.txt', 'r' ) # python
+│     for line in f:
+│         print( line )
+
+│ Resource Acquisition
+│
+│  • plain ‹open› is prone to «resource leaks»
+│    ◦ what happens during an «exception»?
+│    ◦ holding a file open is not free
+│  • pythonic solution: ‹with› blocks
+│    ◦ defined in PEP 343
+│    ◦ binds «resources» to «scopes»
+
+│ Detour²: PEP
+│
+│  • PEP stands for Python Enhancement Proposal
+│  • akin to RFC documents managed by IETF
+│  • initially «formalise» future «changes» to Python
+│    ◦ later serve as documentation for the same
+│  • <https://www.python.org/dev/peps/>
+
+│ Using ‹with›
+│
+│     with open('/etc/passwd', 'r') as f: # python
+│         for line in f:
+│             do_stuff( line )
+│
+│  • still safe if ‹do_stuff› raises an exception
+
+│ Finalizers
+│
+│  • there is a ‹__del__› method
+│  • but it is «not guaranteed» to run
+│    ◦ it may run arbitrarily late
+│    ◦ or never
+│  • not very good for resource management
+
+│ Context Managers
+│
+│  • ‹with› has an associated «protocol»
+│  • you can use ‹with› on any «context manager»
+│  • which is an object with ‹__enter__› and ‹__exit__›
+│  • you can create your own
+
+## Text and Unicode
+
+We will now turn our attention to text and its representation in a
+computer.
+
+│ Representing Text
+│
+│  • ASCII: one «byte» = one «character»
+│    ◦ total of 127 different characters
+│    ◦ not very universal
+│  • 8-bit encodings: 255 characters
+│  • multi-byte encodings for non-Latin scripts
+
+Representation of text in the computer used to be a relatively
+simple affair while it was English-only and one byte was one
+character. Things are not so simple anymore. Even with 8-bit
+character sets, the available alphabet is extremely limited, and
+can't even cover latin-based European languages. This led to huge
+amount of fragmentation and at the height of it, essentially each
+region had its own character encoding. Some of them had 2 or 3.
+Non-latin alphabets like Chinese or Japanese had no hope of fitting
+into single-byte encodings and have always used multiple bytes to
+encode a single character.
+
+│ Unicode
+│
+│  • one character encoding to rule them all
+│  • supports all extant «scripts» and writing systems
+│    ◦ and a whole bunch of dead scripts, too
+│  • approx. 143000 «code points»
+│  • collation, segmentation, comparison, ...
+
+A «universal» character encoding, with roots in the late 80s and
+early 90s. Of course, adoption was not immediate, though most
+computer systems nowadays use Unicode for representing and
+processing text. Nonetheless, you can still encounter software which
+will default to legacy 8-bit encodings, or even outright fall apart
+on Unicode text.
+
+Pretty much all extant scripts and languages are covered by recent
+revisions of Unicode. Besides character encoding, Unicode defines
+many other aspects of text processing and rendering. Sorting
+(collation) of strings is a huge, complicated topic unto itself.
+Likewise, segmentation – finding boundaries of graphemes and words –
+is a complex area covered by Unicode. Even seemingly simple matters
+like string equality are, in fact, quite hard.
+
+│ Code Point
+│
+│  • basic unit of «encoding» characters
+│  • letters, punctuation, symbols
+│  • «combining» diacritical marks
+│  • «not» the same thing as a character
+│  • code points range from 1 to 10FFFF
+
+│ Unicode Encodings
+│
+│  • deals with representing «code points»
+│  • UCS = Universal Coded Character Set
+│    ◦ «fixed-length» encoding
+│    ◦ two variants: UCS-2 (16 bit) and UCS-4 (32 bit)
+│  • UTF = Unicode Transformation Format
+│    ◦ «variable-length» encoding
+│    ◦ variants: UTF-8, UTF-16 and UTF-32
+
+│ Grapheme
+│
+│  • technically ‘extended grapheme cluster’
+│  • a «logical» character, as expected by users
+│    ◦ encoded using 1 «or more» code points
+│  • multiple encodings of the same grapheme
+│    ◦ e.g. composed vs decomposed
+│    ◦ ‹U+0041 U+0300› vs ‹U+0C00›: «À» vs «À»
+
+│ Segmentation
+│
+│  • «breaking text» into smaller units
+│    ◦ graphemes, words and sentences
+│  • algorithms defined by the «unicode spec»
+│    ◦ Unicode Standard Annex #29
+│    ◦ «graphemes» and «words» are quite reliable
+│    ◦ sentences not so much (too much ambiguity)
+
+│ Normal Form
+│
+│  • Unicode defines 4 «canonical» (normal) forms
+│    ◦ NFC, NFD, NFKC, NFKD
+│    ◦ NFC = Normal Form Composed
+│    ◦ NFD = Normal Form Decomposed
+│  • K variants = looser, lossy conversion
+│  • all normalization is «idempotent»
+│  • NFC does «not» give you 1 «code point» per «grapheme»
+
+│ ‹str› vs ‹bytes›
+│
+│  • iterating ‹bytes› gives individual bytes
+│    ◦ indexing is fast -- fixed-size elements
+│  • iterating ‹str› gives «code points»
+│    ◦ slightly slower, because it uses UTF-8
+│    ◦ does «not» iterate over graphemes
+│  • going back and forth: ‹str.encode›, ‹bytes.decode›
+
+│ Python vs Unicode
+│
+│  • no native support for unicode segmentation
+│    ◦ hence no «grapheme iteration» or «word splitting»
+│  • convert everything into NFC and hope for the best
+│    ◦ ‹unicodedata.normalize()›
+│    ◦ will sometimes break (we'll discuss regexes in a bit)
+│    ◦ most people don't bother
+│    ◦ correctness is overrated → worse is better
+
+│ Regular Expressions
+│
+│  • compiling: ‹r = re.compile( r"key: (.*)" )›
+│  • matching: ‹m = r.match( "key: some value" )›
+│  • extracting captures: ‹print( m.group( 1 ) )›
+│    ◦ prints ‹some value›
+│  • substitutions: ‹s2 = re.sub( r"\s*$", '', s1 )›
+│    ◦ strips all trailing whitespace in ‹s1›
+
+│ Detour: Raw String Literals
+│
+│  • the ‹r› in ‹r"..."› stands for «raw» (not «regex»)
+│  • normally, ‹\› is magical in strings
+│    ◦ but ‹\› is also magical in regexes
+│    ◦ nobody wants to write ‹\\s› &c.
+│    ◦ not to mention ‹\\\\› to match a literal ‹\›
+│  • not super useful outside of regexes
+
+│ Detour²: Other Literal Types
+│
+│  • byte strings: ‹b"abc"› → ‹bytes›
+│  • «formatted» string literals: ‹f"x {y}"›
+│
+│     x = 12 # python
+│     print( f"x = {x}" )
+│
+│  • triple-quote literals: ‹"""xy"""›
+
+│ Regular Expressions vs Unicode
+│
+│     import re # python
+│     s = "\u0041\u0300" # À
+│     t = "\u00c0"       # À
+│     print( s, t )
+│     print( re.match( "..", s ), re.match( "..", t ) )
+│     print( re.match( "\w+$", s ), re.match( "\w+$", t ) )
+│     print( re.match( "À", s ), re.match( "À", t ) )
+
+│ Regexes and Normal Forms
+│
+│  • «some» of the problems can be fixed by NFC
+│    ◦ some «go away» completely (literal unicode matching)
+│    ◦ some become «rarer» (the ".." and "\w" problems)
+│  • «most» text in the wild is already in NFC
+│    ◦ but not all of it
+│    ◦ case in point: filenames on macOS (NFD)
+
+│ Decomposing Strings
+│
+│  • recall that ‹str› is «immutable»
+│  • splitting: ‹str.split(':')›
+│    ◦ ‹None› = split on any whitespace
+│  • split on «first» delimiter: ‹partition›
+│  • better whitespace stripping: ‹s2 = s1.strip()›
+│    ◦ also ‹lstrip()› and ‹rstrip()›
+
+│ Searching and Matching
+│
+│  • ‹startswith› and ‹endswith›
+│    ◦ often convenient shortcuts
+│  • ‹find› = ‹index›
+│    ◦ generic substring search
+
+│ Building Strings
+│
+│  • format literals and ‹str.format›
+│  • ‹str.replace› -- substring search and replace
+│  • ‹str.join› -- turn lists of strings into a string
+
+## Structured Text
+
+│ JSON
+│
+│  • «structured», text-based data format
+│  • «atoms»: integers, strings, booleans
+│  • «objects» (dictionaries), «arrays» (lists)
+│  • widely used around the web &c.
+│  • «simple» (compared to XML or YAML)
+
+│ JSON: Example
+│
+│     { # python
+│         "composer": [ "Bach, Johann Sebastian" ],
+│         "key": "g",
+│         "voices": {
+│             "1": "oboe",
+│             "2": "bassoon"
+│         }
+│     }
+
+│ JSON: Writing
+│
+│  • printing JSON «seems» straightforward enough
+│  • «but»: double quotes in strings
+│  • strings must be properly ‹\›-escaped during output
+│  • also pesky commas
+│  • keeping track of «indentation» for human readability
+│  • better use an «existing library»: `import json`
+
+│ JSON in Python
+│
+│  • ‹json.dumps› = short for «dump to string»
+│  • «python» ‹dict›/‹list›/‹str›/... data comes «in»
+│  • a string with valid «JSON» comes «out»
+│
+│ Workflow
+│
+│  • just convert everything to ‹dict› and ‹list›
+│  • run ‹json.dumps› or ‹json.dump( data, file )›
+
+│ Python Example
+│
+│     d = {} # python
+│     d["composer"] = ["Bach, Johann Sebastian"]
+│     d["key"] = "g"
+│     d["voices"] = { 1: "oboe", 2: "bassoon" }
+│     json.dump( d, sys.stdout, indent=4 )
+│
+│ Beware: «keys» are always «strings» in JSON
+
+│ Parsing JSON
+│
+│  • ‹import json›
+│  • ‹json.load› is the counterpart to ‹json.dump› from above
+│    ◦ de-serialise data from an open file
+│    ◦ builds lists, dictionaries, etc.
+│  • ‹json.loads› corresponds to ‹json.dumps›
+
+│ XML
+│
+│  • meant as a «lightweight» and «consistent» redesign of SGML
+│    ◦ turned into a «very complex» format
+│  • heaps of invalid XML floating around
+│    ◦ parsing real-world XML is a nightmare
+│    ◦ even valid XML is pretty challenging
+
+│ XML: Example
+│
+│     <Order OrderDate="1999-10-20">
+│       <Address Type="Shipping">
+│         <Name>Ellen Adams</Name>
+│         <Street>123 Maple Street</Street>
+│       </Address>
+│       <Item PartNumber="872-AA">
+│         <ProductName>Lawnmower</ProductName>
+│         <Quantity>1</Quantity>
+│       </Item>
+│     </Order>
+
+│ XML: Another Example
+│
+│     <BLOKY_OBSAH>
+│       <STUDENT>
+│         <OBSAH>25 bodů</OBSAH>
+│         <UCO>72873</UCO>
+│         <ZMENENO>20160111104208</ZMENENO>
+│         <ZMENIL>395879</ZMENIL>
+│       </STUDENT>
+│     </BLOKY_OBSAH>
+
+│ XML Features
+│
+│  • offers «extensible», rich «structure»
+│    ◦ tags, attributes, entities
+│    ◦ suited for «structured hierarchical» data
+│  • schemas: use XML to describe XML
+│    ◦ allows general-purpose «validators»
+│    ◦ «self-documenting» to a degree
+
+│ XML vs JSON
+│
+│  • both work best with «trees»
+│  • JSON has basically «no features»
+│    ◦ basic data structures and that's it
+│  • JSON data is «ad-hoc» and usually undocumented
+│    ◦ but: this often happens with XML anyway
+
+│ XML Parsers
+│
+│  • «DOM» = Document Object Model
+│  • «SAX» = Simple API for XML
+│  • «expat» = fast SAX-like parser (but not SAX)
+│  • «ElementTree» = DOM-like but more pythonic
+
+│ XML: DOM
+│
+│  • read the «entire» XML «document» into memory
+│  • exposes the «AST» (Abstract Syntax Tree)
+│  • allows things like XPath and CSS selectors
+│  • the API is somewhat «clumsy» in Python
+
+│ XML: SAX
+│
+│  • «event-driven» XML parsing
+│  • much «more efficient» than DOM
+│    ◦ but often harder to use
+│  • only useful in Python for huge XML files
+│    ◦ otherwise just use ElementTree
+
+│ XML: ElementTree
+│
+│     for child in root: # python
+│         print child.tag, child.attrib
+│
+│     # Order { OrderDate: "1999-10-20" }
+│
+│  • supports «tree walking», XPath
+│  • supports «serialization» too

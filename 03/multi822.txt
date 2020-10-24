@@ -1,0 +1,7 @@
+From: Petr Ročkai <xrockai@fi.muni.cz>
+To: Random X. Student <xstudent@fi.muni.cz>
+To: Random Y. <y@fi.muni.cz>
+To: Random Z. <z@fi.muni.cz>
+Cc: Non-Random Z. Student <nz@fi.muni.cz>
+Cc: Non-Random W. Teacher <w@fi.muni.cz>
+Subject: PV248

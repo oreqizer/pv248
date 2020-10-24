@@ -1,0 +1,142 @@
+# Databases, SQL
+
+│ NoSQL / Non-relational Databases
+│
+│  • umbrella term for a number of approaches
+│    ◦ flat «key/value» and «column» stores
+│    ◦ «document» and «graph» stores
+│  • no or minimal «schemas»
+│  • non-standard query languages
+
+│ Key-Value Stores
+│
+│  • usually «very fast» and very simple
+│  • completely «unstructured» values
+│  • keys are often database-global
+│    ◦ workaround: prefixes for namespacing
+│    ◦ or: multiple databases
+
+│ NoSQL & Python
+│
+│  • ‹redis› (‹redis-py›) module (Redis is Key-Value)
+│  • ‹memcached› (another Key-Value store)
+│  • ‹PyMongo› for talking to MongoDB (document-oriented)
+│  • ‹CouchDB› (another document-oriented store)
+│  • ‹neo4j› or ‹cayley› (module ‹pyley›) for graph structures
+
+│ SQL and RDBMS
+│
+│  • SQL = «Structured» Query Language
+│  • RDBMS = Relational DataBase Management System
+│  • SQL is to NoSQL what XML is to JSON
+│  • heavily used and «extremely» reliable
+
+│ SQL: Example
+│
+│     select name, grade from student;
+│     select name from student where grade < 'C';
+│     insert into student ( name, grade ) values
+│                         ( 'Random X. Student', 'C' );
+│     select * from student
+│         join enrollment on student.id = enrollment.student
+│         join group on group.id = enrollment.group;
+
+│ SQL: Relational Data
+│
+│  • JSON and XML are «hierarchical»
+│    ◦ or built from «functions» if you like
+│  • SQL is relational
+│    ◦ relations = generalized functions
+│    ◦ can capture «more structure»
+│    ◦ much harder to efficiently process
+
+│ SQL: Data Definition
+│
+│  • «mandatory», unlike XML or JSON
+│  • gives the data a rather «rigid structure»
+│  • tables (relations) and columns (attributes)
+│  • «static data types» for columns
+│  • additional «consistency constraints»
+
+│ SQL: Constraints
+│
+│  • help ensure consistency of the data
+│  • «foreign keys»: referential integrity
+│    ◦ ensures there are no dangling references
+│    ◦ «but»: does not prevent accidental misuse
+│  • «unique» constraints
+│  • «check» constraints: arbitrary consistency checks
+
+│ SQL: Query Planning
+│
+│  • an RDBMS makes heavy use of «indexing»
+│    ◦ using «B trees», «hashes» and similar techniques
+│    ◦ indices are used «automatically»
+│  • all the heavy lifting is done by the backend
+│    ◦ highly-optimized, low-level code
+│    ◦ efficient handling of large data
+
+│ SQL: Reliability and Flexibility
+│
+│  • most RDBMS give «ACID» guarantees
+│    ◦ transparently solves a lot of problems
+│    ◦ basically impossible with normal files
+│  • support for «schema alterations»
+│    ◦ ‹alter table› and similar
+│    ◦ nearly impossible in ad-hoc systems
+
+│ SQLite
+│
+│  • «lightweight» in-process «SQL» engine
+│  • the entire database is in a «single file»
+│  • convenient python module, ‹sqlite3›
+│  • stepping stone for a “real” database
+
+│ Other Databases
+│
+│  • you can talk to most SQL DBs using python
+│  • postgresql (‹psycopg2›, ...)
+│  • mysql / mariadb (‹mysql-python›, ‹mysql-connector›, ...)
+│  • big & expensive: Oracle (‹cx_oracle›), DB2 (‹pyDB2›)
+│  • most of those are much more reliable than SQLite
+
+│ SQL Injection
+│
+│     sql = "SELECT * FROM t WHERE name = '" + n + '"' # python
+│
+│  • the above code is «bad», «never» do it
+│  • consider the following
+│  
+│     n = "x'; drop table students --" # python
+│     n = "x'; insert into passwd (user, pass) ..." 
+
+│ Avoiding SQL Injection
+│
+│  • use proper SQL-building APIs
+│    ◦ this takes care of «escaping» internally
+│  • templates like ‹insert ... values (?, ?)›
+│    ◦ the ‹?› get «safely» substituted by the module
+│    ◦ e.g. the ‹execute› method of a cursor
+
+│ PEP 249
+│
+│  • «informational» PEP, for library writers
+│  • describes how database modules should behave
+│    ◦ ideally, all SQL modules have the «same interface»
+│    ◦ makes it easy to swap a database backend
+│  • «but»: SQL itself is not 100% portable
+
+│ SQL Pitfalls
+│
+│  • ‹sqlite› does not enforce all constraints
+│    ◦ you need to ‹pragma foreign_keys = on›
+│  • no «portable» syntax for autoincrement keys
+│  • not all (column) types are supported everywhere
+│  • no «portable» way to get the key of last insert
+
+│  More Resources & Stuff to Look Up
+│
+│  • SQL: ‹https://www.w3schools.com/sql/›
+│  • ‹https://docs.python.org/3/library/sqlite3.html›
+│  • Object-Relational Mapping
+│  • SQLAlchemy: constructing portable SQL

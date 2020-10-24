@@ -1,0 +1,257 @@
+# Operators, Iterators and Exceptions
+
+│ Callable Objects
+│
+│  • user-defined «functions» (module-level ‹def›)
+│  • user-defined «methods» (instance and class)
+│  • built-in functions and methods
+│  • «class» objects
+│  • objects with a ‹__call__› method
+
+│ User-defined Functions
+│
+│  • come about from a module-level ‹def›
+│  • metadata: ‹__doc__›, ‹__name__›, ‹__module__›
+│  • scope: ‹__globals__›, ‹__closure__›
+│  • arguments: ‹__defaults__›, ‹__kwdefaults__›
+│  • type annotations: ‹__annotations__›
+│  • the code itself: ‹__code__›
+
+│ Positional and Keyword Arguments
+│
+│  • user-defined functions have «positional» arguments
+│  • and keyword arguments
+│    ◦ ‹print("hello", file=sys.stderr)›
+│    ◦ arguments are passed by name
+│    ◦ which style is used is «up to the caller»
+│  • variadic functions: ‹def foo(*args, **kwargs)›
+│    ◦ ‹args› is a ‹tuple› of unmatched positional args
+│    ◦ ‹kwargs› is a ‹dict› of unmatched keyword args
+
+│ Lambdas
+│
+│  • ‹def› functions must have a name
+│  • lambdas provide anonymous functions
+│  • the body must be an «expression»
+│  • syntax: ‹lambda x: print("hello", x)›
+│  • standard user-defined functions otherwise
+
+│ Instance Methods
+│
+│  • comes about as ‹object.method›
+│    ◦ ‹print(x.foo)› → ‹<bound method Foo.foo of ...>›
+│  • combines the class, instance and function itself
+│  • ‹__func__› is a user-defined function object
+│  • let ‹bar = x.foo›, then
+│    ◦ ‹x.foo()› → ‹bar.__func__(bar.__self__)›
+
+│ Iterators
+│
+│  • objects with ‹__next__› (since 3.x)
+│    ◦ iteration ends on ‹raise StopIteration›
+│  • iterable objects provide ‹__iter__›
+│    ◦ sometimes, this is just ‹return self›
+│    ◦ any ‹iterable› can appear in ‹for x in iterable›
+
+│     class FooIter: # python
+│         def __init__(self):
+│             self.x = 10
+│         def __iter__(self): return self
+│         def __next__(self):
+│             if self.x:
+│                 self.x -= 1
+│             else:
+│                 raise StopIteration
+│             return self.x
+
+│ Generators (PEP 255)
+│
+│  • written as a normal function or method
+│  • they use ‹yield› to generate a sequence
+│  • represented as special callable objects
+│    ◦ exist at the C level in CPython
+│
+│     def foo(*lst): # python
+│         for i in lst: yield i + 1
+│     list(foo(1, 2)) # prints [2, 3]
+
+│ ‹yield from›
+│
+│  • calling a generator produces a «generator object»
+│  • how do we call one generator from another?
+│  • same as ‹for x in foo(): yield x›
+│
+│     def bar(*lst): # python
+│         yield from foo(*lst)
+│         yield from foo(*lst)
+│     list(bar(1, 2)) # prints [2, 3, 2, 3]
+
+│ Decorators
+│  
+│  • written as ‹@decor› before a function definition
+│  • ‹decor› is a regular function (‹def decor(f)›)
+│    ◦ ‹f› is bound to the «decorated function»
+│    ◦ the «decorated function» becomes the result of ‹decor›
+│  • classes can be decorated too
+│  • you can ‘create’ decorators at runtime
+│    ◦ ‹@mkdecor("moo")› (‹mkdecor› returns the decorator)
+│    ◦ you can stack decorators
+
+│     def decor(f): # python
+│         return lambda: print("bar")
+│     def mkdecor(s):
+│         return lambda g: lambda: print(s)
+│     
+│     @decor
+│     def foo(f): print("foo")
+│     @mkdecor("moo")
+│     def moo(f): print("foo")
+│     
+│     # foo() prints "bar", moo() prints "moo"
+
+│ List Comprehension
+│
+│  • a concise way to build lists
+│  • combines a ‹filter› and a ‹map›
+│
+│     [ 2 * x for x in range(10) ] # python
+│     [ x for x in range(10) if x % 2 == 1 ]
+│     [ 2 * x for x in range(10) if x % 2 == 1 ]
+│     [ (x, y) for x in range(3) for y in range(2) ]
+
+│ Operators
+│
+│  • operators are (mostly) syntactic sugar
+│  • ‹x < y› rewrites to ‹x.__lt__(y)›
+│  • ‹is› and ‹is not› are special
+│    ◦ are the operands «the same object»?
+│    ◦ also the ternary (conditional) operator
+
+│ Non-Operator Builtins
+│
+│  • ‹len(x)› → ‹x.__len__()› (length)
+│  • ‹abs(x)›→ ‹x.__abs__()› (magnitude)
+│  • ‹str(x)› → ‹x.__str__()› (printing)
+│  • ‹repr(x)› → ‹x.__repr__()› (printing for ‹eval›)
+│  • ‹bool(x)› and ‹if x›: ‹x.__bool__()›
+
+│ Arithmetic
+│
+│  • a standard selection of operators
+│  • ‹/› is floating point, ‹//› is integral
+│  • ‹+=› and similar are somewhat magical
+│    ◦ ‹x += y› → ‹x = x.__iadd__(y)› if defined
+│    ◦ otherwise ‹x = x.__add__(y)›
+
+│     x = 7         # an int is immutable # python
+│     x += 3        # works, x = 10, id(x) changes
+│     
+│     lst = [7, 3]
+│     lst[0] += 3   # works too, id(lst) stays same
+│     
+│     tup = (7, 3)  # a tuple is immutable
+│     tup += (1, 1) # still works (id changes)
+│     tup[0] += 3   # fails
+
+│ Relational Operators
+│
+│  • operands can be of different types
+│  • equality: ‹!=›, ‹==›
+│    ◦ by default uses object identity
+│  • ordering: ‹<›, ‹<=›, ‹>›, ‹>=› (‹TypeError› by default)
+│  • consistency is «not enforced»
+
+│ Relational Consistency
+│
+│  • ‹__eq__› must be an equivalence relation
+│  • ‹x.__ne__(y)› must be the same as ‹not x.__eq__(y)›
+│  • ‹__lt__› must be an ordering relation
+│    ◦ compatible with ‹__eq__›
+│    ◦ consistent with each other
+│  • each operator is separate (mixins can help)
+│    ◦ or perhaps a class decorator
+
+│ Collection Operators
+│
+│  • ‹in› is also a «membership» operator (outside ‹for›)
+│    ◦ implemented as ‹__contains__›
+│  • «indexing» and «slicing» operators
+│    ◦ ‹del x[y]› → ‹x.__delitem__(y)›
+│    ◦ ‹x[y]› → ‹x.__getitem__(y)›
+│    ◦ ‹x[y] = z› → ‹x.__setitem__(y, z)›
+
+│ Conditional Operator
+│
+│  • also known as a ternary operator
+│  • written ‹x if cond else y›
+│    ◦ in C: ‹cond ? x : y›
+│  • forms an «expression», unlike ‹if›
+│    ◦ can e.g. appear in a «lambda»
+│    ◦ or in function arguments, &c.
+
+│ Exceptions
+│
+│  • an exception interrupts normal control flow
+│  • it's called an exception because it is exceptional
+│    ◦ never mind ‹StopIteration›
+│  • causes methods to be interrupted
+│    ◦ until a matching ‹except› block is found
+│    ◦ also known as «stack unwinding»
+
+│ Life Without Exceptions
+│
+│     int fd = socket( ... ); /* C++ */
+│     if ( fd < 0 )
+│         ... /* handle errors */
+│     if ( bind( fd, ... ) < 0 )
+│         ... /* handle errors */
+│     if ( listen( fd, 5 ) <  0 )
+│         ...  /* handle errors */
+
+│ With Exceptions
+│
+│     try: # python
+│         sock = socket.socket( ... )
+│         sock.bind( ... )
+│         sock.listen( ... )
+│     except ...:
+│         # handle errors
+
+│ Exceptions vs Resources
+│
+│     x = open( "file.txt" ) # python
+│     # stuff
+│     raise SomeError
+│
+│  • who calls ‹x.close()›
+│  • this would be a resource leak
+
+│ Using ‹finally›
+│
+│     try: # python
+│         x = open( "file.txt" )
+│         # stuff
+│     finally:
+│         x.close()
+│
+│  • works, but tedious and error-prone
+
+│ Using ‹with›
+│
+│     with open( "file.txt" ) as f: # python
+│         # stuff
+│
+│  • ‹with› takes care of the ‹finally› and ‹close›
+│  • ‹with x as y› sets ‹y = x.__enter__()›
+│    ◦ and calls ‹x.__exit__(...)› when leaving the block
+
+│ The ‹@property› decorator
+│
+│  • attribute syntax is the preferred one in Python
+│  • writing useless setters and getters is boring
+│
+│     class Foo: # python
+│         @property
+│         def x(self): return 2 * self.a
+│         @x.setter
+│         def x(self, v): self.a = v // 2

@@ -1,0 +1,258 @@
+# Linear Algebra & Symbolic Math
+
+│ Numbers in Python
+│
+│  • recall that numbers are objects
+│  • a tuple of real numbers has 300% overhead
+│    ◦ compared to a C array of ‹float› values
+│    ◦ and 350% for integers
+│  • this causes extremely poor cache use
+│  • integers are arbitrary-precision
+
+│ Math in Python
+│
+│  • numeric data usually means arrays
+│    ◦ this is inefficient in python
+│  • we need a module written in C
+│    ◦ but we don't want to do that ourselves
+│  • enter the SciPy project
+│    ◦ pre-made numeric and scientific packages
+
+│ The SciPy Family
+│
+│  • ‹numpy›: data types, linear algebra
+│  • ‹scipy›: more computational machinery
+│  • ‹pandas›: data analysis and statistics
+│  • ‹matplotlib›: plotting and graphing
+│  • ‹sympy›: symbolic mathematics
+
+│ Aside: External Libraries
+│
+│  • until now, we only used bundled packages
+│  • for math, we will need external libraries
+│  • you can use ‹pip› to install those
+│    ◦ use ‹pip install --user <package>›
+
+│ Aside: Installing ‹numpy›
+│
+│  • the easiest way may be with ‹pip›
+│    ◦ this would be ‹pip3› on ‹aisa›
+│  • linux distributions usually also have packages
+│  • another option is getting the Anaconda bundle
+│  • detailed instructions on ‹https://scipy.org›
+
+│ Arrays in ‹numpy›
+│
+│  • compact, C-implemented data types
+│  • flexible multi-dimensional arrays
+│  • easy and efficient re-shaping
+│    ◦ typically without copying the data
+
+│ Entering Data
+│
+│  • most data is stored in ‹numpy.array›
+│  • can be constructed from a ‹list›
+│    ◦ a list of lists for 2D arrays
+│  • or directly loaded from / stored to a file
+│    ◦ binary: ‹numpy.load›, ‹numpy.save›
+│    ◦ text: ‹numpy.loadtxt›, ‹numpy.savetxt›
+
+│ LAPACK and BLAS
+│
+│  • BLAS is a low-level vector/matrix package
+│  • LAPACK is built on top of BLAS
+│    ◦ provides higher-level operations
+│    ◦ tuned for modern CPUs with multiple caches
+│  • both are written in Fortran
+│    ◦ ATLAS and C-LAPACK are C implementations
+
+│ Element-wise Functions
+│
+│  • the basic math function arsenal
+│  • powers, roots, exponentials, logarithms
+│  • trigonometric (‹sin›, ‹cos›, ‹tan›, ...)
+│  • hyperbolic (‹sinh›, ‹cosh›, ‹tanh›, ...)
+│  • cyclometric (‹arcsin›, ‹arccos›, ‹arctan›, ...)
+
+│ Matrix Operations in ‹numpy›
+│
+│  • ‹import numpy.linalg›
+│  • multiplication, inversion, rank
+│  • eigenvalues and eigenvectors
+│  • linear equation solver
+│  • pseudo-inverses, linear least squares
+
+│ Additional Linear Algebra in ‹scipy›
+│
+│  • ‹import scipy.linalg›
+│  • LU, QR, polar, etc. decomposition
+│  • matrix exponentials and logarithms
+│  • matrix equation solvers
+│  • special operations for banded matrices
+
+│ Where is my Gaussian Elimination?
+│
+│  • used in lots of school linear algebra 
+│  • but not the most efficient algorithm
+│  • a few problems with numerical stability
+│  • not directly available in ‹numpy›
+
+│ Numeric Stability
+│
+│  • floats are imprecise / «approximate»
+│  • multiplication is «not associative»
+│  • iteration amplifies the errors
+│
+│     0.1**2 == 0.01        # False # python
+│     1 / ( 0.1**2 - 0.01 ) # 5.8⋅10¹⁷
+│
+│     a = (0.1 *  0.1) * 10 # python
+│     b =  0.1 * (0.1  * 10)
+│     1 / ( a - b ) # 7.21⋅10¹⁶
+
+│ LU Decomposition
+│
+│  • decompose matrix A into simpler factors
+│  • ⟦PA = LU⟧ where
+│    ◦ ⟦P⟧ is a «permutation» matrix
+│    ◦ ⟦L⟧ is a lower «triangular» matrix
+│    ◦ ⟦U⟧ is an upper «triangular» matrix
+│  • fast and numerically stable
+
+│ Uses for LU
+│
+│  • equations, determinant, inversion, ...
+│  • e.g. ⟦\det(A) = \det(P^{-1}) ⋅ \det(L) ⋅ \det(U)⟧
+│    ◦ where ⟦\det(U) = \prod_iU_{ii}⟧
+│    ◦ and ⟦\det(L) = \prod_iL_{ii}⟧
+
+│ Numeric Math
+│
+│  • float arithmetic is messy but incredibly fast
+│  • measured data is approximate anyway
+│  • stable algorithms exist for many things
+│    ◦ and are available from libraries
+│  • we often don't care about exactness
+│    ◦ think computer graphics, signal analysis, ...
+
+│ Symbolic Math
+│
+│  • numeric math sucks for ‘textbook’ math
+│  • there are problems where exactness matters
+│    ◦ pure math and theoretical physics
+│  • incredibly slow computation
+│    ◦ but much cleaner interpretation
+
+│ Linear Algebra in ‹sympy›
+│
+│  • uses exact math
+│    ◦ e.g. arbitrary precision rationals
+│    ◦ and roots thereof
+│    ◦ and many other computable numbers
+│  • wide repertoire of functions
+│    ◦ including LU, QR, etc. decompositions
+
+│ Exact Rationals in ‹sympy›
+│
+│     from sympy import * # python
+│     a = QQ( 1 ) / 10 # QQ = rationals
+│     Matrix( [ [ sqrt( a**3 ), 0, 0 ],
+│             [ 0, sqrt( a**3 ), 0 ],
+│             [ 0, 0, 1 ] ] ).det()
+│     # result: 1/1000
+
+│ ‹numpy› for Comparison
+│
+│     import numpy as np # python
+│     import numpy.linalg as la
+│     a = 0.1
+│     la.det( [ [ np.sqrt( a**3 ), 0, 0 ],
+│               [ 0, np.sqrt( a**3 ), 0 ],
+│               [ 0, 0, 1 ] ] )
+│     # result: 0.0010000000000000002
+
+│ General Solutions in Symbolic Math
+│
+│     from sympy import * # python
+│     x = symbols( 'x' )
+│     Matrix( [ [ x, 0, 0 ],
+│               [ 0, 1, 0 ],
+│               [ 0, 0, x ] ] ).det()
+│     # result: x ** 2
+
+│ Symbolic Differentation
+│
+│     x = symbols( 'x' ) # python
+│     diff( x**2 + 2*x + log( x/2 ) )
+│     # result: 2*x + 2 + 1/x
+│
+│     diff( x**2 * exp(x) ) # python
+│     # result: x**2 * exp( x ) + 2 * x * exp( x )
+
+│ Algebraic Equations
+│
+│     solve( x**2 - 7 ) # python
+│     # result: [ -sqrt( 7 ), sqrt( 7 ) ]
+│
+│     solve( x**2 - exp( x ) ) # python
+│     # result: [ -2 * LambertW( -1/2 ) ]
+│
+│     solve( x**4 - x ) # python
+│     # result: [ 0, 1, -1/2 - sqrt(3) * I/2,
+│     #           -1/2 + sqrt(3) * I/2 ] ; I**2 = -1
+
+│ Ordinary Differential Equations
+│
+│     f = Function( 'f' ) # python
+│     dsolve( f( x ).diff( x ) ) # f'(x) = 0
+│     # result: Eq( f( x ), C1 )
+│
+│     dsolve( f( x ).diff( x ) - f(x) ) # f'(x) = f(x) # python
+│     # result: Eq( f( x ), C1 * exp( x ) )
+│
+│     dsolve( f( x ).diff( x ) + f(x) ) # f'(x) = -f(x) # python
+│     # result: Eq( f( x ), C1 * exp( -x ) )
+
+│ Symbolic Integration
+│
+│     integrate( x**2 ) # python
+│     # result: x**3 / 3
+│
+│     integrate( log( x ) ) # python
+│     # result: x * log( x ) - x
+│
+│     integrate( cos( x ) ** 2 ) # python
+│     # result: x/2 + sin( x ) * cos( x ) / 2
+
+│ Numeric Sparse Matrices
+│
+│  • sparse = most elements are 0
+│  • available in ‹scipy.sparse›
+│  • special data types (not ‹numpy› arrays)
+│    ◦ do «not» use ‹numpy› functions on those
+│  • less general, but more compact and faster
+
+│ Fourier Transform
+│
+│  • continuous: ⟦\hat{f}(ξ) = \int_{-\infty}^{\infty}f(x)\exp\left(-2πixξ\right)\mathrm{d}x⟧
+│  • series: ⟦f(x) = \sum_{n=-\infty}^{\infty}c_n\exp\left(\frac{i2πnx}{P}\right)⟧
+│  • real series: ⟦f(x) = \frac{a₀}{2} + \sum_{n=1}^{\infty}\left(a_n\sin\left(\frac{2πnx}{P}\right) + b_n\cos\left(\frac{2πnx}{P}\right)\right)⟧
+│      ◦ (complex) coefficients: ⟦c_n = \frac{1}{2}(a_n - ib_n)⟧
+
+│ Discrete Fourier Transform
+│
+│  • available in ‹numpy.fft›
+│  • goes between time and frequency domains
+│  • a few different variants are covered
+│    ◦ real-valued input (for signals, ‹rfft›)
+│    ◦ inverse transform (‹ifft›, ‹irfft›)
+│    ◦ multiple dimensions (‹fft2›, ‹fftn›)
+
+│ Polynomial Series
+│
+│  • the ‹numpy.polynomial› package
+│  • Chebyshev, Hermite, Laguerre and Legendre
+│    ◦ arithmetic, calculus and special-purpose operations
+│    ◦ numeric integration using Guassian quadrature
+│    ◦ fitting (polynomial regression)
+

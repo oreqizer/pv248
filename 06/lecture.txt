@@ -1,0 +1,154 @@
+# Closures, Coroutines, Concurrency
+
+│ Concurrency & Parallelism
+│
+│  • ‹threading› -- thread-based parallelism
+│  • ‹multiprocessing›
+│  • ‹concurrent› -- future-based programming
+│  • ‹subprocess›
+│  • ‹sched›, a general-purpose event scheduler
+│  • ‹queue›, for sending objects between threads
+
+│ Threading
+│
+│  • low-level thread support, module ‹threading›
+│  • ‹Thread› objects represent actual threads
+│    ◦ threads provide ‹start()› and ‹join()›
+│    ◦ the ‹run()› method executes in a new thread
+│  • mutexes, semaphores &c.
+
+│ The Global Interpreter Lock
+│
+│  • memory management in CPython is not thread-safe
+│    ◦ Python code runs under a «global lock»
+│    ◦ pure Python code cannot use multiple cores
+│  • C code usually runs without the lock
+│    ◦ this includes ‹numpy› crunching
+
+│ Multiprocessing
+│
+│  • like ‹threading› but uses processes
+│  • works around the GIL
+│    ◦ each worker process has its own interpreter
+│  • queued/sent objects must be «pickled»
+│    ◦ see also: the ‹pickle› module
+│    ◦ this causes substantial overhead
+│    ◦ functions, classes &c. are pickled «by name»
+
+│ Futures
+│
+│  • like coroutine ‹await› but for subroutines
+│  • a ‹Future› can be waited for using ‹f.result()›
+│  • scheduled via ‹concurrent.futures.Executor›
+│    ◦ ‹Executor.map› is like ‹asyncio.gather›
+│    ◦ ‹Executor.submit› is like ‹asyncio.create_task›
+│  • implemented using process or thread pools
+
+│ Native Coroutines (PEP 492)
+│
+│  • created using ‹async def› (since Python 3.5)
+│  • generalisation of generators
+│    ◦ ‹yield from› is replaced with ‹await›
+│    ◦ an ‹__await__› magic method is required
+│  • a coroutine can be «suspended» and «resumed»
+
+│ Coroutine Scheduling
+│
+│  • coroutines need a «scheduler»
+│  • one is available from ‹asyncio.get_event_loop()›
+│  • along with many coroutine building blocks
+│  • coroutines can actually «run in parallel»
+│    ◦ via ‹asyncio.create_task› (since 3.7)
+│    ◦ via ‹asyncio.gather›
+
+│ Async Generators (PEP 525)
+│
+│  • ‹async def› + ‹yield›
+│  • semantics like simple generators
+│  • but also allows ‹await›
+│  • iterated with ‹async for›
+│    ◦ ‹async for› runs sequentially
+
+│ Execution Stack
+│
+│  • made up of «activation frames»
+│  • holds «local variables»
+│  • and return addresses
+│  • in dynamic languages, often lives in the «heap»
+
+│ Variable Capture
+│
+│  • variables are captured «lexically»
+│  • «definitions» are a dynamic / run-time construct
+│    ◦ a nested definition is «executed»
+│    ◦ creates a «closure object»
+│  • always by reference in Python
+│    ◦ but can be by-value in other languages
+
+│ Using Closures
+│
+│  • closures can be returned, stored and «called»
+│    ◦ they can be called «multiple times», too
+│    ◦ they can capture arbitrary variables
+│  • closures naturally «retain state»
+│  • this is what makes them powerful
+
+│ Objects from Closures
+│
+│  • so closures are essentially «code» + «state»
+│  • wait, isn't that what an object is?
+│  • indeed, you can implement «objects» using «closures»
+
+│ The Role of GC
+│
+│  • «memory management» becomes a lot more «complicated»
+│  • forget C-style ‘automatic’ stack variables
+│  • this is why the stack is actually in the heap
+│  • this can go as far as form «reference cycles»
+
+│ Coroutines
+│
+│  • coroutines are a «generalisation» of subroutines
+│  • they can be «suspended» and «re-entered»
+│  • coroutines can be closures at the same time
+│  • the code of a coroutine is like a function
+│  • a suspended coroutine is like an «activation frame»
+
+│ Yield
+│
+│  • «suspends execution» and ‘returns’ a value
+│  • may also obtain a new value (cf. ‹send›)
+│  • when re-entered, «continue» where we left off
+│
+│     for i in range(5): yield i # python
+
+│ Send
+│
+│  • with ‹yield›, we have one-way communication
+│  • but in many cases, we would like two-way
+│  • a suspended coroutine is an object in Python
+│    ◦ with a ‹send› method which takes a value
+│    ◦ ‹send› re-enters the coroutine
+
+│ Yield From and Await
+│
+│  • ‹yield from› is mostly a generator concept
+│  • ‹await› basically does the same thing
+│    ◦ call out to another coroutine
+│    ◦ when it suspends, so does the entire stack
+
+│ Suspending Native Coroutines
+│
+│  • this is not actually possible
+│    ◦ not with ‹async›-native syntax anyway
+│  • you need a ‹yield›
+│    ◦ for that, you need a generator
+│    ◦ use the ‹types.coroutine› decorator
+
+│ Event Loop
+│
+│  • «not required» in theory
+│  • useful also without coroutines
+│  • there is a «synergistic effect»
+│    ◦ event loops make coroutines easier
+│    ◦ coroutines make event loops easier

@@ -1,0 +1,68 @@
+# Statistics
+
+│ Statistics in ‹numpy›
+│
+│  • a basic «statistical» toolkit
+│    ◦ averages, medians
+│    ◦ variance, standard deviation
+│    ◦ histograms
+│  • random sampling and «distributions»
+
+│ Linear Regression
+│
+│  • very fast model-fitting method
+│    ◦ both in computational and human terms
+│    ◦ quick and dirty first approximation
+│  • widely used in data interpretation
+│    ◦ biology and sociology statistics
+│    ◦ finance and economics, especially prediction
+
+│ Polynomial Regression
+│
+│  • higher-order variant of linear regression
+│  • can capture acceleration or deceleration
+│  • harder to use and interpret
+│    ◦ also harder to compute
+│  • usually requires a model of the data
+
+│ Interpolation
+│
+│  • find a line or curve that approximates data
+│  • it must «pass through» the data points
+│    ◦ this is a major difference to regression
+│  • more dangerous than regression
+│    ◦ runs a serious risk of overfitting
+
+│ Linear and Polynomial Regression, Interpolation
+│
+│  • regressions using the least squares method
+│    ◦ linear: ‹numpy.linalg.lstsq›
+│    ◦ polynomial: ‹numpy.polyfit›
+│  • interpolation: ‹scipy.interpolate›
+│    ◦ e.g. piecewise cubic splines
+│    ◦ Lagrange interpolating polynomials
+
+│ Pandas: Data Analysis
+│
+│  • the Python equivalent of R
+│    ◦ works with tabular data (CSV, SQL, Excel)
+│    ◦ time series (also variable frequency)
+│    ◦ primarily works with floating-point values
+│  • partially implemented in C and Cython
+
+│ Pandas Series and DataFrame
+│
+│  • ‹Series› is a single sequence of numbers
+│  • ‹DataFrame› represents tabular data
+│    ◦ powerful indexing operators
+│    ◦ index by column → series
+│    ◦ index by condition → filtering
+
+│ Pandas Example
+│
+│     scores = [ ('Maxine', 12), ('John', 12), # python
+│                ('Sandra', 10) ]
+│     cols = [ 'name', 'score' ]
+│     df = pd.DataFrame( data=scores, columns=cols )
+│     df['score'].max() # 12
+│     df[ df['score'] >= 12 ] # Maxine and John

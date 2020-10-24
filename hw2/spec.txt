@@ -1,0 +1,153 @@
+In this assignment, we will add persistence to the ‹Shelter› class
+from the previous installment. This will consist of two modules,
+‹shelter_sql› and ‹shelter_json› where each will provide 2
+functions, ‹load› and ‹store›.
+
+In both cases, the basic requirement is that doing a ‹store› →
+‹load› → ‹store› sequence will produce two identical copies of the
+same data (in the respective format).
+
+The SQL module works as follows:
+
+ • Both ‹load› and ‹store› expect a ‹db› keyword argument, which
+   takes an open ‹sqlite3› connection.
+ • The ‹load› function accepts a single positional argument, an id
+   of the ‹Shelter› snapshot to load and returns a ‹Shelter›
+   instance.
+ • The ‹store› function takes a ‹Shelter› instance as its only
+   positional argument, and returns an id (which can be then
+   passed to ‹load›).
+
+Please note that storing multiple ‹Shelter› instances in a single
+database must be possible. Moreover, each animal and human should
+appear in the entire database only once, even if they appear in
+multiple ‹Shelter› snapshots stored in that database. We consider
+two people or two animals the same if all their attributes match,
+with two exceptions:
+
+ • the ‹max_capacity› of a foster parent: the same foster parent
+   may appear in multiple ‹Shelter› instances with a different
+   capacity,
+ • the ‹date_of_entry› of an animal, which works the same way
+   (the same animal still cannot re-enter the same shelter though).
+
+Beware! This is a departure from the semantics required in ‹hw1›,
+where it was possible to have multiple animals with identical
+attribute sets. For this assignment, you will need to modify
+‹add_animal› to return an existing object if all attributes match
+(again with the exception of ‹date_of_entry›: if all other
+attributes match but not ‹date_of_entry›, raise a ‹RuntimeError›).
+
+Same with foster parents and ‹max_capacity›. A foster parent and an
+adopter with the same name and address are, however, distinct
+entities and should be allowed. In this case, the name and address
+will repeat in the database (once as a foster parent and once as an
+adopter).
+
+Finally, if ‹store› is called on a ‹Shelter› with the keyword
+argument ‹deduplicate› set to ‹True›, and a snapshot with the exact
+same list of animals, adopters, foster parents and vet exams is
+already present, do not add anything to the database and return the
+id of the existing snapshot. It is okay for this check to be linear
+in the number of shelters already stored.
+
+The database schema is up to you, subject to the constraints above.
+If ‹store› is called on an empty database, it should create the
+necessary tables.
+
+The JSON module will be different. It will not store an entire
+shelter, but only individual objects: animals and foster parents.
+The ‹store› method will accordingly accept any of the objects which
+describe these entities.
+
+The following objects can be passed to ‹shelter_json.store›:
+
+ • An animal (the return value of ‹add_animal› or an item of the
+   ‹list_animals› return value):
+
+       {
+           "name": "...",
+           "year_of_birth": 2020,
+           "gender": "...",
+           "date_of_entry": "2020-03-13",
+           "species": "...",
+           "breed": "...",
+           "adopted":
+           {
+               "date": "2020-09-09",
+               "name": "...",
+               "address": "..."
+           }
+           "exams":
+           [
+               {
+                   "vet": "...",
+                   "date": "2020-07-01",
+                   "report": "..."
+               }
+           ],
+           "fostering":
+           [
+               {
+                   "start": "2020-07-13",
+                   "end": "2020-07-18",
+                   "parent":
+                   {
+                       "name": "...",
+                       "address": "...",
+                       "phone": "..."
+                   }
+               }
+           ]
+       }
+
+ • A foster parent (an element of the list returned by
+   ‹available_foster_parents›):
+
+       {
+           "name": "...",
+           "capacity": 2,
+           "address": "...",
+           "phone": "...",
+           "fostering":
+           [
+               {
+                   "start": "...",
+                   "end": "...",
+                   "animal":
+                   {
+                       "name": "...",
+                       "year_of_birth": 2019,
+                       "gender": "...",
+                       "date_of_entry": "2020-03-10",
+                       "species": "...",
+                       "breed": "..."
+                   }
+               }
+           ]
+       }
+
+ • A list of either of the above (i.e. the result of ‹list_animals›
+   or ‹available_foster_parents› respectively).
+
+The values are examples. Each list should contain all relevant
+records. If an animal is not adopted, leave out the ‹adopted› key
+entirely. If a foster period is ongoing (no end date was given yet),
+leave out its ‹end› key.
+
+There should be two variants of ‹shelter_json.load›:
+
+ 1. if passed a single string, the JSON must describe a single object
+    (an animal or a foster parent) and this object is returned, not
+    tied to a particular ‹Shelter› instance (though you can create
+    one behind the scenes if you need to),
+ 2. if passed two strings, the first is a list of animals and the
+    other is a list of foster parents and in this case, the result
+    should be a ‹Shelter› instance.
+
+In case 2, cross-check the fostering records between foster parents
+and animals. Raise a ‹RuntimeError› if they do not match exactly.
+
+Update 2020-10-23:
+ • Clarified conflicts on ‹max_capacity› of foster parents, and
+   the relationship between adopters and foster parents.
