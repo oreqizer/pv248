@@ -61,6 +61,7 @@ def test_main():
     assert merge_dict(dict_in, eq, combine) == {1: 8, 2: 8}
     assert dict_in == dict_orig
 
+    # pylint: disable=function-redefined
     def combine(x): return sum([len(s) for s in x])
     dict_in = {2: 'two', 3: 'three', 6: 'two', 1: 'one', 9: 'woo'}
     eq = [set([2]), set([3, 6, 1])]
