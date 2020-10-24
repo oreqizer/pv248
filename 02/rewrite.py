@@ -8,7 +8,7 @@
 # sides to go with it. The initial string and the string to be
 # generated (‹final›) are given as ‹str› instances.
 
-def is_generated( rules, initial, final ):
+def is_generated(rules, initial, final):
     pass
 
 # A rewrite system is like a grammar, but does not distinguish
@@ -34,26 +34,28 @@ def is_generated( rules, initial, final ):
 # strictly longer than the left side (this reduces the power of the
 # system considerably and makes the exercise much easier to solve).
 
+
 def test_main():
-    rules = { 'x':  [ 'xx' ],
-              'xx': [ 'xyz', 'xyx' ] }
+    rules = {'x':  ['xx'],
+             'xx': ['xyz', 'xyx']}
 
-    assert is_generated( rules, 'x', 'xx' )
-    assert is_generated( rules, 'x', 'xyz' )
-    assert is_generated( rules, 'x', 'xyx' )
-    assert is_generated( rules, 'x', 'xyzyxyz' )
-    assert is_generated( rules, 'x', 'xxyxx' )
-    assert is_generated( rules, 'x', 'xxyxx' )
-    assert is_generated( rules, 'x', 'xxxyxxxxx' )
-    assert is_generated( rules, 'x', 'xyxxyz' )
-    assert is_generated( rules, 'x', 'xyzxyx' )
-    assert is_generated( rules, 'x', 'xyzxxx' )
+    assert is_generated(rules, 'x', 'xx')
+    assert is_generated(rules, 'x', 'xyz')
+    assert is_generated(rules, 'x', 'xyx')
+    assert is_generated(rules, 'x', 'xyzyxyz')
+    assert is_generated(rules, 'x', 'xxyxx')
+    assert is_generated(rules, 'x', 'xxyxx')
+    assert is_generated(rules, 'x', 'xxxyxxxxx')
+    assert is_generated(rules, 'x', 'xyxxyz')
+    assert is_generated(rules, 'x', 'xyzxyx')
+    assert is_generated(rules, 'x', 'xyzxxx')
 
-    assert not is_generated( rules, 'x', 'y' )
-    assert not is_generated( rules, 'x', 'xxy' )
-    assert not is_generated( rules, 'xxx', 'xyx' )
-    assert not is_generated( rules, 'xxx', 'xyz' )
-    assert not is_generated( rules, 'x', 'xyzxxy' )
+    assert not is_generated(rules, 'x', 'y')
+    assert not is_generated(rules, 'x', 'xxy')
+    assert not is_generated(rules, 'xxx', 'xyx')
+    assert not is_generated(rules, 'xxx', 'xyz')
+    assert not is_generated(rules, 'x', 'xyzxxy')
+
 
 if __name__ == "__main__":
     test_main()

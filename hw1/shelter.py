@@ -26,11 +26,13 @@ class FosterParent:
         self.address = address
         self.phone_number = phone_number
         self.max_animals = max_animals
-        self.animals = []
         self.fosters = []
 
     def __repr__(self):
-        return "FosterParent(name={name}, animals={animals}, fosters={fosters})".format(name=self.name, animals=self.animals, fosters=self.fosters)
+        return "FosterParent(name={name}, fosters={fosters})".format(name=self.name, fosters=self.fosters)
+
+    def has_animals(self):
+        return len([f for f in self.fosters if f.end_date == None])
 
     def is_available(self, *, date):
         collisions = 0
@@ -40,16 +42,16 @@ class FosterParent:
         return collisions < self.max_animals
 
 class Foster:
-    def __init__(self, *, parent, start_date):
+    def __init__(self, *, parent, start_date, end_date=None):
         self.parent = parent
         self.start_date = start_date
-        self.end_date = None
+        self.end_date = end_date
 
     def __repr__(self):
         return "Foster(parent.name={name}, start_date={start}, end_date={end})".format(name=self.parent.name, start=self.start_date, end=self.end_date)
 
     def is_colliding(self, *, date):
-        if self.start_date < date and (self.end_date == None or self.end_date > date):
+        if self.start_date <= date and (self.end_date == None or self.end_date >= date):
             return True
         return False
 
@@ -94,7 +96,7 @@ class Animal:
         self.exams.append(exam)
         return exam
 
-    def list_exams(self, *, start, end):
+    def list_exams(self, *, start=None, end=None):
         """
         ◦ method ‹list_exams› which takes keyword arguments ‹start› and
             ‹end›, both ‹datetime.date› instances, or ‹None› (the range is
@@ -102,8 +104,8 @@ class Animal:
             that direction),
         """
         return [e for e in self.exams if
-                (start == None or start < e.date_of_entry) and
-                (end == None or end > e.date_of_entry)]
+                (start == None or start <= e.date) and
+                (end == None or end >= e.date)]
 
     def adopt(self, *, date, adopter_name, adopter_address):
         """
@@ -137,7 +139,7 @@ class Animal:
         if self.foster != None:
             raise RuntimeError("cannot foster an already fostered animal")
 
-        if parent.max_animals == len(parent.animals):
+        if parent.max_animals <= parent.has_animals():
             raise RuntimeError("cannot foster by a parent with full capacity")
 
         foster = Foster(
@@ -146,7 +148,6 @@ class Animal:
         )
 
         self.foster = foster
-        parent.animals.append(self)
         parent.fosters.append(foster)
         return foster
 
@@ -161,12 +162,11 @@ class Animal:
             raise RuntimeError("cannot end foster on an animal not in foster")
 
         self.foster.end_date = date
-        self.foster.parent.animals = [a for a in self.foster.parent.animals if a != self]
         self.past_fosters.append(self.foster)
         self.foster = None
 
     def is_available(self, *, date):
-        if self.adoption != None and self.adoption.date < date:
+        if self.adoption != None and self.adoption.date <= date:
             return False
 
         if self.foster != None and self.foster.is_colliding(date=date):
