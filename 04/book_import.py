@@ -1,0 +1,92 @@
+# Load the file ‹books.json› and store the data in a database with
+# 3 tables: ‹author›, ‹book› and ‹book_author_list›. Each author is
+# uniquely identified by their name (which is a substantial
+# simplification, but let's roll with it). The complete schema is
+# defined in ‹books.sql› and you can create an empty database with
+# the correct data definitions by running the following command:
+
+#     $ sqlite3 books.dat < books.sql
+
+import sqlite3
+import json
+
+# NB. You want to execute ‹pragma foreign_keys = on› before
+# inserting anything into sqlite. Otherwise, your foreign key
+# constraints are just documentation and are not actually enforced.
+# Let's write an opendb function which takes a filename and returns
+# an open connection. Execute the abovementioned pragma before
+# returning.
+
+def opendb( filename ):
+    pass
+
+# Of course, you can also create the schema using Python after
+# opening an empty database. See ‹executescript›. Define a function
+# ‹initdb› which takes an open sqlite3 connection, and creates the
+# tables described in ‹sql_file› (in our case ‹books.sql›). You
+# can (and perhaps should) open and read the file and feed it into
+# sqlite using ‹executescript›.
+
+def initdb( conn, sql_file ):
+    pass
+
+# Now for the business logic. Write a function ‹store_book› which
+# takes a ‹dict› that describes a single book (using the schema used
+# by ‹books.json›) and stores it in an open database. Use the
+# ‹execute› method of the connection. Make use of query parameters,
+# like this (‹cur› is a «cursor», i.e. what you get by calling
+# ‹conn.cursor()›):
+#
+#     cur.execute( "insert into ... values ( ? )", ( name, ) )
+#
+# The second argument is a tuple (one-tuples are written using a
+# trailing comma). To fetch results of a query, use ‹cur.fetchone()›
+# or ‹cur.fetchall()›. The result is a tuple (even if you only
+# selected a single column). Or rather, it is a sufficiently
+# tuple-like object (quacks like a tuple and all that).
+
+def store_book( conn, book ):
+    pass
+
+# With the core logic done, we need a procedure which will set up
+# the database, parse the input JSON and iterate over individual
+# books, storing each:
+
+def import_books( file_in, file_out ):
+    pass
+
+
+def test_main():
+    import os
+    os.unlink( 'books.dat' )
+    conn = sqlite3.connect( 'books.dat' )
+    import_books( 'books.json', 'books.dat' )
+    cur = conn.cursor()
+
+    books_authors_ref = {}
+    for item in json.load( open( 'books.json' ) ):
+        books_authors_ref[ item[ 'name' ] ] = item[ 'authors' ]
+
+    cur.execute( 'select * from book order by id' )
+    books = cur.fetchall()
+    book_names = set( [ name for id, name in books ] )
+    assert book_names == books_authors_ref.keys()
+
+    cur.execute( 'select * from author order by id' )
+    authors = cur.fetchall()
+    author_names = set( [ name for id, name in authors ] )
+    all_authors = set( sum( books_authors_ref.values(), [] ) )
+    assert author_names == all_authors
+
+    cur.execute( 'select * from book_author_list order by book_id' )
+    book_author = cur.fetchall()
+    assert len( book_author ) == sum( [ len( l ) for l in books_authors_ref.values() ] )
+    for b_id, a_id in book_author:
+        _, b_name = books[ b_id - 1 ]
+        _, a_name = authors[ a_id - 1 ]
+        assert a_name in books_authors_ref[ b_name ]
+
+    conn.close()
+
+if __name__ == "__main__":
+    test_main()

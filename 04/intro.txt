@@ -1,0 +1,17 @@
+# SQL
+
+This week, we will look at some basic SQL. First, we will import and
+export JSON data to/from an SQL database and perform simple
+searches. The schema for all three exercises is in ‹books.sql›.
+
+ 1. ‹book_import.py› – import data into a database
+ 2. ‹book_export.py› – the converse
+ 3. ‹book_query.py› – use SQL to search for things
+
+[TBD] The second part will build up a very simple CRUD-type
+application (CRUD = Create Read Update Delete). The interface will
+be through Python objects. The subject will be shopping lists.
+
+ 4. ‹list_make.py› – creating shopping lists
+ 5. ‹list_search.py› – searching and reading
+ 6. ‹list_update.py› – update and delete

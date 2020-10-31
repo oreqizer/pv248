@@ -1,7 +1,4 @@
 # Write your solution into this file.
-from datetime import date
-
-
 class Exam:
     def __init__(self, *, vet, date, report):
         self.vet = vet
@@ -31,8 +28,8 @@ class FosterParent:
     def __repr__(self):
         return "FosterParent(name={name}, fosters={fosters})".format(name=self.name, fosters=self.fosters)
 
-    def has_animals(self):
-        return len([f for f in self.fosters if f.end_date == None])
+    def has_animals(self, *, date):
+        return len([f for f in self.fosters if f.is_colliding(date=date)])
 
     def is_available(self, *, date):
         collisions = 0
@@ -81,11 +78,8 @@ class Animal:
             ‹date› and ‹report›, where ‹vet› and ‹report› are strings and
             ‹date› is a ‹datetime.date› instance,
         """
-        if self.adoption != None:
-            raise RuntimeError("cannot do an exam on an adopted animal")
-
-        if self.foster != None:
-            raise RuntimeError("cannot do an exam on an animal in foster care")
+        if not self.is_available(date=date):
+            raise RuntimeError("cannot do an exam on an unavailable animal")
 
         exam = Exam(
             vet=vet,
@@ -113,11 +107,8 @@ class Animal:
             ‹datetime.date› instance) and ‹adopter_name› and
             ‹adopter_address› which are strings,
         """
-        if self.adoption != None:
-            raise RuntimeError("cannot adopt an already adopted animal")
-
-        if self.foster != None:
-            raise RuntimeError("cannot adopt an animal in foster care")
+        if not self.is_available(date=date):
+            raise RuntimeError("cannot adopt an unavailable animal")
 
         self.adoption = Adoption(
             date=date,
@@ -133,13 +124,10 @@ class Animal:
             the objects returned by ‹available_foster_parents› listed
             below,
         """
-        if self.adoption != None:
-            raise RuntimeError("cannot foster an adopted animal")
+        if not self.is_available(date=date):
+            raise RuntimeError("cannot foster an unavailable animal")
 
-        if self.foster != None:
-            raise RuntimeError("cannot foster an already fostered animal")
-
-        if parent.max_animals <= parent.has_animals():
+        if parent.max_animals <= parent.has_animals(date=date):
             raise RuntimeError("cannot foster by a parent with full capacity")
 
         foster = Foster(
@@ -155,17 +143,20 @@ class Animal:
         """
         ◦ ‹end_foster› which takes a ‹date›,
         """
-        if self.adoption != None:
+        if self.adoption != None and not self.is_available(date=date):
             raise RuntimeError("cannot end foster on an adopted animal")
 
-        if self.foster == None:
-            raise RuntimeError("cannot end foster on an animal not in foster")
+        if self.is_available(date=date):
+            raise RuntimeError("cannot end foster on an unfostered animal")
 
         self.foster.end_date = date
         self.past_fosters.append(self.foster)
         self.foster = None
 
     def is_available(self, *, date):
+        if date < self.date_of_entry:
+            return False
+
         if self.adoption != None and self.adoption.date <= date:
             return False
 
@@ -236,7 +227,7 @@ class Shelter:
         self.animals.append(animal)
         return animal
 
-    def list_animals(self, *, name=None, year_of_birth=None, gender=None, date_of_entry=None, species=None, breed=None, date=None):
+    def list_animals(self, *, name=None, year_of_birth=None, gender=None, date_of_entry=None, species=None, breed=None, date):
         """
         ‹list_animals› which accepts:
 
