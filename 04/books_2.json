@@ -1,0 +1,60 @@
+[
+  {
+    "name": "Poems by Currer, Ellis and Acton Bell",
+    "authors": [
+      "Charlotte Bront\u00eb",
+      "Emily Bront\u00eb",
+      "Anne Bront\u00eb"
+    ]
+  },
+  {
+    "name": "The Waste Land",
+    "authors": [
+      "T. S. Eliot"
+    ]
+  },
+  {
+    "name": "Jane Eyre",
+    "authors": [
+      "Charlotte Bront\u00eb"
+    ]
+  },
+  {
+    "name": "The Professor",
+    "authors": [
+      "Charlotte Bront\u00eb"
+    ]
+  },
+  {
+    "name": "Wuthering Heights",
+    "authors": [
+      "Emily Bront\u00eb"
+    ]
+  },
+  {
+    "name": "\u0423\u043b\u0438\u0442\u043a\u0430 \u043d\u0430 \u0441\u043a\u043b\u043e\u043d\u0435",
+    "authors": [
+      "\u0410\u0440\u043a\u0430\u0434\u0438\u0439 \u0421\u0442\u0440\u0443\u0433\u0430\u0446\u043a\u0438\u0439",
+      "\u0411\u043e\u0440\u0438\u0441 \u0421\u0442\u0440\u0443\u0433\u0430\u0446\u043a\u0438\u0439"
+    ]
+  },
+  {
+    "name": "\u0411\u0435\u0441\u0441\u0438\u043b\u044c\u043d\u044b\u0435 \u043c\u0438\u0440\u0430 \u0441\u0435\u0433\u043e",
+    "authors": [
+      "\u0411\u043e\u0440\u0438\u0441 \u0421\u0442\u0440\u0443\u0433\u0430\u0446\u043a\u0438\u0439"
+    ]
+  },
+  {
+    "name": "For Whom the Bell Tolls",
+    "authors": [
+      "Ernest Hemingway"
+    ]
+  },
+  {
+    "name": "The Rise and Fall of D.O.D.O.",
+    "authors": [
+      "Neal Stephenson",
+      "Nicole Galland"
+    ]
+  }
+]

@@ -17,8 +17,12 @@ import json
 # an open connection. Execute the abovementioned pragma before
 # returning.
 
-def opendb( filename ):
-    pass
+
+def opendb(filename):
+    conn = sqlite3.connect(filename)
+    conn.execute("PRAGMA foreign_keys = on")
+    return conn
+
 
 # Of course, you can also create the schema using Python after
 # opening an empty database. See ‹executescript›. Define a function
@@ -27,8 +31,10 @@ def opendb( filename ):
 # can (and perhaps should) open and read the file and feed it into
 # sqlite using ‹executescript›.
 
-def initdb( conn, sql_file ):
-    pass
+
+def initdb(conn, sql_file):
+    sql = open(sql_file).read()
+    conn.executescript(sql)
 
 # Now for the business logic. Write a function ‹store_book› which
 # takes a ‹dict› that describes a single book (using the schema used
@@ -45,48 +51,72 @@ def initdb( conn, sql_file ):
 # selected a single column). Or rather, it is a sufficiently
 # tuple-like object (quacks like a tuple and all that).
 
-def store_book( conn, book ):
-    pass
+
+def store_book(conn, book):
+    c = conn.cursor()
+    c.execute("INSERT INTO book (name) VALUES (?)", (book["name"],))
+    for a in book["authors"]:
+        try:
+            c.execute("INSERT INTO author (name) VALUES (?)", (a,))
+        except sqlite3.IntegrityError:
+            # dupe rows
+            pass
+        
+        c.execute("""
+            INSERT INTO book_author_list (book_id, author_id)
+            SELECT b.id, a.id
+            FROM book AS b, author AS a
+            WHERE b.name = ? AND a.name = ?
+        """, (book["name"], a))
+    conn.commit()
 
 # With the core logic done, we need a procedure which will set up
 # the database, parse the input JSON and iterate over individual
 # books, storing each:
 
-def import_books( file_in, file_out ):
-    pass
+
+def import_books(file_in, file_out):
+    conn = opendb(file_out)
+    initdb(conn, "books.sql")
+    with open(file_in) as js:
+        data = json.load(js)
+        for book in data:
+            store_book(conn, book)
 
 
 def test_main():
     import os
-    os.unlink( 'books.dat' )
-    conn = sqlite3.connect( 'books.dat' )
-    import_books( 'books.json', 'books.dat' )
+    os.unlink('books.dat')
+    conn = sqlite3.connect('books.dat')
+    import_books('books.json', 'books.dat')
     cur = conn.cursor()
 
     books_authors_ref = {}
-    for item in json.load( open( 'books.json' ) ):
-        books_authors_ref[ item[ 'name' ] ] = item[ 'authors' ]
+    for item in json.load(open('books.json')):
+        books_authors_ref[item['name']] = item['authors']
 
-    cur.execute( 'select * from book order by id' )
+    cur.execute('select * from book order by id')
     books = cur.fetchall()
-    book_names = set( [ name for id, name in books ] )
+    book_names = set([name for id, name in books])
     assert book_names == books_authors_ref.keys()
 
-    cur.execute( 'select * from author order by id' )
+    cur.execute('select * from author order by id')
     authors = cur.fetchall()
-    author_names = set( [ name for id, name in authors ] )
-    all_authors = set( sum( books_authors_ref.values(), [] ) )
+    author_names = set([name for id, name in authors])
+    all_authors = set(sum(books_authors_ref.values(), []))
     assert author_names == all_authors
 
-    cur.execute( 'select * from book_author_list order by book_id' )
+    cur.execute('select * from book_author_list order by book_id')
     book_author = cur.fetchall()
-    assert len( book_author ) == sum( [ len( l ) for l in books_authors_ref.values() ] )
+    assert len(book_author) == sum([len(l)
+                                    for l in books_authors_ref.values()])
     for b_id, a_id in book_author:
-        _, b_name = books[ b_id - 1 ]
-        _, a_name = authors[ a_id - 1 ]
-        assert a_name in books_authors_ref[ b_name ]
+        _, b_name = books[b_id - 1]
+        _, a_name = authors[a_id - 1]
+        assert a_name in books_authors_ref[b_name]
 
     conn.close()
+
 
 if __name__ == "__main__":
     test_main()
