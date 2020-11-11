@@ -1,0 +1,21 @@
+# Operators, Iterators, Decorators and Exceptions
+
+This week, we will look at some of the more advanced language
+features of Python.
+
+The first couple of exercises will be about iterators and
+generators:
+
+ 1. ‹iter.py› – simple iterators [submit for 0.5 points]
+ 2. ‹flat.py› – a simple generator
+
+We will then move on to operator overloading:
+
+ 3. ‹poly.py› – polynomials
+ 4. ‹mod.py› – finite rings of integers mod N (ℤ/nℤ)
+
+Finally, the last will cover exceptions and decorators:
+
+ 5. ‹with.py› – context managers vs exceptions
+ 6. ‹trace.py› – decorators part 1 [submit for 0.5 points]
+ 7. ‹noexcept.py› – decorators and exceptions
