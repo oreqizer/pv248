@@ -17,6 +17,27 @@ import sys
 from io import StringIO
 import time
 
+
+async def cor1():
+    count = 0
+    while count < 5:
+        await asyncio.sleep(0.7)
+        print("cor1")
+        count += 1
+
+
+async def cor2():
+    count = 0
+    while count < 5:
+        await asyncio.sleep(1)
+        print("cor2")
+        count += 1
+
+
+async def main():
+    await asyncio.gather(cor1(), cor2())
+
+
 def test_main():
 
     old = sys.stdout
@@ -24,11 +45,11 @@ def test_main():
     sys.stdout = out
 
     start = time.time()
-    asyncio.run( main() )
+    asyncio.run(main())
     end = time.time()
 
     sys.stdout = old
-    result = out.getvalue().strip().split( '\n' )
+    result = out.getvalue().strip().split('\n')
 
     assert result[0] == "cor1"
     assert result[1] == "cor2"
@@ -39,6 +60,7 @@ def test_main():
 
     assert end - start >= 5
     assert end - start < 5.2
+
 
 if __name__ == "__main__":
     test_main()
