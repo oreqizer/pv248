@@ -1,0 +1,31 @@
+# Closures and Coroutines
+
+There will be two sets of exercises, mostly focused on coroutines
+(this week, we will use generators – as long as you only use
+‹yield›, but not ‹send› – those are in fact semi-coroutines; if you
+also use ‹send›, generators behave as full coroutines).
+
+We will look at so-called «native coroutines» next week, with
+‹asyncio› (those are declared using ‹async def› and do not use
+‹yield›). In some sense, native and generator-based coroutines have
+the same expressive power, but they have different underlying
+implementations and make slightly different trade-offs.
+
+The first couple of exercises will be quite easy, to get a feeling
+for yields and coroutines. You can also consult ‹gen.py› which is
+really just a short demo.
+
+ 1. ‹interleave.py›
+ 2. ‹stream-getline.py›
+
+The ‘real’ exercises start with number 3, and all deal with using
+coroutines for parsing, which is one of the more canonical use cases
+(except perhaps for using them as generators, which we did last
+week). In those exercises, you can also practice using lexical
+closures: they will come in handy when defining the coroutines in
+‹stream-lexer.py› and ‹parse.py›, at minimum.
+
+ 3. ‹stream-lexer.py› [0.5 points]
+ 4. ‹tbd› one more stream exercise?
+ 5. ‹parse.py›
+ 6. ‹mbox.py› [0.5 points]

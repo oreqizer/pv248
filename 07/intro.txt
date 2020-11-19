@@ -1,0 +1,13 @@
+# ‹asyncio› Basics
+
+This week, we will get acquainted with ‹asyncio›, the framework for
+writing asynchronous programs in Python, based on native coroutines
+and non-blocking IO. The exercises are as follows:
+
+ 1. ‹cor-sleep.py›
+ 2. ‹cor-semaphore.py› [submit for 0.5 points]
+
+ 3. ‹aio-process.py›
+ 4. ‹aio-multi.py› (tbd)
+ 5. ‹aio-counter.py› [submit for 0.5 points]
+ 6. ‹http-client.py›

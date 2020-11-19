@@ -1,28 +1,11 @@
 # Write a simple context manager to be used in a `with` block. The goal is to
 # enrich stack traces with additional context, like this:
 
-import sys
-from io import StringIO
-import traceback
+def context( *args ):
+    pass
 
-class Context:
-    def __init__(self, *args):
-        self.args = list(args)
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        if exc_type is None:
-            return
-        print(" ".join(map(str, self.args)), file=sys.stderr)
-
-def context(*args):
-    return Context(*args)
-
-
-def foo(x, y):
-    with context("asserting equality", x, '=', y):
+def foo( x, y ):
+    with context( "asserting equality", x, '=', y ):
         assert x == y
 
 # foo( (), () )
@@ -37,8 +20,11 @@ def foo(x, y):
 #     assert x == y
 # AssertionError
 
+import sys
+import traceback
+from io import StringIO
 
-def redirect_err(f):
+def redirect_err( f ):
 
     stderr = sys.stderr
     out = StringIO()
@@ -56,19 +42,18 @@ def redirect_err(f):
 def test_main():
 
     def test():
-        foo((), ())
-        foo(7, [])
+        foo( (), () )
+        foo( 7, [] )
 
-    output = redirect_err(test)
+    output = redirect_err( test )
 
-    res = output.split('\n')
+    res = output.split( '\n' )
     assert res[0] == "asserting equality 7 = []"
     assert res[1] == "Traceback (most recent call last):"
-    assert res[2].strip().startswith("File")
-    assert res[2].endswith("in redirect_err")
+    assert res[2].strip().startswith( "File" )
+    assert res[2].endswith( "in redirect_err" )
     assert res[3] == "    f()"
     assert res[-2] == "AssertionError"
-
 
 if __name__ == "__main__":
     test_main()

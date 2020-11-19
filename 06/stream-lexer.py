@@ -1,0 +1,109 @@
+# In the second exercise in the series, we will define a simple
+# stream-based lexer. That is, we will take, as an input, a stream
+# of text chunks and on the output produce a stream of lexemes
+# (tokens). The lexemes will be tuples, where the first item is the
+# classification (a keyword, an identifier or a number) and the
+# second item is the string which holds the token itself.
+
+# Let the keywords be ‹set›, ‹add› and ‹mul›. Identifiers start with
+# an alphabetic letter and continue with letters and digits. Numbers
+# are made of digits.
+
+from re import split, match
+
+
+IDENT = 1
+KW = 2
+NUM = 3
+
+def get_lexem(word):
+    if word in ["set", "add", "mul"]:
+        return (KW, word)
+    if match(r"\d+$", word):
+        return (NUM, word)
+    if match(r"([a-zA-Z]\w+)$", word):
+        return (IDENT, word)
+    raise RuntimeError
+
+def stream_lexer(text_stream):
+    chunk = ""
+    for s in text_stream:
+        if s is None:
+            break
+
+        chunk += s
+        parts = split(r"\s", chunk)
+        if len(parts) > 1:
+            chunk = parts.pop()
+        else:
+            continue
+
+        for p in parts:
+            yield get_lexem(p)
+
+    yield get_lexem(chunk)
+    yield None
+
+# Testing code follows.
+
+class Box:
+    def __init__(self, v):
+        self.value = v
+
+
+def make_test_source():
+    counter = Box(0)
+
+    def test_source():
+        yield "ident"
+        counter.value += 1
+        yield "ifier\nm"
+        counter.value += 1
+        yield "ul 32"
+        counter.value += 1
+        yield "1 mul"
+        counter.value += 1
+        yield "tiply add"
+        counter.value += 1
+        yield "32 1"
+        counter.value += 1
+        while True:
+            yield None
+    return (test_source(), counter)
+
+
+def bad_stream():
+    yield "12"
+    yield "x"
+
+
+def test_main():
+    stream, counter = make_test_source()
+    assert counter.value == 0
+    tokens = stream_lexer(stream)
+    assert counter.value == 0
+    assert next(tokens) == (IDENT, "identifier")
+    assert counter.value == 1
+    assert next(tokens) == (KW, "mul")
+    assert counter.value == 2
+    assert next(tokens) == (NUM, "321")
+    assert counter.value == 3
+    assert next(tokens) == (IDENT, "multiply")
+    assert counter.value == 4
+    assert next(tokens) == (IDENT, "add32")
+    assert counter.value == 5
+    assert next(tokens) == (NUM, "1")
+    assert counter.value == 6
+    assert next(tokens) is None
+    assert counter.value == 6
+
+    tokens = stream_lexer(bad_stream())
+    try:
+        next(tokens)
+        assert False
+    except RuntimeError:
+        pass
+
+
+if __name__ == '__main__':
+    test_main()
