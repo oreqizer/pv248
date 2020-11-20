@@ -42,6 +42,7 @@ async def spawn(script, index, counter):
     while counter.running:
         await proc.stdout.readline()
         counter.inc(index)
+    proc.terminate()
         
 
 async def counters(queue, sleeps, iterations):
@@ -64,6 +65,7 @@ async def counters(queue, sleeps, iterations):
 
     for cr in crs:
         await cr
+    await asyncio.sleep(1)
 
 
 def fuzzy(a, b):
