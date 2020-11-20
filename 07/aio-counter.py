@@ -16,26 +16,77 @@
 
 import asyncio
 
-async def counters( queue, sleeps, iterations ):
-    pass
 
-def fuzzy( a, b ):
-    for i, j in zip( a, b ):
-        if abs( i - j ) > 1:
+class Counter:
+    def __init__(self, length, q, iters):
+        self.length = length
+        self.q = q
+        self.iters = iters
+        self.tasks = [0 for _ in range(0, length)]
+        self.running = True
+
+    def inc(self, index):
+        self.tasks[index] += 1
+
+    async def tick(self):
+        await self.q.put(self.tasks)
+        if self.iters > 0:
+            self.iters -= 1
+        else:
+            self.running = False
+
+
+async def spawn(script, index, counter):
+    proc = await asyncio.create_subprocess_shell(script, stdout=asyncio.subprocess.PIPE)
+
+    while counter.running:
+        await proc.stdout.readline()
+        counter.inc(index)
+        
+
+async def counters(queue, sleeps, iterations):
+    # Iba tato funkcia je defined
+    counter = Counter(len(sleeps), queue, iterations)
+    scripts = [
+        "while true; do echo .; sleep {n}; done".format(n=s)
+        for s in sleeps
+    ]
+
+    crs = []
+    for i, script in enumerate(scripts):
+        crs.append(
+            asyncio.create_task(spawn(script, i, counter))
+        )
+
+    while counter.running:
+        await asyncio.sleep(1)
+        await counter.tick()
+
+    for cr in crs:
+        await cr
+
+
+def fuzzy(a, b):
+    for i, j in zip(a, b):
+        if abs(i - j) > 1:
             return False
     return True
 
-async def check( q ):
-    assert fuzzy( await q.get(), [ 1, 2, 10 ] )
-    assert fuzzy( await q.get(), [ 2, 4, 20 ] )
-    assert fuzzy( await q.get(), [ 3, 6, 30 ] )
+
+async def check(q):
+    assert fuzzy(await q.get(), [1, 2, 10])
+    assert fuzzy(await q.get(), [2, 4, 20])
+    assert fuzzy(await q.get(), [3, 6, 30])
+
 
 async def main():
     q = asyncio.Queue()
-    await asyncio.gather( check( q ), counters( q, [ 1, 0.5, 0.1 ], 3 ) )
+    await asyncio.gather(check(q), counters(q, [1, 0.5, 0.1], 3))
+
 
 def test_main():
-    asyncio.run( main() )
+    asyncio.run(main())
+
 
 if __name__ == '__main__':
     test_main()

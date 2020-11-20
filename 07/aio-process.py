@@ -26,36 +26,61 @@
 import asyncio
 from asyncio.subprocess import PIPE
 
-async def pipe_cmd( command, inputs ):
-    pass
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
+
+
+async def pipe_cmd(command, inputs):
+    proc = await asyncio.create_subprocess_shell(command, stdin=PIPE, stdout=PIPE)
+
+    outputs = []
+    for i in inputs:
+        proc.stdin.write(str(i).encode())
+        proc.stdin.write("\n".encode())
+        await proc.stdin.drain()
+        stdout = await proc.stdout.readuntil()
+        s = stdout.decode().rstrip("\n")
+        if s.lstrip("-").isnumeric():
+            outputs.append(num(s))
+        else:
+            outputs.append(s)
+
+    proc.terminate()
+    return outputs
 
 
 async def run():
 
     p = "while read x; do echo x is $x; done"
-    inputs = [ 'a', 7, "input", 3.6, "`echo 2`" ]
-    outputs = [ 'x is a', 'x is 7', 'x is input', 'x is 3.6',
-                'x is `echo 2`' ]
+    inputs = ['a', 7, "input", 3.6, "`echo 2`"]
+    outputs = ['x is a', 'x is 7', 'x is input', 'x is 3.6',
+               'x is `echo 2`']
 
-    res = await pipe_cmd( p, inputs )
+    res = await pipe_cmd(p, inputs)
     assert res == outputs
 
     p = "bc"
-    inputs = [ "231-19", "sqrt(2+7)*3", "8^7-5432^2" ]
-    outputs = [ 212, 9, -27409472 ]
+    inputs = ["231-19", "sqrt(2+7)*3", "8^7-5432^2"]
+    outputs = [212, 9, -27409472]
 
-    res = await pipe_cmd( p, inputs )
+    res = await pipe_cmd(p, inputs)
     assert res == outputs
 
     p = "while read var; do echo \"${#var}\"; done"
-    inputs = [ 229, 10239, 1343, 1, "06" ]
-    outputs = [ 3, 5, 4, 1, 2 ]
+    inputs = [229, 10239, 1343, 1, "06"]
+    outputs = [3, 5, 4, 1, 2]
 
-    res = await pipe_cmd( p, inputs )
+    res = await pipe_cmd(p, inputs)
     assert res == outputs
 
+
 def test_main():
-    asyncio.run( run() )
+    asyncio.run(run())
+
 
 if __name__ == "__main__":
     test_main()
