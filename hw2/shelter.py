@@ -1,6 +1,7 @@
 # Write your solution into this file.
 class Exam:
-    def __init__(self, *, vet, date, report):
+    def __init__(self, *, id=None, vet, date, report):
+        self.id = id
         self.vet = vet
         self.date = date
         self.report = report
@@ -14,7 +15,8 @@ class Exam:
 
 
 class Adoption:
-    def __init__(self, *, date, adopter_name, adopter_address):
+    def __init__(self, *, id=None, date, adopter_name, adopter_address):
+        self.id = id
         self.date = date
         self.adopter_name = adopter_name
         self.adopter_address = adopter_address
@@ -28,12 +30,16 @@ class Adoption:
 
 
 class FosterParent:
-    def __init__(self, *, name, address, phone_number, max_animals):
+    def __init__(self, *, id=None, name, address, phone_number, max_animals):
+        self.id = id
         self.name = name
         self.address = address
         self.phone_number = phone_number
         self.max_animals = max_animals
         self.fosters = []
+
+    def __repr__(self):
+        return f"FosterParent(id={self.id}, name={self.name})"
 
     def __eq__(self, o):
         return (
@@ -62,11 +68,14 @@ class FosterParent:
 
 
 class Foster:
-    def __init__(self, *, parent, start_date, end_date=None):
+    def __init__(self, *, id=None, parent, start_date, end_date=None):
+        self.id = id
         self.parent = parent
         self.start_date = start_date
         self.end_date = end_date
 
+    def __repr__(self):
+        return f"Foster(id={self.id}, parent={self.parent})"
 
     def __eq__(self, o):
         return (
@@ -82,7 +91,8 @@ class Foster:
 
 
 class Animal:
-    def __init__(self, *, name, year_of_birth, gender, date_of_entry, species, breed):
+    def __init__(self, *, id=None, name, year_of_birth, gender, date_of_entry, species, breed):
+        self.id = id
         self.name = name
         self.year_of_birth = year_of_birth
         self.gender = gender
@@ -92,6 +102,9 @@ class Animal:
         self.exams = []
         self.adoption = None
         self.fosters = []
+
+    def __repr__(self):
+        return f"Animal(id={self.id}, name={self.name})"
 
     def __eq__(self, o):
         return (
@@ -238,9 +251,19 @@ class Shelter:
     • an attempt is made to exceed the capacity of a foster parent.
     """
 
-    def __init__(self):
+    def __init__(self, *, id=None):
+        self.id = id
         self.animals = []
         self.foster_parents = []
+
+    def __repr__(self):
+        return f"Shelter(id={self.id}, animals={self.animals}, foster_parents={self.foster_parents})"
+
+    def __eq__(self, other):
+        return (
+            set(self.animals) == set(other.animals)
+            and set(self.foster_parents) == set(other.foster_parents)
+        )
 
     def add_animal(self, *, name, year_of_birth, gender, date_of_entry, species, breed):
         """
@@ -264,7 +287,7 @@ class Shelter:
             breed=breed,
         )
 
-        cand = next(a for a in self.animals if a.is_like(animal))
+        cand = next(iter([a for a in self.animals if a.is_like(animal)]), None)
         if cand != None:
             if animal in self.animals:
                 return cand
@@ -311,7 +334,8 @@ class Shelter:
             max_animals=max_animals,
         )
 
-        cand = next(p for p in self.foster_parents if p.is_like(parent))
+        cand = next(
+            iter([p for p in self.foster_parents if p.is_like(parent)]), None)
         if cand != None:
             if parent in self.foster_parents:
                 return cand
