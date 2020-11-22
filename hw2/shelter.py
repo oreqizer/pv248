@@ -6,6 +6,9 @@ class Exam:
         self.date = date
         self.report = report
 
+    def __repr__(self):
+        return f"Exam(id={self.id}, vet={self.vet}, report={self.report})"
+
     def __eq__(self, o):
         return (
             self.vet == o.vet
@@ -20,6 +23,9 @@ class Adoption:
         self.date = date
         self.adopter_name = adopter_name
         self.adopter_address = adopter_address
+
+    def __repr__(self):
+        return f"Adoption(id={self.id}, adopter_name={self.adopter_name})"
 
     def __eq__(self, o):
         return (
@@ -39,7 +45,7 @@ class FosterParent:
         self.fosters = []
 
     def __repr__(self):
-        return f"FosterParent(id={self.id}, name={self.name})"
+        return f"FosterParent(\n  id={self.id},\n  name={self.name},\n  fosters={self.fosters}\n)"
 
     def __eq__(self, o):
         return (
@@ -47,7 +53,6 @@ class FosterParent:
             and self.address == o.address
             and self.phone_number == o.phone_number
             and self.max_animals == o.max_animals
-            # and set(self.fosters) == set(o.fosters) - not checking bcs of circular dep with Foster
         )
 
     def __contains__(self, cand):
@@ -104,7 +109,7 @@ class Animal:
         self.fosters = []
 
     def __repr__(self):
-        return f"Animal(id={self.id}, name={self.name})"
+        return f"Animal(\n  id={self.id},\n  name={self.name},\n  year_of_birth={self.year_of_birth},\n  gender={self.gender},\n  date_of_entry={self.date_of_entry},\n  species={self.species},\n  breed={self.breed},\n)"
 
     def __eq__(self, o):
         return (
@@ -114,9 +119,6 @@ class Animal:
             and self.date_of_entry == o.date_of_entry
             and self.species == o.species
             and self.breed == o.breed
-            and set(self.exams) == set(o.exams)
-            and self.adoption == o.adoption
-            and set(self.fosters) == set(o.fosters)
         )
 
     def __contains__(self, cand):
@@ -260,10 +262,13 @@ class Shelter:
         return f"Shelter(id={self.id}, animals={self.animals}, foster_parents={self.foster_parents})"
 
     def __eq__(self, other):
-        return (
-            set(self.animals) == set(other.animals)
-            and set(self.foster_parents) == set(other.foster_parents)
-        )
+        for a in self.animals:
+            if a not in other.animals:
+                return False
+        for p in self.foster_parents:
+            if p not in other.foster_parents:
+                return False
+        return True
 
     def add_animal(self, *, name, year_of_birth, gender, date_of_entry, species, breed):
         """
