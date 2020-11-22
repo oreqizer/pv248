@@ -112,9 +112,9 @@ def test_shelter():
     assert s1 == s1d
     assert s1.id == s1d.id
 
-    # s1l = load(s1.id, db=db)
+    s1l = load(s1.id, db=db)
 
-    # assert s1 == s1l
+    assert s1 == s1l
 
     db.close()
 
