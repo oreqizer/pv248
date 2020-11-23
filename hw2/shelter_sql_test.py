@@ -3,6 +3,7 @@ import sqlite3
 
 from shelter import Exam, Adoption, FosterParent, Foster, Animal, Shelter
 from shelter_sql import store, load
+import shelter_json
 
 
 def make_exam(*, vet="kek", date=date.today(), report="good"):
@@ -30,14 +31,6 @@ def make_parent(*, name="Kek", address="Bur 1337", phone_number="13371337", max_
     )
 
 
-def make_foster(*, parent=make_parent(), start_date=date.today(), end_date=None):
-    return Foster(
-        parent=parent,
-        start_date=start_date,
-        end_date=end_date,
-    )
-
-
 def make_animal(*, name="Doz", year_of_birth=2000, gender="Male", date_of_entry=date.today() - timedelta(days=200), species="Dog", breed="Staff"):
     return Animal(
         name=name,
@@ -46,6 +39,15 @@ def make_animal(*, name="Doz", year_of_birth=2000, gender="Male", date_of_entry=
         date_of_entry=date_of_entry,
         species=species,
         breed=breed,
+    )
+
+
+def make_foster(*, parent=make_parent(), animal=make_animal(), start_date=date.today(), end_date=None):
+    return Foster(
+        parent=parent,
+        animal=animal,
+        start_date=start_date,
+        end_date=end_date,
     )
 
 
@@ -88,20 +90,23 @@ def test_shelter():
                          phone_number="13371337", max_animals=2)
 
     for a in s1.animals:
-        a.fosters = [make_foster(parent=fp1)]
+        a.fosters = [make_foster(parent=fp1, animal=a)]
+        fp1.fosters = [make_foster(parent=fp1, animal=a)]
         a.exams = [make_exam()]
         a.adoption = make_adoption()
 
     for a in s1d.animals:
-        a.fosters = [make_foster(parent=fp1)]
+        a.fosters = [make_foster(parent=fp1, animal=a)]
+        fp1.fosters = [make_foster(parent=fp1, animal=a)]
         a.exams = [make_exam()]
         a.adoption = make_adoption()
 
     for a in s2.animals:
-        a.fosters = [make_foster(parent=fp2)]
+        a.fosters = [make_foster(parent=fp2, animal=a)]
+        fp2.fosters = [make_foster(parent=fp2, animal=a)]
         a.exams = [make_exam()]
 
-    # === STORE ===
+    # === SQL ===
     db = sqlite3.connect(':memory:')
     db.execute("PRAGMA foreign_keys = on")
 
@@ -117,6 +122,24 @@ def test_shelter():
     assert s1 == s1l
 
     db.close()
+
+    # === JSON ===
+    a_jsons = []
+    for a in s1.animals:
+        j = shelter_json.store(a)
+        res = shelter_json.load(j)
+        a_jsons.append(shelter_json.parse(j))
+        assert res == a
+
+    p_jsons = []
+    for p in s1.foster_parents:
+        j = shelter_json.store(p)
+        res = shelter_json.load(j)
+        p_jsons.append(shelter_json.parse(j))
+        assert res == p
+
+    s_res = shelter_json.load(shelter_json.format(a_jsons), shelter_json.format(p_jsons))
+    assert s_res == s1
 
 
 if __name__ == "__main__":

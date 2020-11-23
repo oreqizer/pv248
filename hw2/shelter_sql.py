@@ -37,7 +37,7 @@ def store(shelter, *, db, deduplicate=False):
 
         # Fosters
         for f in a.fosters:
-            insert_foster(db, shelter, a, f)
+            insert_foster(db, shelter, f)
 
         # Exams
         for e in a.exams:
@@ -161,6 +161,7 @@ def load(id, *, db):
             foster = Foster(
                 id=foster_id,
                 parent=parent,
+                animal=animal,
                 start_date=datetime.strptime(start_date, "%Y-%m-%d").date(),
                 end_date=None if end_date == None else datetime.strptime(end_date, "%Y-%m-%d").date(),
             )
@@ -330,8 +331,8 @@ VALUES (?, ?, ?, ?)
 """
 
 
-def insert_foster(db, shelter, animal, foster):
-    db.execute(query_insert_foster, (animal.id, foster.parent.id,
+def insert_foster(db, shelter, foster):
+    db.execute(query_insert_foster, (foster.animal.id, foster.parent.id,
                                      foster.start_date, foster.end_date))
     db.commit()
     (id,) = db.execute("SELECT last_insert_rowid()").fetchone()

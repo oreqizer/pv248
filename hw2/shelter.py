@@ -73,18 +73,20 @@ class FosterParent:
 
 
 class Foster:
-    def __init__(self, *, id=None, parent, start_date, end_date=None):
+    def __init__(self, *, id=None, parent, animal, start_date, end_date=None):
         self.id = id
         self.parent = parent
+        self.animal = animal
         self.start_date = start_date
         self.end_date = end_date
 
     def __repr__(self):
-        return f"Foster(id={self.id}, parent={self.parent})"
+        return f"Foster(id={self.id}, start_date={self.start_date}, end_date={self.end_date})"
 
     def __eq__(self, o):
         return (
             self.parent == o.parent
+            and self.animal == o.animal
             and self.start_date == o.start_date
             and self.end_date == o.end_date
         )
@@ -192,6 +194,7 @@ class Animal:
 
         foster = Foster(
             parent=parent,
+            animal=self,
             start_date=date
         )
 
