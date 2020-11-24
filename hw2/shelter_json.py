@@ -27,76 +27,97 @@ def parse_date(d):
         return datetime.strptime(d, "%Y-%m-%d").date()
     return None
 
+# === STORE ===
 
 def store(entity):
-    if type(entity) == Animal:
-        exams = []
-        adopted = None
-        fostering = []
-        for e in entity.exams:
-            exams.append({
-                "vet": e.vet,
-                "date": format_date(e.date),
-                "report": e.report,
-            })
-        if entity.adoption is not None:
-            adopted = {
-                "date": format_date(entity.adoption.date),
-                "name": entity.adoption.adopter_name,
-                "address": entity.adoption.adopter_address,
-            }
-        for f in entity.fosters:
-            cand = {
-                "start": format_date(f.start_date),
-                "parent": {
-                    "name": f.parent.name,
-                    "address": f.parent.address,
-                    "phone": f.parent.phone_number,
-                },
-            }
-            if f.end_date is not None:
-                cand["end"] = format_date(f.end_date)
-            fostering.append(cand)
-        cand = {
-            "name": entity.name,
-            "year_of_birth": entity.year_of_birth,
-            "gender": entity.gender,
-            "date_of_entry": format_date(entity.date_of_entry),
-            "species": entity.species,
-            "breed": entity.breed,
-            "exams": exams,
-            "fostering": fostering,
-        }
-        if adopted is not None:
-            cand["adopted"] = adopted
-        return format(cand)
+    if type(entity) != list:
+        if type(entity) == Animal:
+            return format(store_animal(entity))
 
-    if type(entity) == FosterParent:
-        fostering = []
-        for f in entity.fosters:
-            cand = {
-                "start": format_date(f.start_date),
-                "animal": {
-                    "name": f.animal.name,
-                    "year_of_birth": f.animal.year_of_birth,
-                    "gender": f.animal.gender,
-                    "date_of_entry": format_date(f.animal.date_of_entry),
-                    "species": f.animal.species,
-                    "breed": f.animal.breed,
-                },
-            }
-            if f.end_date is not None:
-                cand["end"] = format_date(f.end_date)
-            fostering.append(cand)
-        cand = {
-            "name": entity.name,
-            "address": entity.address,
-            "phone": entity.phone_number,
-            "capacity": entity.max_animals,
-            "fostering": fostering,
-        }
-        return format(cand)
+        if type(entity) == FosterParent:
+            return format(store_parent(entity))
 
+    res = []
+    for e in entity:
+        if type(e) == Animal:
+            res.append(store_animal(e))
+
+        if type(e) == FosterParent:
+            res.append(store_parent(e))
+    return format(res)
+
+
+def store_animal(entity):
+    exams = []
+    adopted = None
+    fostering = []
+    for e in entity.exams:
+        exams.append({
+            "vet": e.vet,
+            "date": format_date(e.date),
+            "report": e.report,
+        })
+    if entity.adoption is not None:
+        adopted = {
+            "date": format_date(entity.adoption.date),
+            "name": entity.adoption.adopter_name,
+            "address": entity.adoption.adopter_address,
+        }
+    for f in entity.fosters:
+        cand = {
+            "start": format_date(f.start_date),
+            "parent": {
+                "name": f.parent.name,
+                "address": f.parent.address,
+                "phone": f.parent.phone_number,
+            },
+        }
+        if f.end_date is not None:
+            cand["end"] = format_date(f.end_date)
+        fostering.append(cand)
+    cand = {
+        "name": entity.name,
+        "year_of_birth": entity.year_of_birth,
+        "gender": entity.gender,
+        "date_of_entry": format_date(entity.date_of_entry),
+        "species": entity.species,
+        "breed": entity.breed,
+        "exams": exams,
+        "fostering": fostering,
+    }
+    if adopted is not None:
+        cand["adopted"] = adopted
+    return cand
+
+
+def store_parent(entity):
+    fostering = []
+    for f in entity.fosters:
+        cand = {
+            "start": format_date(f.start_date),
+            "animal": {
+                "name": f.animal.name,
+                "year_of_birth": f.animal.year_of_birth,
+                "gender": f.animal.gender,
+                "date_of_entry": format_date(f.animal.date_of_entry),
+                "species": f.animal.species,
+                "breed": f.animal.breed,
+            },
+        }
+        if f.end_date is not None:
+            cand["end"] = format_date(f.end_date)
+        fostering.append(cand)
+    cand = {
+        "name": entity.name,
+        "address": entity.address,
+        "phone": entity.phone_number,
+        "capacity": entity.max_animals,
+        "fostering": fostering,
+    }
+    return cand
+
+
+# === LOAD ===
 
 def load(str1, str2=None):
     if str1 is None:

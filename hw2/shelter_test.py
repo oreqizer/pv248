@@ -138,6 +138,9 @@ def test_shelter():
         p_jsons.append(shelter_json.parse(j))
         assert res == p
 
+    shelter_json.store(s1.animals)
+    shelter_json.store(s1.foster_parents)
+
     s_res = shelter_json.load(shelter_json.format(a_jsons), shelter_json.format(p_jsons))
     assert s_res == s1
 
