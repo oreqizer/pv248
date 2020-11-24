@@ -99,6 +99,9 @@ def store(entity):
 
 
 def load(str1, str2=None):
+    if str1 is None:
+        return None
+
     if type(str2) == str:
         shelter = Shelter()
         r1 = parse(str1)
