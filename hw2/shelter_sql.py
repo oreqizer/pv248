@@ -168,7 +168,7 @@ def load(id, *, db):
             parent.fosters.append(foster)
 
         adoption = db.execute(query_select_adoption, (aid,)).fetchone()
-        if adoption != None:
+        if adoption is not None:
             (adopter_name, adopter_address, date) = adoption
             animal.adoption = Adoption(
                 id=aid,

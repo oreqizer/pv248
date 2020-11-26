@@ -205,7 +205,7 @@ class Animal:
         """
         ◦ ‹end_foster› which takes a ‹date›,
         """
-        if self.adoption != None and not self.is_available(date=date):
+        if self.adoption is not None and not self.is_available(date=date):
             raise RuntimeError("cannot end foster on an adopted animal")
 
         if self.is_available(date=date):
@@ -218,7 +218,7 @@ class Animal:
         if date < self.date_of_entry:
             return False
 
-        if self.adoption != None and self.adoption.date <= date:
+        if self.adoption is not None and self.adoption.date <= date:
             return False
 
         for f in self.fosters:
@@ -296,7 +296,7 @@ class Shelter:
         )
 
         cand = next(iter([a for a in self.animals if a.is_like(animal)]), None)
-        if cand != None:
+        if cand is not None:
             if animal in self.animals:
                 return cand
             raise RuntimeError
@@ -344,7 +344,7 @@ class Shelter:
 
         cand = next(
             iter([p for p in self.foster_parents if p.is_like(parent)]), None)
-        if cand != None:
+        if cand is not None:
             if parent in self.foster_parents:
                 return cand
             raise RuntimeError
