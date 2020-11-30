@@ -12,7 +12,7 @@ class Atom:
     def is_atom(self):
         return True
 
-    def is_boolean(self):
+    def is_bool(self):
         return isinstance(self, Boolean)
 
     def is_compound(self):
