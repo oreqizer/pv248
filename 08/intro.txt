@@ -1,0 +1,17 @@
+# More ‹asyncio›
+
+While the lecture this weeks goes into low-level details of
+‹asyncio›, we will stick with the high-level interface. We will
+write some simple servers and clients using sockets.
+
+Simple async servers:
+
+ 1. ‹tcp-echo.py›
+ 2. ‹unix-rot13.py› [submit for 0.5 points]
+ 3. ‹unix-merge.py› [bonus! submit for 0.5 points]
+
+Passing data between native (‹async def›) coroutines:
+
+ 4. ‹pipeline.py›
+ 5. ‹tokenize.py› (tbd)
+ 6. ‹minilisp.py› [submit for 0.5 points]
