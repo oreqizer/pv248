@@ -61,7 +61,7 @@ class Compound(Atom):
     def __next__(self):
         if self.number == len(self.value):
             raise StopIteration
-        
+
         res = self.value[self.number]
         self.number += 1
 

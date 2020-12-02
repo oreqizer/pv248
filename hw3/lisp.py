@@ -7,61 +7,65 @@ from classes import Atom, Boolean, String, Number, Identifier, Compound
 
 
 def parse(s):
-    if not check_pairing(s) or s == '':
-        raise Exception
+    try:
+        if not check_pairing(s) or s == '':
+            raise Exception("paren / bracket / string pairing error")
 
-    res = tokenize(s)
-    if res == '':
-        return Atom('')
+        res = tokenize(s)
+        if res == '':
+            return Atom('')
 
-    if type(res) == str:
-        if len(res) >= 2 and res[0] == '"' and res[-1] == '"':
-            return String(res[1:-1])
+        if type(res) == str:
+            if len(res) >= 2 and res[0] == '"' and res[-1] == '"':
+                return String(res[1:-1])
 
-        if res == '#f':
-            return Boolean(False)
+            if res == '#f':
+                return Boolean(False)
 
-        if res == '#t':
-            return Boolean(True)
+            if res == '#t':
+                return Boolean(True)
 
-        num = maybe_number(res)
-        if num is not None:
-            return Number(num)
+            num = maybe_number(res)
+            if num is not None:
+                return Number(num)
 
-        if is_identifier(res):
-            space = s.find(' ')
-            return Identifier(s[:space] if space > 0 else s)
+            if is_identifier(res):
+                space = s.find(' ')
+                return Identifier(s[:space] if space > 0 else s)
 
-        raise Exception
+            raise Exception
 
-    return Compound([parse(x) for x in res])
+        return Compound([parse(x) for x in res])
+    except Exception as err:
+        print("Parse error: ", err)
+        return None
 
 
 def tokenize(s):
     pure = s.strip()
-    if len(pure) < 2 or pure[0] != '(' or pure[-1] != ')':
+    if len(pure) < 2 or pure[0] not in '([' or pure[-1] not in ')]':
         # Atom
         return pure
 
     expr = pure[1:-1].strip()  # Expression without ( )
     words = []                 # Resulting words
     word = ''                  # Current word-in-progress
-    depth = 0                  # ( ) nesting
+    depth = []                 # ( ) or [ ] nesting
     escaped = False            # Escaped chars in strings
     is_string = False          # Is the current word a string
 
     for i, c in enumerate(expr):
         word += c
 
-        if depth > 0:
-            if c == '(':
-                # Bracket enter
-                depth += 1
+        if len(depth) > 0:
+            if c in '([':
+                # Paren / bracket enter
+                depth.append(c)
 
-            if c == ')':
-                # Bracket leave
-                depth -= 1
-                
+            if c in ')]':
+                # Paren / bracket leave
+                depth.pop()
+
             if depth == 0:
                 words.append(word)
                 word = ''
@@ -82,12 +86,11 @@ def tokenize(s):
 
         else:
             if i - 1 >= 0 and expr[i - 1] == '"' and not c.isspace():
-                # Not beginning, not inside string and not space
-                raise Exception
+                raise Exception("nonspace after string")
 
-            if c == '(':
-                # Bracket enter
-                depth += 1
+            if c in '([':
+                # Paren / bracket enter
+                depth.append(c)
 
             elif c == '"':
                 # String enter
@@ -119,25 +122,33 @@ def maybe_number(s):
 
 
 def check_pairing(s):
-    depth = 0         # ( ) nesting
-    string_apos = 0   # Number of "
-    escaped = False   # Escaped chars in strings
+    depth = []       # ( ) or [ ] nesting
+    string_apos = 0  # Number of "
+    escaped = False  # Escaped chars in strings
 
     for c in s:
         if escaped:
             if c not in '"\\':
-                raise Exception
+                raise Exception("invalid escaped character")
 
             escaped = False
             continue
 
-        if c == '(':
-            depth += 1
-            continue
+        if c in '([':
+            # Paren / bracket enter
+            depth.append(c)
 
         if c == ')':
-            depth -= 1
-            continue
+            # Paren leave
+            left = depth.pop()
+            if left != '(':
+                raise Exception("paren/bracket mismatch")
+
+        if c == ']':
+            # Bracket leave
+            left = depth.pop()
+            if left != '[':
+                raise Exception("paren/bracket mismatch")
 
         if c == '"':
             string_apos += 1
@@ -145,7 +156,7 @@ def check_pairing(s):
 
         escaped = c == '\\'
 
-    return depth == 0 and string_apos % 2 == 0
+    return len(depth) == 0 and string_apos % 2 == 0
 
 
 def is_ident_char(char):
