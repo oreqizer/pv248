@@ -13,43 +13,97 @@
 # a predictive (LL) parser for the hw3 grammar is easy and worth a
 # shot even if you originally wrote something else.
 
+import os
 import asyncio
 
-async def minilisp( reader ):
-    pass
 
-import os
+def append_deep(words, word):
+    if type(words) != list:
+        return
+
+    if len(words) == 0:
+        for w in word.split(" "):
+            words.append(w)
+
+    last = words[0]
+    if type(last) == list:
+        append_deep(last, word)
+    else:
+        for w in word.split(" "):
+            words.append(w)
+    
+
+async def minilisp(reader):
+    depth = 0
+    word = ''
+    words = []
+    stack = [words]
+    while True:
+        b = await reader.readexactly(1)
+        if len(b) == 0:
+            return None
+
+        c = b.decode()
+        if c == '(':
+            if depth > 0:
+                stack.append([])
+                words = stack[-1]
+            depth += 1
+            continue
+
+        if c == ')':
+            depth -= 1
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+            if depth == 0:
+                return stack.pop()
+            n = stack.pop()
+            words = stack[-1]
+            words.append(n)
+            continue
+
+        if c == ' ':
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+            continue
+
+        word += c
+
 
 async def main():
     loop = asyncio.get_running_loop()
     r_fd, w_fd = os.pipe()
-    w_file = os.fdopen( w_fd, 'w' )
+    w_file = os.fdopen(w_fd, 'w')
     r_stream = asyncio.StreamReader()
-    await loop.connect_read_pipe( lambda:
-            asyncio.StreamReaderProtocol( r_stream ),
-            os.fdopen( r_fd ) )
+    await loop.connect_read_pipe(lambda:
+                                 asyncio.StreamReaderProtocol(r_stream),
+                                 os.fdopen(r_fd))
 
-    def send( data ):
-        w_file.write( data )
+    def send(data):
+        w_file.write(data)
         w_file.flush()
 
-    async def check( *expect ):
-        expect = list( expect )
-        got = await minilisp( r_stream ) 
+    async def check(*expect):
+        expect = list(expect)
+        got = await minilisp(r_stream)
         assert got == expect, f"{got} == {expect}"
 
-    send( '(hello)' )
-    await check( 'hello' )
-    send( '(hello world)' )
-    await check( 'hello', 'world' )
-    send( '(hello (world))' )
-    await check( 'hello', [ 'world' ] )
-    send( '((hello) (cruel (or not) world))' )
-    await check( [ 'hello' ],
-                 [ 'cruel', [ 'or', 'not' ], 'world' ] )
+    send('(hello)')
+    await check('hello')
+    send('(hello world)')
+    await check('hello', 'world')
+    send('(hello (world))')
+    await check('hello', ['world'])
+    send('((hello) (cruel (or not) world))')
+    await check(['hello'],
+                ['cruel', ['or', 'not'], 'world'])
+
 
 def test_main():
-    asyncio.run( main() )
+    asyncio.run(main())
+
 
 if __name__ == '__main__':
     test_main()
