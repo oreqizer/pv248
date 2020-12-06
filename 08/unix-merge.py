@@ -22,8 +22,15 @@ import asyncio
 # does.
 
 
+def handle_in(path_out):
+    def handler(reader, writer):
+        pass
+
+    return handler
+
 async def merge_server(path_in, path_out):
-    pass
+    server = await asyncio.start_unix_server(handle_in(path_out), path=path_in)
+    await server.start_serving()
 
 
 def test_main():

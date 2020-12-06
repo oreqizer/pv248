@@ -8,40 +8,39 @@ from classes import Atom, Boolean, String, Number, Identifier, Compound
 
 def parse(s):
     try:
-        return parser(s)
+        tokens = tokenize(s)
+
+        return parser(tokens)
     except Exception as err:
         print(f"Parse error: {err}")
         return None
 
 
-def parser(s):
-    if s == '':
-        raise Exception("something is wrong")
-
-    res = tokenize(s)
-    if res == '':
+def parser(token):
+    if token == '':
         return Atom('')
 
-    if type(res) == str:
-        if len(res) >= 2 and res[0] == '"' and res[-1] == '"':
-            return String(res[1:-1])
+    if type(token) == list:
+        return Compound([parser(x) for x in token])
 
-        if res == '#f':
+    if type(token) == str:
+        if len(token) >= 2 and token[0] == '"' and token[-1] == '"':
+            return String(token[1:-1])
+
+        if token == '#f':
             return Boolean(False)
 
-        if res == '#t':
+        if token == '#t':
             return Boolean(True)
 
-        num = maybe_number(res)
+        num = maybe_number(token)
         if num is not None:
             return Number(num)
 
-        if is_identifier(res):
-            return Identifier(res)
+        if is_identifier(token):
+            return Identifier(token)
 
-        raise Exception("invalid token")
-
-    return Compound([parser(x) for x in res])
+    raise Exception(f"invalid token: {token}")
 
 
 def tokenize(s):
@@ -50,8 +49,9 @@ def tokenize(s):
         # Atom
         return expr
 
-    words = []         # Resulting words
     word = ''          # Current word-in-progress
+    words = []         # Resulting words of current compound
+    stack = [words]    # Resulting stack
     depth = []         # ( ) or [ ] nesting
     escaped = False    # Escaped chars in strings
     is_string = False  # Is the current word a string
@@ -67,27 +67,26 @@ def tokenize(s):
 
         if c in '([':
             # Bracket/paren enter
+            if len(depth) > 0:
+                stack.append([])
+                words = stack[-1]
             depth.append(c)
             continue
 
-        if c == ')':
+        if c in ')]':
             # Paren leave
-            left = depth.pop()
-            if left != '(':
+            if len(depth) == 0:
                 raise Exception("paren/bracket mismatch")
-            if len(depth) == 0 and len(word) > 0:
+            left = depth.pop()
+            if c == ")" and left != '(' or c == "]" and left != "[":
+                raise Exception("paren/bracket mismatch")
+            if len(word) > 0:
                 words.append(word)
                 word = ''
-            continue
-
-        if c == ']':
-            # Bracket leave
-            left = depth.pop()
-            if left != '[':
-                raise Exception("paren/bracket mismatch")
-            if len(depth) == 0 and len(word) > 0:
-                words.append(word)
-                word = ''
+            if len(depth) > 0:
+                n = stack.pop()
+                words = stack[-1]
+                words.append(n)
             continue
 
         if is_string:
@@ -122,11 +121,14 @@ def tokenize(s):
     if is_string:
         raise Exception("string mismatch")
 
+    if len(depth) > 0:
+        raise Exception("paren / bracket mismatch")
+
     if len(word) > 0:
         # Leftover
         words.append(word)
 
-    return words
+    return stack.pop()
 
 
 # === UTILS ===
