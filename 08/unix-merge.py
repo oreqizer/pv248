@@ -23,14 +23,32 @@ import asyncio
 
 
 def handle_in(path_out):
-    def handler(reader, writer):
-        pass
+    readers = []
+
+    async def handler(reader, writer):
+        nonlocal readers
+        readers.append(reader)
+        if len(readers) == 2:
+            _, w = await asyncio.open_unix_connection(path=path_out)
+            while True:
+                lines = await asyncio.gather(*[r.readline() for r in readers])
+                empty = True
+                for l in lines:
+                    if len(l) > 0:
+                        empty = False
+                if empty:
+                    w.close()
+                    return
+                lines.sort()
+                w.writelines(lines)
 
     return handler
+
 
 async def merge_server(path_in, path_out):
     server = await asyncio.start_unix_server(handle_in(path_out), path=path_in)
     await server.start_serving()
+    return server
 
 
 def test_main():
