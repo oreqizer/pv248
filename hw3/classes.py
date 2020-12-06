@@ -137,4 +137,5 @@ class String(Literal):
         super().__init__(value)
 
     def __str__(self):
-        return f'"{self.value}"'
+        res = self.value.replace("\\", "\\\\").replace('"', '\\"')
+        return f'"{res}"'

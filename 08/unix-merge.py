@@ -21,103 +21,106 @@ import asyncio
 # return the server object, just like ‹asyncio.start_unix_server›
 # does.
 
-async def merge_server( path_in, path_out ):
+
+async def merge_server(path_in, path_out):
     pass
+
 
 def test_main():
     lines_read = 0
     sem_start, sem_end = None, None
 
-    async def check_line( reader, expect ):
+    async def check_line(reader, expect):
         nonlocal lines_read
         expect += b'\n'
         got = await reader.readline()
         assert got == expect, f"{got} == {expect}"
         lines_read += 1
 
-    async def check_complex( reader, writer ):
+    async def check_complex(reader, writer):
         await sem_start.get()
 
-        _, s111 = await asyncio.open_unix_connection( "sock_11" )
-        _, s112 = await asyncio.open_unix_connection( "sock_11" )
-        _, s121 = await asyncio.open_unix_connection( "sock_12" )
-        _, s122 = await asyncio.open_unix_connection( "sock_12" )
-        _, s21 = await asyncio.open_unix_connection( "sock_2" )
-        _, s22 = await asyncio.open_unix_connection( "sock_2" )
+        _, s111 = await asyncio.open_unix_connection("sock_11")
+        _, s112 = await asyncio.open_unix_connection("sock_11")
+        _, s121 = await asyncio.open_unix_connection("sock_12")
+        _, s122 = await asyncio.open_unix_connection("sock_12")
+        _, s21 = await asyncio.open_unix_connection("sock_2")
+        _, s22 = await asyncio.open_unix_connection("sock_2")
 
-        s111.write( b'b\n' )
-        s112.write( b'c\n' )
+        s111.write(b'b\n')
+        s112.write(b'c\n')
 
-        s121.write( b'd\n' )
-        s122.write( b'e\n' )
+        s121.write(b'd\n')
+        s122.write(b'e\n')
 
-        s21.write( b'a\n' )
+        s21.write(b'a\n')
         s22.close()
 
-        await check_line( reader, b'a' )
+        await check_line(reader, b'a')
 
-        s121.write( b'f\n' )
+        s121.write(b'f\n')
         s111.close()
         s112.close()
         s121.close()
         s122.close()
         s21.close()
 
-        await check_line( reader, b'b' )
-        await check_line( reader, b'c' )
-        await check_line( reader, b'd' )
-        await check_line( reader, b'e' )
-        await check_line( reader, b'f' )
+        await check_line(reader, b'b')
+        await check_line(reader, b'c')
+        await check_line(reader, b'd')
+        await check_line(reader, b'e')
+        await check_line(reader, b'f')
 
-        await sem_end.put( 0 )
+        await sem_end.put(0)
 
     async def main_complex():
         nonlocal sem_start, sem_end
-        sem_start, sem_end = asyncio.Queue( 1 ), asyncio.Queue( 1 )
-        chk = await asyncio.start_unix_server( check_complex, "sock_o" )
-        m   = await merge_server( "socket",  "sock_o" )
-        m1  = await merge_server( "sock_1",  "socket" )
-        m11 = await merge_server( "sock_11", "sock_1" )
-        m12 = await merge_server( "sock_12", "sock_1" )
-        m2  = await merge_server( "sock_2",  "socket" )
-        await sem_start.put( 0 )
+        sem_start, sem_end = asyncio.Queue(1), asyncio.Queue(1)
+        chk = await asyncio.start_unix_server(check_complex, "sock_o")
+        m = await merge_server("socket",  "sock_o")
+        m1 = await merge_server("sock_1",  "socket")
+        m11 = await merge_server("sock_11", "sock_1")
+        m12 = await merge_server("sock_12", "sock_1")
+        m2 = await merge_server("sock_2",  "socket")
+        await sem_start.put(0)
         await sem_end.get()
         assert lines_read == 6, f"{lines_read} == 6"
 
-    async def check_simple( reader, writer ):
+    async def check_simple(reader, writer):
         await sem_start.get()
-        _, s0 = await asyncio.open_unix_connection( "socket" )
-        _, s1 = await asyncio.open_unix_connection( "socket" )
+        _, s0 = await asyncio.open_unix_connection("socket")
+        _, s1 = await asyncio.open_unix_connection("socket")
 
-        s0.write( b'b\n' )
-        s1.write( b'c\n' )
-        await check_line( reader, b'b' )
+        s0.write(b'b\n')
+        s1.write(b'c\n')
+        await check_line(reader, b'b')
 
-        s0.write( b'f\n' )
-        s1.write( b'd\n' )
-        await check_line( reader, b'c' )
+        s0.write(b'f\n')
+        s1.write(b'd\n')
+        await check_line(reader, b'c')
 
         s1.close()
-        await check_line( reader, b'd' )
+        await check_line(reader, b'd')
 
         s0.close()
-        await check_line( reader, b'f' )
+        await check_line(reader, b'f')
 
-        await sem_end.put( 0 )
+        await sem_end.put(0)
 
     async def main_simple():
         nonlocal sem_start, sem_end
-        sem_start, sem_end = asyncio.Queue( 1 ), asyncio.Queue( 1 )
-        chk = await asyncio.start_unix_server( check_simple, "sock_o" )
-        m   = await merge_server( "socket", "sock_o" )
-        await sem_start.put( 0 )
+        sem_start, sem_end = asyncio.Queue(1), asyncio.Queue(1)
+        chk = await asyncio.start_unix_server(check_simple, "sock_o")
+        m = await merge_server("socket", "sock_o")
+        await sem_start.put(0)
         await sem_end.get()
         assert lines_read == 4, f"{lines_read} == 4"
 
-    asyncio.run( main_simple() )
+    asyncio.run(main_simple())
     lines_read = 0
 
-    asyncio.run( main_complex() )
+    asyncio.run(main_complex())
+
 
 if __name__ == '__main__':
     test_main()

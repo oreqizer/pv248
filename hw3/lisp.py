@@ -8,102 +8,123 @@ from classes import Atom, Boolean, String, Number, Identifier, Compound
 
 def parse(s):
     try:
-        if not check_pairing(s) or s == '':
-            raise Exception("paren / bracket / string pairing error")
-
-        res = tokenize(s)
-        if res == '':
-            return Atom('')
-
-        if type(res) == str:
-            if len(res) >= 2 and res[0] == '"' and res[-1] == '"':
-                return String(res[1:-1])
-
-            if res == '#f':
-                return Boolean(False)
-
-            if res == '#t':
-                return Boolean(True)
-
-            num = maybe_number(res)
-            if num is not None:
-                return Number(num)
-
-            if is_identifier(res):
-                space = s.find(' ')
-                return Identifier(s[:space] if space > 0 else s)
-
-            raise Exception
-
-        return Compound([parse(x) for x in res])
+        return parser(s)
     except Exception as err:
-        print("Parse error: ", err)
+        print(f"Parse error: {err}")
         return None
 
 
+def parser(s):
+    if s == '':
+        raise Exception("something is wrong")
+
+    res = tokenize(s)
+    if res == '':
+        return Atom('')
+
+    if type(res) == str:
+        if len(res) >= 2 and res[0] == '"' and res[-1] == '"':
+            return String(res[1:-1])
+
+        if res == '#f':
+            return Boolean(False)
+
+        if res == '#t':
+            return Boolean(True)
+
+        num = maybe_number(res)
+        if num is not None:
+            return Number(num)
+
+        if is_identifier(res):
+            return Identifier(res)
+
+        raise Exception("invalid token")
+
+    return Compound([parser(x) for x in res])
+
+
 def tokenize(s):
-    pure = s.strip()
-    if len(pure) < 2 or pure[0] not in '([' or pure[-1] not in ')]':
+    expr = s.strip()
+    if len(expr) < 2 or expr[0] not in '([' or expr[-1] not in ')]':
         # Atom
-        return pure
+        return expr
 
-    expr = pure[1:-1].strip()  # Expression without ( )
-    words = []                 # Resulting words
-    word = ''                  # Current word-in-progress
-    depth = []                 # ( ) or [ ] nesting
-    escaped = False            # Escaped chars in strings
-    is_string = False          # Is the current word a string
+    words = []         # Resulting words
+    word = ''          # Current word-in-progress
+    depth = []         # ( ) or [ ] nesting
+    escaped = False    # Escaped chars in strings
+    is_string = False  # Is the current word a string
 
-    for i, c in enumerate(expr):
-        word += c
+    for c in expr:
+        # Loop start
+        if escaped:
+            if c not in '"\\':
+                raise Exception("invalid escaped character")
+            word += c
+            escaped = False
+            continue
 
-        if len(depth) > 0:
-            if c in '([':
-                # Paren / bracket enter
-                depth.append(c)
+        if c in '([':
+            # Bracket/paren enter
+            depth.append(c)
+            continue
 
-            if c in ')]':
-                # Paren / bracket leave
-                depth.pop()
-
-            if depth == 0:
+        if c == ')':
+            # Paren leave
+            left = depth.pop()
+            if left != '(':
+                raise Exception("paren/bracket mismatch")
+            if len(depth) == 0 and len(word) > 0:
                 words.append(word)
                 word = ''
+            continue
 
-        elif is_string:
-            if escaped:
-                # Ignore next string char
-                escaped = False
+        if c == ']':
+            # Bracket leave
+            left = depth.pop()
+            if left != '[':
+                raise Exception("paren/bracket mismatch")
+            if len(depth) == 0 and len(word) > 0:
+                words.append(word)
+                word = ''
+            continue
+
+        if is_string:
+            if c in '\\':
+                escaped = True
                 continue
 
-            if c in '"':
-                # String end
+            if c == '"':
                 is_string = False
+                word += c
                 words.append(word)
                 word = ''
+                continue
 
-            escaped = c == '\\'
+            word += c
+            continue
 
-        else:
-            if i - 1 >= 0 and expr[i - 1] == '"' and not c.isspace():
-                raise Exception("nonspace after string")
+        if c == '"':
+            is_string = True
+            word += c
+            continue
 
-            if c in '([':
-                # Paren / bracket enter
-                depth.append(c)
-
-            elif c == '"':
-                # String enter
-                is_string = True
-
-            elif len(word.strip()) > 0 and c in ' ':
-                # Whitespace, word end
-                words.append(word)
-                word = ''
-
-        if i == len(expr) - 1 and len(word) > 0:
-            # Last char and words exist
+        if len(word) > 0 and c == ' ':
             words.append(word)
+            word = ''
+            continue
+
+        if c != ' ':
+            word += c
+        # Loop end
+
+    if is_string:
+        raise Exception("string mismatch")
+
+    if len(word) > 0:
+        # Leftover
+        words.append(word)
 
     return words
 
@@ -121,46 +142,11 @@ def maybe_number(s):
             return None
 
 
-def check_pairing(s):
-    depth = []       # ( ) or [ ] nesting
-    string_apos = 0  # Number of "
-    escaped = False  # Escaped chars in strings
-
-    for c in s:
-        if escaped:
-            if c not in '"\\':
-                raise Exception("invalid escaped character")
-
-            escaped = False
-            continue
-
-        if c in '([':
-            # Paren / bracket enter
-            depth.append(c)
-
-        if c == ')':
-            # Paren leave
-            left = depth.pop()
-            if left != '(':
-                raise Exception("paren/bracket mismatch")
-
-        if c == ']':
-            # Bracket leave
-            left = depth.pop()
-            if left != '[':
-                raise Exception("paren/bracket mismatch")
-
-        if c == '"':
-            string_apos += 1
-            continue
-
-        escaped = c == '\\'
-
-    return len(depth) == 0 and string_apos % 2 == 0
-
+id_symbol  = set(['!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '_', '~'])
+id_special = set(['+', '-', '.', '@', '#'])
 
 def is_ident_char(char):
-    return char.isalpha() or char in set(['!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '^', '_', '~'])
+    return char.isalpha() or char in id_symbol
 
 
 def is_identifier(expr):
@@ -169,6 +155,6 @@ def is_identifier(expr):
         return True
 
     if is_ident_char(first):
-        return all([is_ident_char(c) or c.isnumeric() or c in set(['+', '-', '.', '@', '#']) for c in expr])
+        return all([is_ident_char(c) or c.isnumeric() or c in id_special for c in expr])
 
-    raise Exception
+    raise Exception("unknown identifier")
