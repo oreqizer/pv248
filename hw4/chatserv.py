@@ -13,7 +13,7 @@ PATH = "chatsock"
 
 
 async def user_write(user, s):
-    user.writer.write(s)
+    user.writer.write(s.encode())
     await user.writer.drain()
 
 
@@ -23,7 +23,7 @@ async def handle_cmd(state, user, cmd):
     try:
         if type(cmd) == Join:
             state.join(user, cmd.channel)
-            w.write(make_ok())
+            w.write(make_ok().encode())
             return
 
         if type(cmd) == Message:
@@ -35,21 +35,21 @@ async def handle_cmd(state, user, cmd):
 
         if type(cmd) == Part:
             state.part(user, cmd.channel)
-            w.write(make_ok())
+            w.write(make_ok().encode())
             return
 
         if type(cmd) == Replay:
             ch = state.get_user_channel(user, cmd.channel)
             msgs = ch.replay(cmd.timestamp)
-            w.write(make_ok())
+            w.write(make_ok().encode())
             await w.drain()
             for m in msgs:
-                w.write(make_message(ch.name, m.timestamp, user.nickname, m.text))
+                w.write(make_message(ch.name, m.timestamp, user.nickname, m.text).encode())
             return
 
-        w.write(make_error(f"unknown channel command: {cmd}"))
+        w.write(make_error(f"unknown channel command: {cmd}").encode())
     except Exception as err:
-        w.write(make_error(str(err)))
+        w.write(make_error(str(err)).encode())
 
 
 # === SERVER ===
@@ -59,37 +59,45 @@ def make_handler(state):
     async def handler(reader, writer):
         user = None
         while True:
-            if reader.at_eof():
-                # Closed connection
-                state.users.pop(user.nickname)
-                writer.close()
-                await writer.wait_closed()
-                return
+            try:
+                if reader.at_eof():
+                    # Closed connection
+                    state.users.pop(user.nickname)
+                    writer.close()
+                    await writer.wait_closed()
+                    return
 
-            s = await reader.readline()
-            cmd = parse(s.decode())
-            if user is None:
-                # New connection
-                if type(cmd) != Nick:
-                    return make_error("set up session with the 'nick' command")
-                
-                if cmd.nickname in state.users:
-                    return make_error("nickname taken")
+                s = await reader.readline()
+                if len(s) == 0:
+                    continue
 
-                user = User(cmd.nickname, writer)
-                state.users[cmd.nickname] = user
+                cmd = parse(s.decode())
+                if user is None:
+                    # New connection
+                    if type(cmd) != Nick:
+                        return make_error("set up session with the 'nick' command")
+                    
+                    if cmd.nickname in state.users:
+                        return make_error("nickname taken")
 
-                writer.write(make_ok())
+                    user = User(cmd.nickname, writer)
+                    state.users[cmd.nickname] = user
+
+                    writer.write(make_ok().encode())
+                    await writer.drain()
+                    continue
+
+                if type(cmd) == Nick:
+                    writer.write(make_error("session already set up").encode())
+                    await writer.drain()
+                    continue
+
+                await handle_cmd(state, user, cmd)
                 await writer.drain()
-                continue
 
-            if type(cmd) == Nick:
-                writer.write(make_error("session already set up"))
+            except Exception as err:
+                await writer.write(make_error(str(err)).encode())
                 await writer.drain()
-                continue
-
-            await handle_cmd(state, user, cmd)
-            await writer.drain()
 
     return handler
 
