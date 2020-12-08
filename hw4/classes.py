@@ -1,4 +1,103 @@
 # Helper classes, as you see fit.
+import time
+
+# === SERVER ===
+
+
+class State:
+    def __init__(self):
+        self.users = {}
+        self.channels = {}
+
+    def join(self, user, channel_name):
+        if channel_name not in self.channels:
+            ch = Channel(channel_name)
+            self.channels[ch.name] = ch
+
+        ch = self.channels[channel_name]
+        ch.join(user)
+        user.join(ch)
+
+    def part(self, user, channel_name):
+        ch = self.get_channel(channel_name)
+        ch.part(user)
+        user.part(ch)
+
+    def get_channel(self, name):
+        if name not in self.channels:
+            raise Exception(f"no channel named {name}")
+        return self.channels[name]
+
+    def get_user_channel(self, user, channel_name):
+        ch = self.get_channel(channel_name)
+        if user.nickname not in self.users:
+            raise Exception(f"user {user.nickname} does not exist")
+        if not ch.has(user) or not user.joined(ch):
+            raise Exception(f"user {user.nickname} not in channel {channel_name}")
+        return ch
+
+
+class User:
+    def __init__(self, nickname, writer):
+        self.nickname = nickname
+        self.writer = writer
+        self.channels = set()
+
+    def join(self, channel):
+        if channel in self.channels:
+            raise Exception(
+                f"user {self.nickname} is already in channel {channel.name}")
+        self.channels.add(channel)
+
+    def part(self, channel):
+        if channel not in self.channels:
+            raise Exception(
+                f"user {self.nickname} is not in channel {channel.name}")
+        self.channels.remove(channel)
+
+    def joined(self, channel):
+        return channel in self.channels
+
+
+class ChannelMessage:
+    def __init__(self, user, text):
+        self.user = user
+        self.text = text
+        self.timestamp = time.time()
+
+
+class Channel:
+    def __init__(self, name):
+        self.name = name
+        self.messages = []
+        self.users = set()
+
+    def join(self, user):
+        if user in self.users:
+            raise Exception(
+                f"user {user.nickname} is already in channel {self.name}")
+        self.users.add(user)
+
+    def part(self, user):
+        if user not in self.users:
+            raise Exception(
+                f"user {user.nickname} is not in channel {self.name}")
+        self.users.remove(user)
+
+    def send(self, msg):
+        self.messages.append(msg)
+
+    def has(self, user):
+        return user in self.users
+
+    def replay(self, timestamp):
+        if timestamp > time.time():
+            raise Exception(f"cannot replay from the future")
+        return [m for m in self.messages if m.timestamp >= timestamp]
+
+
+# === COMMANDS ===
+
 
 class Nick:
     def __init__(self, nickname):

@@ -42,7 +42,7 @@ def parse_nick(root):
         raise Exception(
             f"invalid argument #1. want {String}, got {type(nickname)}")
 
-    nickname_value = repr(nickname)    
+    nickname_value = repr(nickname)
     if len(nickname_value) > 0 and nickname_value[0] == '#':
         raise Exception(f"invalid argument #1. nickname cannot start with #")
 
@@ -142,14 +142,14 @@ def make_ok():
     # (ok)
     root = Compound([Identifier("ok")])
 
-    return str(root)
+    return str(root) + '\n'
 
 
 def make_error(text):
     # (error "{text}")
     root = Compound([Identifier("error"), String(text)])
 
-    return str(root)
+    return str(root) + '\n'
 
 
 def make_message(channel, timestamp, nickname, text):
@@ -162,7 +162,7 @@ def make_message(channel, timestamp, nickname, text):
         String(text),
     ])
 
-    return str(root)
+    return str(root) + '\n'
 
 
 # === UTILS ===
