@@ -30,7 +30,7 @@ async def handle_cmd(state, user, cmd):
             ch = state.get_user_channel(user, cmd.channel)
             msg = ChannelMessage(user, cmd.text)
             ch.send(msg)
-            await asyncio.gather(*[await user_write(u, msg) for u in ch.users])
+            await asyncio.gather(*[user_write(u, make_message(ch.name, msg.timestamp, user.nickname, msg.text)) for u in ch.users])
             return
 
         if type(cmd) == Part:
@@ -42,9 +42,10 @@ async def handle_cmd(state, user, cmd):
             ch = state.get_user_channel(user, cmd.channel)
             msgs = ch.replay(cmd.timestamp)
             w.write(make_ok().encode())
-            await w.drain()
+            # await w.drain()
             for m in msgs:
-                w.write(make_message(ch.name, m.timestamp, user.nickname, m.text).encode())
+                w.write(make_message(ch.name, m.timestamp,
+                                     user.nickname, m.text).encode())
             return
 
         w.write(make_error(f"unknown channel command: {cmd}").encode())
@@ -68,15 +69,12 @@ def make_handler(state):
                     return
 
                 s = await reader.readline()
-                if len(s) == 0:
-                    continue
-
                 cmd = parse(s.decode())
                 if user is None:
                     # New connection
                     if type(cmd) != Nick:
                         return make_error("set up session with the 'nick' command")
-                    
+
                     if cmd.nickname in state.users:
                         return make_error("nickname taken")
 
@@ -96,7 +94,7 @@ def make_handler(state):
                 await writer.drain()
 
             except Exception as err:
-                await writer.write(make_error(str(err)).encode())
+                writer.write(make_error(str(err)).encode())
                 await writer.drain()
 
     return handler
