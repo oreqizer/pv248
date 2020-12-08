@@ -55,15 +55,21 @@ def tokenize(s):
     depth = []         # ( ) or [ ] nesting
     escaped = False    # Escaped chars in strings
     is_string = False  # Is the current word a string
+    was_string = False # Was a string
 
     for c in expr:
         # Loop start
         if escaped:
             if c not in '"\\':
-                raise Exception("invalid escaped character")
+                raise Exception(f"invalid escaped character: {c}")
             word += c
             escaped = False
             continue
+
+        if was_string:
+            if c not in ' )]':
+                raise Exception(f"invalid character after string: {c}")
+            was_string = False
 
         if c in '([':
             # Bracket/paren enter
@@ -96,6 +102,7 @@ def tokenize(s):
 
             if c == '"':
                 is_string = False
+                was_string = True
                 word += c
                 words.append(word)
                 word = ''

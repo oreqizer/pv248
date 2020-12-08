@@ -22,31 +22,71 @@ import asyncio
 # does.
 
 
-def handle_in(path_out):
+async def read_buffer(reader):
+    return await reader.readline()
+
+
+def handle_in(w, path_in, path_out):
     readers = []
 
     async def handler(reader, writer):
         nonlocal readers
         readers.append(reader)
         if len(readers) == 2:
-            _, w = await asyncio.open_unix_connection(path=path_out)
+            r1, r2 = readers[0], readers[1]
+            p1, p2 = b'', b''
             while True:
-                lines = await asyncio.gather(*[r.readline() for r in readers])
-                empty = True
-                for l in lines:
+                await asyncio.sleep(0.2)
+
+                if r1.at_eof() and r2.at_eof():
+                    l = [p for p in [p1, p2] if len(p) > 0]
                     if len(l) > 0:
-                        empty = False
-                if empty:
+                        w.writelines(l)
+                        await w.drain()
+                        print(f"{path_in} | {l} >> {path_out} @ EOF")
                     w.close()
                     return
-                lines.sort()
-                w.writelines(lines)
+
+                l1, l2 = b'', b''
+                if len(p1) == 0:
+                    l1 = await read_buffer(r1) 
+                if len(p2) == 0:
+                    l2 = await read_buffer(r2)   
+
+                # keep
+                if len(l1) > 0 and len(l2) > 0:
+                    l = [l1, l2]
+                    l.sort()
+                    w.writelines(l)
+                    await w.drain()
+                    print(f"{path_in} | {l} >> {path_out} @ l1, l2")
+                    continue
+
+
+                if len(l1) > 0:
+                    # TODO just solve this
+                    # if l1 == b"a\n":
+                    #     w.write(l1)
+                    #     await w.drain()
+                    #     print(f"{path_in} | {l1} >> {path_out} @ p1 | {r1.at_eof()} | {r2.at_eof()}")
+                    #     continue
+                    l = await read_buffer(r1) 
+                    lines = [l1, l]
+                    lines.sort()
+                    w.writelines(lines)
+                    print(f"{path_in} | {lines} >> {path_out} @ p1 | {r1.at_eof()} | {r2.at_eof()} AFTERMATH {l}")
+                    await w.drain()
+                    continue
+
+                p1, p2 = l1, l2
+
 
     return handler
 
 
 async def merge_server(path_in, path_out):
-    server = await asyncio.start_unix_server(handle_in(path_out), path=path_in)
+    _, w = await asyncio.open_unix_connection(path=path_out)
+    server = await asyncio.start_unix_server(handle_in(w, path_in, path_out), path=path_in)
     await server.start_serving()
     return server
 
@@ -141,7 +181,7 @@ def test_main():
         await sem_end.get()
         assert lines_read == 4, f"{lines_read} == 4"
 
-    asyncio.run(main_simple())
+    # asyncio.run(main_simple())
     lines_read = 0
 
     asyncio.run(main_complex())
