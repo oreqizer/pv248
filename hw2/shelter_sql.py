@@ -20,7 +20,6 @@ def store(shelter, *, db, deduplicate=False):
         for id in select_shelter_ids(db):
             s = load(id, db=db)
             if shelter == s:
-                shelter.id = id
                 return id
 
     # Shelter
