@@ -11,9 +11,14 @@ def parse(s):
         tokens = tokenize(s)
 
         return parser(tokens)
-    except Exception as err:
-        print(f"Parse error: {err}")
+    except Exception:
         return None
+
+
+def parse_test(s):
+    tokens = tokenize(s)
+
+    return parser(tokens)
 
 
 def parser(token):
@@ -45,9 +50,6 @@ def parser(token):
 
 def tokenize(s):
     expr = s.strip()
-    if len(expr) < 2 or expr[0] not in '([' or expr[-1] not in ')]':
-        # Atom
-        return expr
 
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
@@ -55,9 +57,9 @@ def tokenize(s):
     depth = []         # ( ) or [ ] nesting
     escaped = False    # Escaped chars in strings
     is_string = False  # Is the current word a string
-    was_string = False # Was a string
+    was_string = False  # Was a string
 
-    for c in expr:
+    for i, c in enumerate(expr):
         # Loop start
         if escaped:
             if c not in '"\\':
@@ -71,11 +73,29 @@ def tokenize(s):
                 raise Exception(f"invalid character after string: {c}")
             was_string = False
 
+        if is_string:
+            if c in '\\':
+                escaped = True
+                continue
+
+            if c == '"':
+                is_string = False
+                was_string = True
+                word += c
+                words.append(word)
+                word = ''
+                continue
+
+            word += c
+            continue
+
         if c in '([':
             # Bracket/paren enter
             if len(depth) > 0:
                 stack.append([])
                 words = stack[-1]
+            if len(depth) == 0 and i != 0:
+                raise Exception("invalid brackets")
             depth.append(c)
             continue
 
@@ -95,31 +115,18 @@ def tokenize(s):
                 words.append(n)
             continue
 
-        if is_string:
-            if c in '\\':
-                escaped = True
-                continue
-
-            if c == '"':
-                is_string = False
-                was_string = True
-                word += c
-                words.append(word)
-                word = ''
-                continue
-
-            word += c
-            continue
-
         if c == '"':
             is_string = True
             word += c
             continue
 
-        if len(word) > 0 and c == ' ':
-            words.append(word)
-            word = ''
-            continue
+        if c == ' ':
+            if len(depth) == 0:
+                raise Exception("invalid atom, cannot contain spaces")
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+                continue
 
         if c != ' ':
             word += c
@@ -151,8 +158,10 @@ def maybe_number(s):
             return None
 
 
-id_symbol  = set(['!', '$', '%', '&', '*', '/', ':', '<', '=', '>', '?', '_', '~'])
+id_symbol = set(['!', '$', '%', '&', '*', '/',
+                 ':', '<', '=', '>', '?', '_', '~'])
 id_special = set(['+', '-', '.', '@', '#'])
+
 
 def is_ident_char(char):
     return char.isalpha() or char in id_symbol

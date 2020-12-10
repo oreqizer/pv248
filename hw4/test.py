@@ -26,11 +26,23 @@ async def test():
     res = await readline(r1)
     assert res == '(ok)', f"{res} == (ok)"
 
+    await write(w2, '(message "#chan" "kek")')
+    res = await readline(r2)
+    assert res == '(error "set up session with the \'nick\' command")', f'{res} == (error "set up session with the \'nick\' command")'
+
+    await write(w2, '(nick "r1")')
+    res = await readline(r2)
+    assert res == '(error "nickname taken")', f'{res} == (error "nickname taken")'
+
     await write(w2, '(nick "r2")')
     res = await readline(r2)
     assert res == '(ok)', f"{res} == (ok)"
 
     await write(w1, '(join "#chan")')
+    res = await readline(r1)
+    assert res == '(ok)', f"{res} == (ok)"
+
+    await write(w1, '(join "#dump")')
     res = await readline(r1)
     assert res == '(ok)', f"{res} == (ok)"
 
@@ -56,6 +68,20 @@ async def test():
     assert res == msg1, f"{res} == {msg1}"
     assert res[:16] == '(message "#chan"', f'{res[:16]} == message "#chan"'
     assert res[-11:] == '"r1" "kek")', f'{res[-11:]} == "r1" "kek")'
+
+    await write(w2, f'(replay "#chan" {time.time()})')
+    res = await readline(r2)
+    assert res == '(ok)', f"{res} == (ok)"
+    res = await readline(r2)
+    assert res == msg1, f"{res} == {msg1}"
+    assert res[:16] == '(message "#chan"', f'{res[:16]} == message "#chan"'
+    assert res[-11:] == '"r1" "kek")', f'{res[-11:]} == "r1" "kek")'
+
+    await write(w1, '(message "#dump" "(kek)")')
+    res = await readline(r1)
+    msg1 = res
+    assert res[:16] == '(message "#dump"', f'{res[:16]} == message "#dump"'
+    assert res[-13:] == '"r1" "(kek)")', f'{res[-13:]} == "r1" "(kek)")'
 
     await write(w1, '(part "#chan")')
     res = await readline(r1)

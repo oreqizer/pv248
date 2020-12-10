@@ -42,10 +42,9 @@ async def handle_cmd(state, user, cmd):
             ch = state.get_user_channel(user, cmd.channel)
             msgs = ch.replay(cmd.timestamp)
             w.write(make_ok().encode())
-            # await w.drain()
             for m in msgs:
                 w.write(make_message(ch.name, m.timestamp,
-                                     user.nickname, m.text).encode())
+                                     m.user.nickname, m.text).encode())
             return
 
         w.write(make_error(f"unknown channel command: {cmd}").encode())
@@ -73,10 +72,14 @@ def make_handler(state):
                 if user is None:
                     # New connection
                     if type(cmd) != Nick:
-                        return make_error("set up session with the 'nick' command")
+                        writer.write(make_error("set up session with the 'nick' command").encode())
+                        await writer.drain()
+                        continue
 
                     if cmd.nickname in state.users:
-                        return make_error("nickname taken")
+                        writer.write(make_error("nickname taken").encode())
+                        await writer.drain()
+                        continue
 
                     user = User(cmd.nickname, writer)
                     state.users[cmd.nickname] = user

@@ -209,9 +209,6 @@ def parser(token):
 
 def tokenize(s):
     expr = s.strip()
-    if len(expr) < 2 or expr[0] not in '([' or expr[-1] not in ')]':
-        # Atom
-        return expr
 
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
@@ -221,7 +218,7 @@ def tokenize(s):
     is_string = False  # Is the current word a string
     was_string = False  # Was a string
 
-    for c in expr:
+    for i, c in enumerate(expr):
         # Loop start
         if escaped:
             if c not in '"\\':
@@ -235,11 +232,29 @@ def tokenize(s):
                 raise Exception(f"invalid character after string: {c}")
             was_string = False
 
+        if is_string:
+            if c in '\\':
+                escaped = True
+                continue
+
+            if c == '"':
+                is_string = False
+                was_string = True
+                word += c
+                words.append(word)
+                word = ''
+                continue
+
+            word += c
+            continue
+
         if c in '([':
             # Bracket/paren enter
             if len(depth) > 0:
                 stack.append([])
                 words = stack[-1]
+            if len(depth) == 0 and i != 0:
+                raise Exception("invalid brackets")
             depth.append(c)
             continue
 
@@ -259,31 +274,18 @@ def tokenize(s):
                 words.append(n)
             continue
 
-        if is_string:
-            if c in '\\':
-                escaped = True
-                continue
-
-            if c == '"':
-                is_string = False
-                was_string = True
-                word += c
-                words.append(word)
-                word = ''
-                continue
-
-            word += c
-            continue
-
         if c == '"':
             is_string = True
             word += c
             continue
 
-        if len(word) > 0 and c == ' ':
-            words.append(word)
-            word = ''
-            continue
+        if c == ' ':
+            if len(depth) == 0:
+                raise Exception("invalid atom, cannot contain spaces")
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+                continue
 
         if c != ' ':
             word += c
@@ -300,6 +302,7 @@ def tokenize(s):
         words.append(word)
 
     return stack.pop()
+
 
 
 def maybe_number(s):
