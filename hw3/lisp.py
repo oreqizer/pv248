@@ -51,13 +51,14 @@ def parser(token):
 def tokenize(s):
     expr = s.strip()
 
+    is_atom = True     # Is an atom?
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
     stack = [words]    # Resulting stack
     depth = []         # ( ) or [ ] nesting
     escaped = False    # Escaped chars in strings
     is_string = False  # Is the current word a string
-    was_string = False  # Was a string
+    was_string = False # Was a string
 
     for i, c in enumerate(expr):
         # Loop start
@@ -91,6 +92,7 @@ def tokenize(s):
 
         if c in '([':
             # Bracket/paren enter
+            is_atom = False
             if len(depth) > 0:
                 stack.append([])
                 words = stack[-1]
@@ -142,7 +144,11 @@ def tokenize(s):
         # Leftover
         words.append(word)
 
-    return stack.pop()
+    res = stack.pop()
+    if is_atom:
+        return res[0]
+
+    return res
 
 
 # === UTILS ===

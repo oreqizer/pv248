@@ -14,6 +14,10 @@ def test():
     res2 = parse_test(str(res1))
     assert res1 == res2, f"{res1} == {res2}"
     
+    res1 = parse_test('0')
+    res2 = parse_test('(0)')
+    assert res1 != res2, f"{res1} != {res2}"
+    
     res1 = parse_test('12.7')
     res2 = parse_test(str(res1))
     assert res1 == res2, f"{res1} == {res2}"
