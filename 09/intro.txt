@@ -1,0 +1,12 @@
+# Programming Exercises
+
+This week will consist of a few generic exercises, since the lecture
+does not cover a specific topic.
+
+ 1. ‹alchemy.py› – transmute and mix inputs to reach a goal
+ 2. ‹minieval.py› – evaluate simple lisp-y expressions
+ 3. ‹word-chain.py› – solve a simple puzzle
+ 4. ‹reduce.py› – reduce composite values with a bit of Python magic
+ 5. ‹cycles.py› – a simple graph algorithm
+
+Submit ‹minieval›, ‹alchemy› and/or ‹cycles› for 0.5 points each.
