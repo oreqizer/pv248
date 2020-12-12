@@ -24,7 +24,7 @@ def eval_root(root):
 
     if len(root) < 2:
         raise Exception(
-            f"invalid number of argumetns. want 2+, got {len(root)}")
+            f"invalid number of arguments. want 2+, got {len(root)}")
 
     iden = root[0]
     if type(iden) is not Identifier:
@@ -83,7 +83,7 @@ def eval_add(root):
     # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
     if len(root) != 3:
         raise Exception(
-            f"invalid number of argumetns. want 3, got {len(root)}")
+            f"invalid number of arguments. want 3, got {len(root)}")
 
     args = [a if type(a) in [Vector, Matrix] else eval_root(a)
             for a in root[1:]]
@@ -99,7 +99,7 @@ def eval_dot(root):
     # • ‹(dot <vector> <vector>)›   # → ‹real›   -- dot product
     if len(root) != 3:
         raise Exception(
-            f"invalid number of argumetns. want 3, got {len(root)}")
+            f"invalid number of arguments. want 3, got {len(root)}")
 
     args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
     a1, a2 = args[0], args[1]
@@ -114,7 +114,7 @@ def eval_cross(root):
     # • ‹(cross <vector> <vector>)› # → ‹vector› -- cross product
     if len(root) != 3:
         raise Exception(
-            f"invalid number of argumetns. want 3, got {len(root)}")
+            f"invalid number of arguments. want 3, got {len(root)}")
 
     args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
     a1, a2 = args[0], args[1]
@@ -129,15 +129,22 @@ def eval_mul(root):
     # • ‹(* <matrix> <matrix>)›     # → ‹matrix› -- matrix multiplication
     if len(root) != 3:
         raise Exception(
-            f"invalid number of argumetns. want 3, got {len(root)}")
-    pass  # TODO
+            f"invalid number of arguments. want 3, got {len(root)}")
+
+    args = [a if type(a) is Matrix else eval_root(a) for a in root[1:]]
+    a1, a2 = args[0], args[1]
+    if type(a1) is Matrix and type(a2) is Matrix:
+        return a1 * a2
+
+    raise Exception(
+        f"invalid argument types, want Matrix, got {type(a1)} and {type(a2)}")
 
 
 def eval_det(root):
     # • ‹(det <matrix>)›            # → ‹real›   -- determinant of the matrix
     if len(root) != 2:
         raise Exception(
-            f"invalid number of argumetns. want 2, got {len(root)}")
+            f"invalid number of arguments. want 2, got {len(root)}")
     pass  # TODO
 
 
@@ -145,7 +152,7 @@ def eval_solve(root):
     # • ‹(solve <matrix>)›          # → ‹vector› -- linear equation solver
     if len(root) != 2:
         raise Exception(
-            f"invalid number of argumetns. want 2, got {len(root)}")
+            f"invalid number of arguments. want 2, got {len(root)}")
     pass  # TODO
 
 
@@ -195,8 +202,8 @@ class Matrix:
     def __init__(self, values):
         # values: [Vector]
         self.values = values
-        self.x = len(values)
-        self.y = len(values[0])
+        self.x = len(values[0])
+        self.y = len(values)
 
     def __eq__(self, o):
         return self.values == o.values
@@ -217,6 +224,13 @@ class Matrix:
             raise Exception(
                 f'addition of incompatbile matrices, {self} and {o}')
         return Matrix([Vector(list(r)) for r in np.add(self.lists(), o.lists())])
+
+    def __mul__(self, o):
+        # • ‹(* <matrix> <matrix>)›     # → ‹matrix› -- matrix multiplication
+        if self.x != o.y:
+            raise Exception(
+                f'multiplication of incompatbile matrices, {self} and {o}')
+        return Matrix([Vector(list(r)) for r in np.matmul(self.lists(), o.lists())])
 
     def lists(self):
         return [v.values for v in self.values]

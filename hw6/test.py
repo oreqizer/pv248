@@ -116,8 +116,15 @@ def test_eval_cross():
 
 def test_eval_mul():
     # • ‹(* <matrix> <matrix>)›     # → ‹matrix› -- matrix multiplication
-    
-    # TODO
+    res = eval_root(parse('(* (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3) (vector 0) (vector 1)))'))
+    want = Matrix([Vector([3]), Vector([7])])
+    assert res == want, f'{res} == {want}'
+
+    assert_throw(lambda: eval_root(parse('(* (matrix (vector 1 2 3)) (matrix (vector 3 1) (vector 0 1)))')))
+
+    res = eval_root(parse('(* (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
+    want = Matrix([Vector([3, 3]), Vector([6, 5])])
+    assert res == want, f'{res} == {want}'
 
     print("test_eval_mul OK")
 
