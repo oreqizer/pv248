@@ -44,16 +44,18 @@ def test_eval_matrix():
 def test_eval_add():
     # • ‹(+ <vector> <vector>)›     # → ‹vector› -- vector addition
     res = eval_root(parse('(+ (vector 0 2 1 6) (vector 1 1 2 1))'))
-    assert type(res) == Vector, f'{type(res)} == Vector'
     assert res == Vector([1, 3, 3, 7]), f'{res} == Vector([1, 3, 3, 7])'
 
     assert_throw(lambda: eval_root(parse('(+ (vector 0 1) (vector 1 2 3))')))
+
+    res = eval_root(parse('(+ (+ (vector 0 1 1 2) (vector 0 1 0 4)) (vector 1 1 2 1))'))
+    assert type(res) == Vector, f'{type(res)} == Vector'
+    assert res == Vector([1, 3, 3, 7]), f'{res} == Vector([1, 3, 3, 7])'
 
     # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
 
     # TODO matrix
 
-    # TODO compound
     print("test_eval_add OK")
 
 
