@@ -70,8 +70,16 @@ def test_eval_add():
     assert res == want, f'{res} == {want}'
 
     # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
+    res = eval_root(parse('(+ (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3 1 4) (vector 0 1 0)))'))
+    want = Matrix([Vector([4, 3, 4]), Vector([2, 4, 1])])
+    assert res == want, f'{res} == {want}'
 
-    # TODO matrix
+    assert_throw(lambda: eval_root(parse('(+ (matrix (vector 1 2)) (matrix (vector 3 1) (vector 0 1)))')))
+    assert_throw(lambda: eval_root(parse('(+ (matrix (vector 1 2 3) (vector 2 3 1)) (matrix (vector 3 1) (vector 0 1)))')))
+
+    res = eval_root(parse('(+ (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
+    want = Matrix([Vector([4, 3]), Vector([2, 4])])
+    assert res == want, f'{res} == {want}'
 
     print("test_eval_add OK")
 

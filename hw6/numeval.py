@@ -76,7 +76,7 @@ def eval_matrix(root):
                 f"invalid Matrix argument, inconsistent vector lengths, got {len(a)}, want {dim}")
 
     return Matrix(args)
-    
+
 
 def eval_add(root):
     # • ‹(+ <vector> <vector>)›     # → ‹vector› -- vector addition
@@ -88,11 +88,8 @@ def eval_add(root):
     args = [a if type(a) in [Vector, Matrix] else eval_root(a)
             for a in root[1:]]
     a1, a2 = args[0], args[1]
-    if type(a1) is Vector and type(a2) is Vector:
+    if type(a1) is type(a2):
         return a1 + a2
-
-    if type(a1) is Matrix and type(a2) is Matrix:
-        pass  # TODO
 
     raise Exception(
         f"invalid argument types, want Vector/Matrix, got {type(a1)} and {type(a2)}")
@@ -213,3 +210,13 @@ class Matrix:
             *self.values,
         ])
         return str(exp)
+
+    def __add__(self, o):
+        # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
+        if self.x != o.x or self.y != o.y:
+            raise Exception(
+                f'addition of incompatbile matrices, {self} and {o}')
+        return Matrix([Vector(list(r)) for r in np.add(self.lists(), o.lists())])
+
+    def lists(self):
+        return [v.values for v in self.values]
