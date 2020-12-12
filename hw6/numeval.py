@@ -15,12 +15,9 @@ def evaluate(s):
         return err
 
 
-# TODO don't parse, rename to 'eval' and 'eval_' and evaluate right away
-
-
 def eval_root(root):
     # root: Compound
-    # returns Matrix | Vector | Number
+    # returns Number | Vector | Matrix
     if type(root) is not Compound:
         raise Exception(
             f"invalid root format. want {Compound}, got {type(root)}")
@@ -68,8 +65,18 @@ def eval_vector(root):
 
 def eval_matrix(root):
     # • ‹(matrix <vector>+)›  # each vector is one row, starting from the top
-    pass  # TODO
+    args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
+    dim = len(args[0])
+    for a in args:
+        if type(a) is not Vector:
+            raise Exception(
+                f"invalid Matrix argument, want Vector, got {type(a)}")
+        if len(a) != dim:
+            raise Exception(
+                f"invalid Matrix argument, inconsistent vector lengths, got {len(a)}, want {dim}")
 
+    return Matrix(args)
+    
 
 def eval_add(root):
     # • ‹(+ <vector> <vector>)›     # → ‹vector› -- vector addition
@@ -191,3 +198,18 @@ class Matrix:
     def __init__(self, values):
         # values: [Vector]
         self.values = values
+        self.x = len(values)
+        self.y = len(values[0])
+
+    def __eq__(self, o):
+        return self.values == o.values
+
+    def __len__(self):
+        return len(self.values)
+
+    def __str__(self):
+        exp = Compound([
+            Identifier("matrix"),
+            *self.values,
+        ])
+        return str(exp)
