@@ -7,16 +7,18 @@
 def minieval(expr):
     pass
 
+
 def test_main():
-    assert minieval( "4" ) == 4
-    assert minieval( "(+ 4 4)" ) == 8
-    assert minieval( "(* 2 2)" ) == 4
-    assert minieval( "(+ (* 2 2) 4)" ) == 8
-    assert minieval( "(/ (* 2 2) 2)" ) == 2
-    assert minieval( "(/ (+ 2 2) (* 2 2))" ) == 1
-    assert minieval( "(- (+ 2 (- 2 1)) (* 2 2))" ) == -1
-    assert minieval( "(+ 1 2 3)" ) == 6
-    assert minieval( "(+ 10 5)" ) == 15
+    assert minieval("4") == 4
+    assert minieval("(+ 4 4)") == 8
+    assert minieval("(* 2 2)") == 4
+    assert minieval("(+ (* 2 2) 4)") == 8
+    assert minieval("(/ (* 2 2) 2)") == 2
+    assert minieval("(/ (+ 2 2) (* 2 2))") == 1
+    assert minieval("(- (+ 2 (- 2 1)) (* 2 2))") == -1
+    assert minieval("(+ 1 2 3)") == 6
+    assert minieval("(+ 10 5)") == 15
+
 
 if __name__ == "__main__":
     test_main()
