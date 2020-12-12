@@ -32,8 +32,7 @@ def test_eval_vector():
 
     assert_throw(lambda: eval_root(parse('(vector 1 "kek" 7)')))
 
-    s = '(vector 1 (dot (vector 1 0) (vector 3 2)) 7)'
-    res = eval_root(parse(s))
+    res = eval_root(parse('(vector 1 (dot (vector 1 0) (vector 3 2)) 7)'))
     want = Vector([1, 3, 7])
     assert res == want, f'{res} == {want}'
 
@@ -46,8 +45,14 @@ def test_eval_matrix():
     res = eval_root(parse(s))
     assert type(res) == Matrix, f'{type(res)} == Matrix'
     assert str(res) == s, f'{str(res)} == {s}'
+    assert res.values == [Vector([1, 3]), Vector([3, 7])], f'{res.values} == [Vector([1. 3]), Vector([3, 7])]'
 
-    # TODO add compounds
+    assert_throw(lambda: eval_root(parse('(matrix (vector 1 3) (vector 3 7 5))')))
+    assert_throw(lambda: eval_root(parse('(matrix (vector 1 3) "kek")')))
+
+    res = eval_root(parse('(matrix (+ (vector 1 2) (vector 0 1)) (vector 3 7))'))
+    want = Matrix([Vector([1, 3]), Vector([3, 7])])
+    assert res == want, f'{res} == {want}'
 
     print("test_eval_matrix OK")
 
