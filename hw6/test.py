@@ -45,12 +45,15 @@ def test_eval_matrix():
     res = eval_root(parse(s))
     assert type(res) == Matrix, f'{type(res)} == Matrix'
     assert str(res) == s, f'{str(res)} == {s}'
-    assert res.values == [Vector([1, 3]), Vector([3, 7])], f'{res.values} == [Vector([1. 3]), Vector([3, 7])]'
+    assert res.values == [Vector([1, 3]), Vector(
+        [3, 7])], f'{res.values} == [Vector([1. 3]), Vector([3, 7])]'
 
-    assert_throw(lambda: eval_root(parse('(matrix (vector 1 3) (vector 3 7 5))')))
+    assert_throw(lambda: eval_root(
+        parse('(matrix (vector 1 3) (vector 3 7 5))')))
     assert_throw(lambda: eval_root(parse('(matrix (vector 1 3) "kek")')))
 
-    res = eval_root(parse('(matrix (+ (vector 1 2) (vector 0 1)) (vector 3 7))'))
+    res = eval_root(
+        parse('(matrix (+ (vector 1 2) (vector 0 1)) (vector 3 7))'))
     want = Matrix([Vector([1, 3]), Vector([3, 7])])
     assert res == want, f'{res} == {want}'
 
@@ -65,19 +68,24 @@ def test_eval_add():
 
     assert_throw(lambda: eval_root(parse('(+ (vector 0 1) (vector 1 2 3))')))
 
-    res = eval_root(parse('(+ (+ (vector 0 1 1 2) (vector 0 1 0 4)) (vector 1 1 2 1))'))
+    res = eval_root(
+        parse('(+ (+ (vector 0 1 1 2) (vector 0 1 0 4)) (vector 1 1 2 1))'))
     want = Vector([1, 3, 3, 7])
     assert res == want, f'{res} == {want}'
 
     # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
-    res = eval_root(parse('(+ (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3 1 4) (vector 0 1 0)))'))
+    res = eval_root(parse(
+        '(+ (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3 1 4) (vector 0 1 0)))'))
     want = Matrix([Vector([4, 3, 4]), Vector([2, 4, 1])])
     assert res == want, f'{res} == {want}'
 
-    assert_throw(lambda: eval_root(parse('(+ (matrix (vector 1 2)) (matrix (vector 3 1) (vector 0 1)))')))
-    assert_throw(lambda: eval_root(parse('(+ (matrix (vector 1 2 3) (vector 2 3 1)) (matrix (vector 3 1) (vector 0 1)))')))
+    assert_throw(lambda: eval_root(
+        parse('(+ (matrix (vector 1 2)) (matrix (vector 3 1) (vector 0 1)))')))
+    assert_throw(lambda: eval_root(parse(
+        '(+ (matrix (vector 1 2 3) (vector 2 3 1)) (matrix (vector 3 1) (vector 0 1)))')))
 
-    res = eval_root(parse('(+ (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
+    res = eval_root(parse(
+        '(+ (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
     want = Matrix([Vector([4, 3]), Vector([2, 4])])
     assert res == want, f'{res} == {want}'
 
@@ -91,7 +99,8 @@ def test_eval_dot():
 
     assert_throw(lambda: eval_root(parse('(dot (vector 0 1) (vector 1 2 3))')))
 
-    res = eval_root(parse('(dot (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
+    res = eval_root(
+        parse('(dot (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
     assert res == 10.0, f'{res} == 10.0'
 
     print("test_eval_dot OK")
@@ -103,11 +112,14 @@ def test_eval_cross():
     want = Vector([-11, 4, 3])
     assert res == want, f'{res} == {want}'
 
-    assert_throw(lambda: eval_root(parse('(cross (vector 0 1) (vector 1 2 3))')))
+    assert_throw(lambda: eval_root(
+        parse('(cross (vector 0 1) (vector 1 2 3))')))
     assert_throw(lambda: eval_root(parse('(cross (vector 0 1) (vector 2 3))')))
-    assert_throw(lambda: eval_root(parse('(cross (vector 0 1 1 3) (vector 2 3 3 7))')))
+    assert_throw(lambda: eval_root(
+        parse('(cross (vector 0 1 1 3) (vector 2 3 3 7))')))
 
-    res = eval_root(parse('(cross (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
+    res = eval_root(
+        parse('(cross (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
     want = Vector([-11, 4, 3])
     assert res == want, f'{res} == {want}'
 
@@ -116,13 +128,16 @@ def test_eval_cross():
 
 def test_eval_mul():
     # • ‹(* <matrix> <matrix>)›     # → ‹matrix› -- matrix multiplication
-    res = eval_root(parse('(* (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3) (vector 0) (vector 1)))'))
+    res = eval_root(parse(
+        '(* (matrix (vector 1 2 0) (vector 2 3 1)) (matrix (vector 3) (vector 0) (vector 1)))'))
     want = Matrix([Vector([3]), Vector([7])])
     assert res == want, f'{res} == {want}'
 
-    assert_throw(lambda: eval_root(parse('(* (matrix (vector 1 2 3)) (matrix (vector 3 1) (vector 0 1)))')))
+    assert_throw(lambda: eval_root(
+        parse('(* (matrix (vector 1 2 3)) (matrix (vector 3 1) (vector 0 1)))')))
 
-    res = eval_root(parse('(* (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
+    res = eval_root(parse(
+        '(* (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)) (matrix (vector 3 1) (vector 0 1)))'))
     want = Matrix([Vector([3, 3]), Vector([6, 5])])
     assert res == want, f'{res} == {want}'
 
@@ -131,7 +146,7 @@ def test_eval_mul():
 
 def test_eval_det():
     # • ‹(det <matrix>)›            # → ‹real›   -- determinant of the matrix
-    
+
     # TODO
 
     print("test_eval_det OK")
@@ -139,7 +154,7 @@ def test_eval_det():
 
 def test_eval_solve():
     # • ‹(solve <matrix>)›          # → ‹vector› -- linear equation solver
-    
+
     # TODO
 
     print("test_eval_solve OK")
