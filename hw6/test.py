@@ -26,6 +26,7 @@ def test_eval_vector():
     # • ‹(vector <real>+)›    # <real>+ means 1 or more objects of type ‹real›
     res = eval_root(parse('(vector 1 3 7)'))
     assert type(res) == Vector, f'{type(res)} == Vector'
+    assert str(res) == '(vector 1.0 3.0 7.0)', f'{str(res)} == (vector 1.0 3.0 7.0)'
     assert res.values == [1, 3, 7], f'{res.values} == [1, 3, 7]'
 
     # TODO add compounds
@@ -44,13 +45,12 @@ def test_eval_matrix():
 def test_eval_add():
     # • ‹(+ <vector> <vector>)›     # → ‹vector› -- vector addition
     res = eval_root(parse('(+ (vector 0 2 1 6) (vector 1 1 2 1))'))
-    assert res == Vector([1, 3, 3, 7]), f'{res} == Vector([1, 3, 3, 7])'
+    assert res == Vector([1, 3, 3, 7]), f'{res} == (vector 1 3 3 7)'
 
     assert_throw(lambda: eval_root(parse('(+ (vector 0 1) (vector 1 2 3))')))
 
     res = eval_root(parse('(+ (+ (vector 0 1 1 2) (vector 0 1 0 4)) (vector 1 1 2 1))'))
-    assert type(res) == Vector, f'{type(res)} == Vector'
-    assert res == Vector([1, 3, 3, 7]), f'{res} == Vector([1, 3, 3, 7])'
+    assert res == Vector([1, 3, 3, 7]), f'{res} == (vector 1 3 3 7)'
 
     # • ‹(+ <matrix> <matrix>)›     # → ‹matrix› -- matrix addition
 
@@ -61,16 +61,28 @@ def test_eval_add():
 
 def test_eval_dot():
     # • ‹(dot <vector> <vector>)›   # → ‹real›   -- dot product
-    
-    # TODO
+    res = eval_root(parse('(dot (vector 2 1 6) (vector 1 2 1))'))
+    assert res == 10.0, f'{res} == 10.0'
+
+    assert_throw(lambda: eval_root(parse('(dot (vector 0 1) (vector 1 2 3))')))
+
+    res = eval_root(parse('(dot (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
+    assert res == 10.0, f'{res} == 10.0'
 
     print("test_eval_dot OK")
 
 
 def test_eval_cross():
     # • ‹(cross <vector> <vector>)› # → ‹vector› -- cross product
-    
-    # TODO
+    res = eval_root(parse('(cross (vector 2 1 6) (vector 1 2 1))'))
+    assert res == Vector([-11, 4, 3]), f'{res} == (vector 1 3 7)'
+
+    assert_throw(lambda: eval_root(parse('(cross (vector 0 1) (vector 1 2 3))')))
+    assert_throw(lambda: eval_root(parse('(cross (vector 0 1) (vector 2 3))')))
+    assert_throw(lambda: eval_root(parse('(cross (vector 0 1 1 3) (vector 2 3 3 7))')))
+
+    res = eval_root(parse('(cross (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
+    assert res == Vector([-11, 4, 3]), f'{res} == (vector 1 3 7)'
 
     print("test_eval_cross OK")
 

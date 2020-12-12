@@ -68,7 +68,7 @@ def eval_vector(root):
 
 def eval_matrix(root):
     # • ‹(matrix <vector>+)›  # each vector is one row, starting from the top
-    pass # TODO
+    pass  # TODO
 
 
 def eval_add(root):
@@ -78,13 +78,14 @@ def eval_add(root):
         raise Exception(
             f"invalid number of argumetns. want 3, got {len(root)}")
 
-    args = [a if type(a) in [Vector, Matrix] else eval_root(a) for a in root[1:]]
+    args = [a if type(a) in [Vector, Matrix] else eval_root(a)
+            for a in root[1:]]
     a1, a2 = args[0], args[1]
     if type(a1) is Vector and type(a2) is Vector:
         return a1 + a2
 
     if type(a1) is Matrix and type(a2) is Matrix:
-        pass # TODO
+        pass  # TODO
 
     raise Exception(
         f"invalid argument types, want Vector/Matrix, got {type(a1)} and {type(a2)}")
@@ -92,10 +93,17 @@ def eval_add(root):
 
 def eval_dot(root):
     # • ‹(dot <vector> <vector>)›   # → ‹real›   -- dot product
-    if len(root) != 2:
+    if len(root) != 3:
         raise Exception(
             f"invalid number of argumetns. want 3, got {len(root)}")
-    pass # TODO
+
+    args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
+    a1, a2 = args[0], args[1]
+    if type(a1) is Vector and type(a2) is Vector:
+        return a1.dot(a2)
+
+    raise Exception(
+        f"invalid argument types, want Vector, got {type(a1)} and {type(a2)}")
 
 
 def eval_cross(root):
@@ -103,7 +111,14 @@ def eval_cross(root):
     if len(root) != 3:
         raise Exception(
             f"invalid number of argumetns. want 3, got {len(root)}")
-    pass # TODO
+
+    args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
+    a1, a2 = args[0], args[1]
+    if type(a1) is Vector and type(a2) is Vector:
+        return a1.cross(a2)
+
+    raise Exception(
+        f"invalid argument types, want Vector, got {type(a1)} and {type(a2)}")
 
 
 def eval_mul(root):
@@ -111,7 +126,7 @@ def eval_mul(root):
     if len(root) != 3:
         raise Exception(
             f"invalid number of argumetns. want 3, got {len(root)}")
-    pass # TODO
+    pass  # TODO
 
 
 def eval_det(root):
@@ -119,7 +134,7 @@ def eval_det(root):
     if len(root) != 2:
         raise Exception(
             f"invalid number of argumetns. want 2, got {len(root)}")
-    pass # TODO
+    pass  # TODO
 
 
 def eval_solve(root):
@@ -127,7 +142,7 @@ def eval_solve(root):
     if len(root) != 2:
         raise Exception(
             f"invalid number of argumetns. want 2, got {len(root)}")
-    pass # TODO
+    pass  # TODO
 
 
 # === CLASSES ===
@@ -144,28 +159,28 @@ class Vector:
         return len(self.values)
 
     def __str__(self):
-        return f'Vector({" ".join([str(x) for x in self.values])})'
+        exp = Compound([
+            Identifier("vector"),
+            *[Number(v) for v in self.values]
+        ])
+        return str(exp)
 
     def __add__(self, o):
         #  • ‹(+ <vector> <vector>)›     # → ‹vector› -- vector addition
         self.check_len(o)
-        return self.do(lambda: np.add(self.values, o.values))
+        return Vector(list(np.add(self.values, o.values)))
 
     def dot(self, o):
         #  • ‹(dot <vector> <vector>)›   # → ‹real›   -- dot product
         self.check_len(o)
-        return self.do(lambda: np.dot(self.values, o.values))
+        return float(np.dot(self.values, o.values))
 
     def cross(self, o):
         #  • ‹(cross <vector> <vector>)› # → ‹vector› -- cross product
         if len(self) != 3 or len(o) != 3:
             raise Exception(
                 f"cross product vectors must be of len(3), got {self} and {o}")
-        return self.do(lambda: np.cross(self.values, o.values))
-
-    def do(self, fn):
-        res = fn()
-        return Vector(list(res))
+        return Vector(list(np.cross(self.values, o.values)))
 
     def check_len(self, o):
         if len(self) != len(o):
