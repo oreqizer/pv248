@@ -78,6 +78,8 @@ class Circle:
 # consulting tests; specifically, try to avoid reverse-engineering
 # the tests to find out how to write your program.
 
+# ----%<----
+
 def test_main():
     test_point()
     test_vector()

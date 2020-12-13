@@ -20,6 +20,8 @@ def rpn_eval( rpn ):
 # implementation works as expected.  You are free to add your own
 # test cases. When you are done, you can continue with ‹rpn_bin.py›.
 
+# ----%<----
+
 def test_main():
     rpn_num = [ 5 ]
     assert rpn_eval( rpn_num ) == [ 5 ]

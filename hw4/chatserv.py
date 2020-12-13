@@ -21,6 +21,18 @@ async def handle_cmd(state, user, cmd):
     w = user.writer
 
     try:
+        if type(cmd) == Nick:
+            if cmd.nickname in state.users:
+                w.write(make_error("nickname taken").encode())
+                await w.drain()
+                return
+
+            state.users.pop(user.nickname)
+            user.nickname = cmd.nickname
+            state.users[user.nickname] = user
+            w.write(make_ok().encode())
+            return
+
         if type(cmd) == Join:
             state.join(user, cmd.channel)
             w.write(make_ok().encode())
@@ -85,11 +97,6 @@ def make_handler(state):
                     state.users[cmd.nickname] = user
 
                     writer.write(make_ok().encode())
-                    await writer.drain()
-                    continue
-
-                if type(cmd) == Nick:
-                    writer.write(make_error("session already set up").encode())
                     await writer.drain()
                     continue
 

@@ -45,6 +45,8 @@ def intersect( a, b ):
 # implemented in ‹geom_types›. The last exercise for this week can
 # be found in ‹geom_dist.py›.
 
+# ----%<----
+
 def test_main():
     test_line_line()
     test_line_segment()

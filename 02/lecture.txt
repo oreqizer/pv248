@@ -12,15 +12,15 @@ Programs primarily consist of two things: code, which drives the
 CPU, and data, which drives the program. Even though data has
 similar influence over the program as the program has over the
 processor, we usually think of data as «passive»: it sits around,
-waiting for the program to do about it. The program goes through
-conditionals and loops and at each turn, a piece of data decides
-which branch to take and whether to terminate the loop or perform
-another iteration. But of course, we are used to think about this in
-terms of the program reading and changing the data.
+waiting for the program to do something with it. The program goes
+through conditionals and loops and at each turn, a piece of data
+decides which branch to take and whether to terminate the loop or
+perform another iteration. But of course, we are used to thinking
+about this in terms of the program reading and changing the data.
 
-Both the data and the program is stored in «memory». This memory is,
-from a programmer's viewpoint, a big array of bytes. There might be
-holes in it (indices which you cannot access), but otherwise the
+Both the data and the program are stored in «memory». This memory
+is, from a programmer's viewpoint, a big array of bytes. There might
+be holes in it (indices which you cannot access), but otherwise the
 analogy works quite well.  Importantly, addresses are really just
 indices, that is, numbers.
 
@@ -136,9 +136,9 @@ released by calling ‹free› when their lifetime ends.
 If ‹free› is called too soon, the program may get very confused when
 it tries to store two different objects in the same place in memory.
 If it is called too late (i.e. never), the program «leaks» memory:
-it will be unable re-use memory which is occupied by dead objects.
-This is wasteful, and can cause the program to crash because it no
-longer has space to store new objects.
+it will be unable to re-use memory which is occupied by dead
+objects. This is wasteful, and can cause the program to crash
+because it no longer has space to store new objects.
 
 Even though it completely ignores lifetimes, the machinery behind
 this ‘manual’ memory management is rather sophisticated. It needs to
@@ -150,10 +150,10 @@ unused. How to do this efficiently is a topic almost worth its own
 course.
 
 In comparison, the «static automatic» approach, which corresponds to
-the execution stack is rather simple, if efficient. It is automatic
-in the sense that the programmer does not need to explicitly deal
-with lifetimes, though in this case, that is achieved because their
-structure is extremely rigid.
+the execution stack, is both simple and efficient. It is
+automatic in the sense that the programmer does not need to
+explicitly deal with lifetimes, though in this case, that is
+achieved because their structure is extremely rigid.
 
 Finally, «dynamic automatic» memory management combines the ‘good’
 aspects of both: the lifetimes can be arbitrary and are tracked

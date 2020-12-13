@@ -25,6 +25,8 @@
 def identify(rules, data):
     pass
 
+# ----%<----
+
 def test_main():
     def bits( *n ): return bytes( n )
     def mask( *n ): return bytes( [ 255 for _ in n ] )

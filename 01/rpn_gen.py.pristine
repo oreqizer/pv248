@@ -39,6 +39,8 @@ bonus_1 = True   # enable / disable tests for bonus 1
 
 # Then, you can continue to ‹geom_types.py›.
 
+# ----%<----
+
 from functools import reduce
 from operator import add
 

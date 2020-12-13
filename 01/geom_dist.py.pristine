@@ -32,6 +32,8 @@ def distance_line_circle( p, c ):
 def distance( a, b ):
     pass
 
+# ----%<----
+
 # Probably time for some testcases. That wraps up the seminar for
 # today.
 

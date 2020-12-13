@@ -2,8 +2,10 @@ Write a simple chat server that accepts connections on a UNIX domain
 socket, which it should create in its working directory with the
 name ‹chatsock›. It should implement a simple protocol with the
 command types described below. Each command is an expression of the
-lisp-like language described in hw3. In the direction from client to
-server:
+lisp-like language described in hw3. There might be whitespace
+between commands in either direction (but is never mandatory).
+
+The commands in the direction from client to server are:
 
     (nick "{nickname}")
     (join "{channel}")
@@ -28,7 +30,8 @@ Upon connecting, the client sends the ‹nick› command. The server
 accepts it and replies ‹ok› unless the nickname is already in use by
 another connected client, in which case it replies ‹error›. It is
 also an ‹error› to send any other command before ‹nick› has been
-accepted.
+accepted. The nick may be changed at any later time using the same
+command.
 
 The ‹join› command associates the client which sent the command with
 the given channel. Joining an already-joined channel is an ‹error›.
@@ -48,7 +51,7 @@ broadcast by the server is that of the originator of the message,
 and the timestamp marks the moment when the server received the
 command from the sending client.
 
-Finally, the {replay} command causes the server to re-send all
+Finally, the ‹replay› command causes the server to re-send all
 ‹message›s that the given channel received since the given timestamp
 (i.e. with a timestamp that is greater or equal to the one given by
 the client). The server gives ‹ok› before resending any messages if
@@ -67,3 +70,6 @@ The server must remain responsive at all times and to all clients,
 including during playback of long message histories in response to a
 ‹replay› command.  It is strongly encouraged that you program the
 server in an async style, using the ‹asyncio› library.
+
+Update 2020-11-20: Explicitly mention that nick changes are allowed.
+Update 2020-11-27: Spaces between commands are allowed, both ways.

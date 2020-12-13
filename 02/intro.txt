@@ -1,4 +1,4 @@
-# Python Intro
+# Data Structures
 
 In the second week, there is one set of 3 related and another set of
 3 standalone exercises. The first set is a mock ‘reimplement a

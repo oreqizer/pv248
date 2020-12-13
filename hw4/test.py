@@ -22,6 +22,10 @@ async def test():
     r1, w1 = await asyncio.open_unix_connection(path=PATH)
     r2, w2 = await asyncio.open_unix_connection(path=PATH)
 
+    await write(w1, '(nick "r0")')
+    res = await readline(r1)
+    assert res == '(ok)', f"{res} == (ok)"
+
     await write(w1, '(nick "r1")')
     res = await readline(r1)
     assert res == '(ok)', f"{res} == (ok)"

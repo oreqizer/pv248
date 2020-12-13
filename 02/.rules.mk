@@ -34,7 +34,7 @@ mypy-sol:
 
 clean:
 	rm -f $(WSRC)
-	rm -f *.core core *~ a.out .check.out
+	rm -f *.core core *~ a.out .check.out $(CLEAN)
 	if test -d __pycache__; then rm -r __pycache__; fi
 	if test -d .mypy_cache; then rm -r .mypy_cache; fi
 
@@ -42,6 +42,7 @@ show:
 	@echo ${$(var):%=$(prefix)%$(suffix)}
 
 import: $(WSRC)
+	$(MAKE) clean
 	if test -f assignment.json -o -f lecture.json; then $(SUBJECT) import; fi
 
 .PHONY: all check check-sol clean show import

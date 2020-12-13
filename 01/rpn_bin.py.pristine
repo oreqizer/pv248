@@ -20,6 +20,8 @@ def rpn_eval( rpn ):
 # see it yet, you should make a short detour to ‹varargs.py› before
 # you come back to the last round of RPNs, in ‹rpn_gen.py›.
 
+# ----%<----
+
 def test_main():
 
     rpn = [ 2, -2, '+' ]
