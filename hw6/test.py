@@ -95,13 +95,15 @@ def test_eval_add():
 def test_eval_dot():
     # • ‹(dot <vector> <vector>)›   # → ‹real›   -- dot product
     res = eval_root(parse('(dot (vector 2 1 6) (vector 1 2 1))'))
-    assert res == 10.0, f'{res} == 10.0'
+    want = Number(10.0)
+    assert res == Number(10.0), f'{res} == {want}'
 
     assert_throw(lambda: eval_root(parse('(dot (vector 0 1) (vector 1 2 3))')))
 
     res = eval_root(
         parse('(dot (+ (vector 1 1 2) (vector 1 0 4)) (vector 1 2 1))'))
-    assert res == 10.0, f'{res} == 10.0'
+    want = Number(10.0)
+    assert res == Number(10.0), f'{res} == {want}'
 
     print("test_eval_dot OK")
 
@@ -146,8 +148,17 @@ def test_eval_mul():
 
 def test_eval_det():
     # • ‹(det <matrix>)›            # → ‹real›   -- determinant of the matrix
+    res = eval_root(parse('(det (matrix (vector 1 2) (vector 2 3)))'))
+    want = Number(-1)
+    assert res == want, f'{res} == {want}'
 
-    # TODO
+    assert_throw(lambda: eval_root(
+        parse('(det (matrix (vector 1 2 3) (vector 1 2 3)))')))
+
+    res = eval_root(
+        parse('(det (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)))'))
+    want = Number(-1)
+    assert res == want, f'{res} == {want}'
 
     print("test_eval_det OK")
 

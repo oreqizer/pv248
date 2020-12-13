@@ -92,6 +92,18 @@ class Number(Literal):
     def __init__(self, value):
         super().__init__(value)
 
+    def is_real(self):
+        return True
+
+    def is_vector(self):
+        return False
+
+    def is_matrix(self):
+        return False
+
+    def is_error(self):
+        return False
+
     def do(self, o, fn):
         return fn(self.value, o.value if isinstance(o, Number) else o)
 

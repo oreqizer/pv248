@@ -54,13 +54,13 @@ def eval_root(root):
 
 def eval_vector(root):
     # • ‹(vector <real>+)›    # <real>+ means 1 or more objects of type ‹real›
-    args = [float(a) if type(a) is Number else eval_root(a) for a in root[1:]]
+    args = [a if type(a) is Number else eval_root(a) for a in root[1:]]
     for a in args:
-        if type(a) is not float:
+        if type(a) is not Number:
             raise Exception(
                 f"invalid Vector argument, want float, got {type(a)}")
 
-    return Vector(args)
+    return Vector([float(a) for a in args])
 
 
 def eval_matrix(root):
@@ -104,7 +104,7 @@ def eval_dot(root):
     args = [a if type(a) is Vector else eval_root(a) for a in root[1:]]
     a1, a2 = args[0], args[1]
     if type(a1) is Vector and type(a2) is Vector:
-        return a1.dot(a2)
+        return Number(a1.dot(a2))
 
     raise Exception(
         f"invalid argument types, want Vector, got {type(a1)} and {type(a2)}")
@@ -145,7 +145,9 @@ def eval_det(root):
     if len(root) != 2:
         raise Exception(
             f"invalid number of arguments. want 2, got {len(root)}")
-    pass  # TODO
+    
+    arg = root[1] if type(root[1]) == Matrix else eval_root(root[1])
+    return Number(arg.det())
 
 
 def eval_solve(root):
@@ -162,6 +164,18 @@ def eval_solve(root):
 class Vector:
     def __init__(self, values):
         self.values = values
+
+    def is_real(self):
+        return False
+
+    def is_vector(self):
+        return True
+
+    def is_matrix(self):
+        return False
+
+    def is_error(self):
+        return False
 
     def __eq__(self, o):
         return self.values == o.values
@@ -205,6 +219,18 @@ class Matrix:
         self.x = len(values[0])
         self.y = len(values)
 
+    def is_real(self):
+        return False
+
+    def is_vector(self):
+        return False
+
+    def is_matrix(self):
+        return True
+
+    def is_error(self):
+        return False
+
     def __eq__(self, o):
         return self.values == o.values
 
@@ -223,14 +249,25 @@ class Matrix:
         if self.x != o.x or self.y != o.y:
             raise Exception(
                 f'addition of incompatbile matrices, {self} and {o}')
-        return Matrix([Vector(list(r)) for r in np.add(self.lists(), o.lists())])
+        return Matrix([Vector(list(r)) for r in np.add(self.rows(), o.rows())])
 
     def __mul__(self, o):
         # • ‹(* <matrix> <matrix>)›     # → ‹matrix› -- matrix multiplication
         if self.x != o.y:
             raise Exception(
                 f'multiplication of incompatbile matrices, {self} and {o}')
-        return Matrix([Vector(list(r)) for r in np.matmul(self.lists(), o.lists())])
+        return Matrix([Vector(list(r)) for r in np.matmul(self.rows(), o.rows())])
 
-    def lists(self):
+    def det(self):
+        # • ‹(det <matrix>)›            # → ‹real›   -- determinant of the matrix
+        if self.x != self.y:
+            raise Exception(
+                f'determinant of a non-square matrix, {self}')
+        return float(np.linalg.det(self.rows()))
+
+    def solve(self):
+        # • ‹(solve <matrix>)›          # → ‹vector› -- linear equation solver
+        pass
+
+    def rows(self):
         return [v.values for v in self.values]
