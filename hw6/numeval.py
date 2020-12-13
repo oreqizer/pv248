@@ -12,7 +12,7 @@ def evaluate(s):
     try:
         return eval_root(lisp.parse(s))
     except Exception as err:
-        return err
+        return Error(str(err))
 
 
 def eval_root(root):
