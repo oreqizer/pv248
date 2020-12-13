@@ -2,7 +2,7 @@
 import numpy as np
 
 import lisp
-from classes import Compound, Identifier, Number
+from classes import Compound, Identifier, Number, String
 
 
 # === PARSE ===
@@ -145,7 +145,7 @@ def eval_det(root):
     if len(root) != 2:
         raise Exception(
             f"invalid number of arguments. want 2, got {len(root)}")
-    
+
     arg = root[1] if type(root[1]) == Matrix else eval_root(root[1])
     return Number(arg.det())
 
@@ -155,7 +155,9 @@ def eval_solve(root):
     if len(root) != 2:
         raise Exception(
             f"invalid number of arguments. want 2, got {len(root)}")
-    pass  # TODO
+
+    arg = root[1] if type(root[1]) == Matrix else eval_root(root[1])
+    return arg.solve()
 
 
 # === CLASSES ===
@@ -182,6 +184,19 @@ class Vector:
 
     def __len__(self):
         return len(self.values)
+
+    def __iter__(self):
+        self.number = 0
+        return self
+
+    def __next__(self):
+        if self.number == len(self.values):
+            raise StopIteration
+
+        res = self.values[self.number]
+        self.number += 1
+
+        return Number(res)
 
     def __str__(self):
         exp = Compound([
@@ -237,6 +252,19 @@ class Matrix:
     def __len__(self):
         return len(self.values)
 
+    def __iter__(self):
+        self.number = 0
+        return self
+
+    def __next__(self):
+        if self.number == len(self.values):
+            raise StopIteration
+
+        res = self.values[self.number]
+        self.number += 1
+
+        return res
+
     def __str__(self):
         exp = Compound([
             Identifier("matrix"),
@@ -267,7 +295,37 @@ class Matrix:
 
     def solve(self):
         # • ‹(solve <matrix>)›          # → ‹vector› -- linear equation solver
-        pass
+        if self.x != self.y:
+            raise Exception(
+                f'solving a non-square matrix, {self}')
+        m = np.matrix(self.rows())
+        val, vec = np.linalg.eig(np.dot(m.T, m))
+        res = vec[:, np.argmin(val)]
+        return Vector(list(res.flat))
 
     def rows(self):
         return [v.values for v in self.values]
+
+
+class Error:
+    def __init__(self, msg):
+        self.message = msg
+
+    def is_real(self):
+        return False
+
+    def is_vector(self):
+        return False
+
+    def is_matrix(self):
+        return False
+
+    def is_error(self):
+        return True
+
+    def __str__(self):
+        exp = Compound([
+            Identifier("error"),
+            String(self.message),
+        ])
+        return str(exp)

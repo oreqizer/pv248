@@ -1,7 +1,7 @@
 from lisp import parse
 
 from classes import Number
-from numeval import eval_root, eval_vector, eval_matrix, eval_add, eval_dot, eval_cross, eval_mul, eval_det, eval_solve, Vector, Matrix
+from numeval import evaluate, eval_root, eval_vector, eval_matrix, eval_add, eval_dot, eval_cross, eval_mul, eval_det, eval_solve, Vector, Matrix, Error
 
 
 def assert_throw(cb):
@@ -11,6 +11,36 @@ def assert_throw(cb):
     except:
         return
     assert False, f"no throw happened, got {res}"
+
+
+def test_classes():
+    res = Number(1337)
+    assert res.is_real(), f"{res}.is_real()"
+    assert not res.is_vector(), f"not {res}.is_vector()"
+    assert not res.is_matrix(), f"not {res}.is_matrix()"
+    assert not res.is_error(), f"not {res}.is_error()"
+
+    res = Vector([13, 37])
+    assert [i for i in res] == [Number(13), Number(37)] # iterable
+    assert not res.is_real(), f"not {res}.is_real()"
+    assert res.is_vector(), f"{res}.is_vector()"
+    assert not res.is_matrix(), f"not {res}.is_matrix()"
+    assert not res.is_error(), f"not {res}.is_error()"
+
+    res = Matrix([Vector([13, 37])])
+    assert [i for i in res] == [Vector([13, 37])] # iterable
+    assert not res.is_real(), f"not {res}.is_real()"
+    assert not res.is_vector(), f"not {res}.is_vector()"
+    assert res.is_matrix(), f"{res}.is_matrix()"
+    assert not res.is_error(), f"not {res}.is_error()"
+
+    res = Error("kek")
+    assert not res.is_real(), f"not {res}.is_real()"
+    assert not res.is_vector(), f"not {res}.is_vector()"
+    assert not res.is_matrix(), f"not {res}.is_matrix()"
+    assert res.is_error(), f"{res}.is_error()"
+
+    print("test_classes OK")
 
 
 def test_eval_root():
@@ -165,13 +195,23 @@ def test_eval_det():
 
 def test_eval_solve():
     # • ‹(solve <matrix>)›          # → ‹vector› -- linear equation solver
+    res = eval_root(parse('(solve (matrix (vector 1 2 0) (vector 0 4 1) (vector 2 0 -1)))'))
+    want = Vector([-0.4364357804719848, 0.21821789023599228, -0.8728715609439694])
+    assert res == want, f'{res} == {want}'
 
-    # TODO
+    assert_throw(lambda: eval_root(
+        parse('(solve (matrix (vector 1 2 3) (vector 1 2 3)))')))
+
+    res = eval_root(
+        parse('(solve (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)))'))
+    want = Vector([-0.8506508083520399, 0.5257311121191335])
+    assert res == want, f'{res} == {want}'
 
     print("test_eval_solve OK")
 
 
 if __name__ == "__main__":
+    test_classes()
     test_eval_root()
     test_eval_vector()
     test_eval_matrix()
