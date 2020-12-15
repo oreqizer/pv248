@@ -28,42 +28,45 @@ def to_dict(l):
 def alchemy(available, desired, rules):
     a = to_dict(available)
 
-    for desire in desired:
-        stack = [desire]  # Current needs
-        while len(stack) > 0:
-            (name, q) = stack.pop()
+    stack = desired.copy()
+    while len(stack) > 0:
+        (name, q) = stack.pop()
 
-            # Check available first
-            a_has = a.get(name, 0)
-            if a_has >= q:
-                a[name] -= q
-                continue
+        # Check available first
+        a_has = a.get(name, 0)
+        if a_has >= q:
+            a[name] -= q
+            continue
 
-            # Take at least part
-            if a_has > 0:
-                a[name] -= q
-                stack.append((name, q - a_has))
-                continue
+        # Take at least part
+        if a_has > 0:
+            a[name] = 0
+            stack.append((name, q - a_has))
+            continue
 
-            # Transmute what we can
-            options = []
-            for want, res in rules:
-                for rn, rq in res:
-                    if rn == name:
-                        options.append([(wn, wq * math.ceil(q / rq))
-                                        for wn, wq in want])
-                    break
+        # Transmute what we can
+        options = []
+        for want, res in rules:
+            for rn, rq in res:
+                if rn == name:
+                    qty = math.ceil(q / rq)
+                    options.append((want, (rq, qty)))
 
-            match = False
-            for want in options:
-                if alchemy([(an, aq) for an, aq in a.items()], [*stack, *want], rules):
-                    match = True
-                    for wn, wq in want:
-                        stack.append((wn, wq))
+        n = q
+        for (want, (rq, qty)) in options:
+            max = 0
+            for i in range(qty):
+                if alchemy([(an, aq) for an, aq in a.items()], [(wn, wq * (i + 1)) for wn, wq in want], rules):
+                    n -= rq
+                    max = i + 1
 
-            # Out of options :(
-            if not match:
-                return False
+            if max > 0:
+                for wn, wq in want:
+                    stack.append((wn, wq * max))
+
+        # Out of options :(
+        if n > 0:
+            return False
 
     return True
 

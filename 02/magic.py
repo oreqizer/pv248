@@ -27,36 +27,38 @@ def identify(rules, data):
 
 # ----%<----
 
+
 def test_main():
-    def bits( *n ): return bytes( n )
-    def mask( *n ): return bytes( [ 255 for _ in n ] )
+    def bits(*n): return bytes(n)
+    def mask(*n): return bytes([255 for _ in n])
 
-    def eq( o, *b ): return ( o, bits( *b ), mask( *b ), True )
-    def ne( o, *b ): return ( o, bits( *b ), mask( *b ), False)
+    def eq(o, *b): return (o, bits(*b), mask(*b), True)
+    def ne(o, *b): return (o, bits(*b), mask(*b), False)
 
-    eq0_0  = ( 'eq0_0',  [ eq( 0, 0 ) ] )
-    eq0_1  = ( 'eq0_1',  [ eq( 0, 1 ) ] )
-    eq0_00 = ( 'eq0_00', [ eq( 0, 0, 0 ) ] )
-    eq0_10 = ( 'eq0_10', [ eq( 0, 1, 0 ) ] )
-    eq1_0  = ( 'eq1_0',  [ eq( 1, 0 ) ] )
+    eq0_0 = ('eq0_0',  [eq(0, 0)])
+    eq0_1 = ('eq0_1',  [eq(0, 1)])
+    eq0_00 = ('eq0_00', [eq(0, 0, 0)])
+    eq0_10 = ('eq0_10', [eq(0, 1, 0)])
+    eq1_0 = ('eq1_0',  [eq(1, 0)])
 
-    odd0   = ( 'odd0',   [ ( 0, bits( 1 ), bits( 1 ), True ) ] )
-    even0A = ( 'even0A', [ ( 0, bits( 1 ), bits( 1 ), False ) ] )
-    even0B = ( 'even0B', [ ( 0, bits( 0 ), bits( 1 ), True ) ] )
+    odd0 = ('odd0',   [(0, bits(1), bits(1), True)])
+    even0A = ('even0A', [(0, bits(1), bits(1), False)])
+    even0B = ('even0B', [(0, bits(0), bits(1), True)])
 
-    assert identify( [ eq0_0, eq1_0 ], bits( 0 ) ) == 'eq0_0'
-    assert identify( [ eq0_0, eq1_0 ], bits( 1 ) ) is None
-    assert identify( [ eq0_0, eq1_0 ], bits( 1, 0 ) ) == 'eq1_0'
-    assert identify( [ eq0_00, eq0_1 ], bits( 1 ) ) == 'eq0_1'
-    assert identify( [ eq0_10, eq1_0 ], bits( 1, 0 ) ) == 'eq0_10'
-    assert identify( [ eq1_0, eq0_10 ], bits( 1, 0 ) ) == 'eq1_0'
-    assert identify( [ eq0_1, odd0 ], bits( 1 ) ) == 'eq0_1'
-    assert identify( [ eq0_1, odd0 ], bits( 3 ) ) == 'odd0'
-    assert identify( [ odd0, even0A, even0B ], bits( 2 ) ) == 'even0A'
-    assert identify( [ odd0, even0B, even0A ], bits( 2 ) ) == 'even0B'
-    assert identify( [ even0B, even0A ], bits( 42 ) ) == 'even0B'
-    assert identify( [ odd0, even0A ], bits( 42 ) ) == 'even0A'
-    assert identify( [ odd0, even0A ], bits( 43 ) ) == 'odd0'
+    assert identify([eq0_0, eq1_0], bits(0)) == 'eq0_0'
+    assert identify([eq0_0, eq1_0], bits(1)) is None
+    assert identify([eq0_0, eq1_0], bits(1, 0)) == 'eq1_0'
+    assert identify([eq0_00, eq0_1], bits(1)) == 'eq0_1'
+    assert identify([eq0_10, eq1_0], bits(1, 0)) == 'eq0_10'
+    assert identify([eq1_0, eq0_10], bits(1, 0)) == 'eq1_0'
+    assert identify([eq0_1, odd0], bits(1)) == 'eq0_1'
+    assert identify([eq0_1, odd0], bits(3)) == 'odd0'
+    assert identify([odd0, even0A, even0B], bits(2)) == 'even0A'
+    assert identify([odd0, even0B, even0A], bits(2)) == 'even0B'
+    assert identify([even0B, even0A], bits(42)) == 'even0B'
+    assert identify([odd0, even0A], bits(42)) == 'even0A'
+    assert identify([odd0, even0A], bits(43)) == 'odd0'
+
 
 if __name__ == '__main__':
     test_main()
