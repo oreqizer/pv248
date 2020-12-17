@@ -49,6 +49,12 @@ def test_eval_root():
     assert_throw(lambda: eval_root(parse('(kek)')))
     assert_throw(lambda: eval_root(parse('(oopa 1 3 3 7)')))
 
+    s = '13.37'
+    res = eval_root(parse(s))
+    assert type(res) == Number, f'{type(res)} == Number'
+    assert str(res) == s, f'{str(res)} == {s}'
+    assert res.value == 13.37, f'{res.value} == 13.37'
+
     print("test_eval_root OK")
 
 

@@ -18,6 +18,9 @@ def evaluate(s):
 def eval_root(root):
     # root: Compound
     # returns Number | Vector | Matrix
+    if type(root) is Number:
+        return root
+
     if type(root) is not Compound:
         raise Exception(
             f"invalid root format. want {Compound}, got {type(root)}")
