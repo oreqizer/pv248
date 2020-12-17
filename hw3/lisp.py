@@ -16,9 +16,7 @@ def parse(s):
 
 
 def parse_test(s):
-    tokens = tokenize(s)
-
-    return parser(tokens)
+    return parser(tokenize(s))
 
 
 def parser(token):
@@ -50,8 +48,8 @@ def parser(token):
 
 def tokenize(s):
     expr = s.strip()
+    is_atom = not (len(expr) >= 2 and expr[0] in '([' and expr[-1] in ')]')
 
-    is_atom = True     # Is an atom?
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
     stack = [words]    # Resulting stack
@@ -60,7 +58,10 @@ def tokenize(s):
     is_string = False  # Is the current word a string
     was_string = False # Was a string
 
-    for i, c in enumerate(expr):
+    i = 0
+    while len(expr) > 0:
+        c, expr = expr[0], expr[1:]
+        
         # Loop start
         if escaped:
             if c not in '"\\':
@@ -90,41 +91,48 @@ def tokenize(s):
             word += c
             continue
 
-        if c in '([':
-            # Bracket/paren enter
-            is_atom = False
-            if len(depth) > 0:
-                stack.append([])
-                words = stack[-1]
-            if len(depth) == 0 and i != 0:
-                raise Exception("invalid brackets")
-            depth.append(c)
-            continue
-
-        if c in ')]':
-            # Paren leave
-            if len(depth) == 0:
-                raise Exception("paren/bracket mismatch")
-            left = depth.pop()
-            if c == ")" and left != '(' or c == "]" and left != "[":
-                raise Exception("paren/bracket mismatch")
-            if len(word) > 0:
-                words.append(word)
-                word = ''
-            if len(depth) > 0:
-                n = stack.pop()
-                words = stack[-1]
-                words.append(n)
-            continue
-
         if c == '"':
             is_string = True
             word += c
             continue
 
-        if c == ' ':
+        if c in '([':
+            if is_atom:
+                raise Exception("invalid atom")
+
+            # Bracket/paren enter
+            if len(depth) > 0:
+                stack.append([])
+                words = stack[-1]
+            depth.append(c)
+            continue
+
+        if c in ')]':
+            if is_atom:
+                raise Exception("invalid atom")
+
+            # Paren leave
             if len(depth) == 0:
-                raise Exception("invalid atom, cannot contain spaces")
+                raise Exception("paren / bracket mismatch")
+            left = depth.pop()
+            if c == ")" and left != '(' or c == "]" and left != "[":
+                raise Exception("paren / bracket mismatch")
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+            if len(depth) == 0:
+                break
+            if len(depth) > 0:
+                n = stack.pop()
+                words = stack[-1]
+                words.append(n)
+                continue
+            continue
+
+        if c == ' ':
+            if is_atom:
+                raise Exception("invalid atom")
+
             if len(word) > 0:
                 words.append(word)
                 word = ''
@@ -132,7 +140,12 @@ def tokenize(s):
 
         if c != ' ':
             word += c
+
+        i += 1
         # Loop end
+
+    if len(expr) > 0:
+        raise Exception("invalid input, leftover expression: {expr}")
 
     if is_string:
         raise Exception("string mismatch")

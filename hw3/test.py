@@ -49,6 +49,27 @@ def test():
     res = parse("()()")
     assert res is None, f"{res} is None"
 
+    res = parse("(asd)0)")
+    assert res is None, f"{res} is None"
+
+    res = parse("()0")
+    assert res is None, f"{res} is None"
+
+    res = parse("0()0")
+    assert res is None, f"{res} is None"
+
+    res = parse("0()")
+    assert res is None, f"{res} is None"
+
+    res = parse('(0]')
+    assert res is None, f"{res} is None"
+
+    res = parse('[0)')
+    assert res is None, f"{res} is None"
+
+    res = parse('(0 "asd )"')
+    assert res is None, f"{res} is None"
+
     res = parse("(")
     assert res is None, f"{res} is None"
 
