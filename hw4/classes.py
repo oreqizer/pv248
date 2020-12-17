@@ -302,8 +302,8 @@ class String(Literal):
     def __init__(self, value):
         super().__init__(value)
 
-    def __repr__(self):
-        return self.value.replace("\\", "\\\\").replace('"', '\\"')
-
     def __str__(self):
-        return f'"{repr(self)}"'
+        return f'"{self.value}"'
+
+    def __repr__(self):
+        return self.value

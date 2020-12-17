@@ -87,6 +87,12 @@ async def test():
     assert res[:16] == '(message "#dump"', f'{res[:16]} == message "#dump"'
     assert res[-13:] == '"r1" "(kek)")', f'{res[-13:]} == "r1" "(kek)")'
 
+    await write(w1, '(message "#dump" "\\"kek\\"")')
+    res = await readline(r1)
+    msg1 = res
+    assert res[:16] == '(message "#dump"', f'{res[:16]} == message "#dump"'
+    assert res[-13:] == '"r1" ""kek"")', f'{res[-13:]} == "r1" ""kek"")'
+
     await write(w1, '(part "#chan")')
     res = await readline(r1)
     assert res == '(ok)', f"{res} == (ok)"
