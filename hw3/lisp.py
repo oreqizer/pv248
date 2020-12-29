@@ -169,6 +169,9 @@ def tokenize(s):
 
 def maybe_number(s):
     try:
+        if not s[0].isnumeric() and s[0] not in ('+', '-'):
+            return None
+
         return int(s)
     except ValueError:
         try:
