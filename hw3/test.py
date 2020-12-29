@@ -22,6 +22,18 @@ def test():
     res2 = parse_test(str(res1))
     assert res1 == res2, f"{res1} == {res2}"
     
+    res1 = parse_test('+')
+    res2 = parse_test(str(res1))
+    assert res1 == res2, f"{res1} == {res2}"
+    
+    res1 = parse_test('&asd+.934-~@')
+    res2 = parse_test(str(res1))
+    assert res1 == res2, f"{res1} == {res2}"
+    
+    res1 = parse_test('%')
+    res2 = parse_test(str(res1))
+    assert res1 == res2, f"{res1} == {res2}"
+    
     res1 = parse_test('-13.37')
     res2 = parse_test(str(res1))
     assert res1 == res2, f"{res1} == {res2}"
