@@ -303,7 +303,7 @@ class String(Literal):
         super().__init__(value)
 
     def __str__(self):
-        return f'"{self.value}"'
+        return f'"{repr(self)}"'
 
     def __repr__(self):
-        return self.value
+        return self.value.replace("\\", "\\\\").replace('"', '\\"')

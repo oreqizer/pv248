@@ -89,7 +89,7 @@ def parse_message(root):
         raise Exception(
             f"invalid argument #2. want {String}, got {type(text)}")
 
-    return Message(channel_value, repr(text))
+    return Message(channel_value, text.value)
 
 
 def parse_part(root):
@@ -157,7 +157,7 @@ def make_message(channel, timestamp, nickname, text):
     root = Compound([
         Identifier("message"),
         String(channel),
-        Number(timestamp),
+        Number(int(timestamp)),
         String(nickname),
         String(text),
     ])
