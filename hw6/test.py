@@ -206,6 +206,11 @@ def test_eval_solve():
     want = Vector([0, 0])
     assert res == want, f'{res} == {want}'
 
+    res = eval_root(
+        parse('(solve (matrix (vector 2 0) (vector 0 1)))'))
+    want = Vector([0, 0])
+    assert res == want, f'{res} == {want}'
+
     res = eval_root(parse('(solve (matrix (vector 1 2 0) (vector 0 4 1) (vector 2 0 -1)))'))
     want = Vector([-0.4364357804719848, 0.21821789023599228, -0.8728715609439694])
     assert res == want, f'{res} == {want}'
