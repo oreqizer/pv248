@@ -303,6 +303,9 @@ class Matrix:
                 f'solving a non-square matrix, {self}')
         m = np.matrix(self.rows())
         val, vec = np.linalg.eig(np.dot(m.T, m))
+        if all([x == val[0] for x in val]):
+            return Vector([0 for _ in range(self.y)])
+
         res = vec[:, np.argmin(val)]
         return Vector(list(res.flat))
 
