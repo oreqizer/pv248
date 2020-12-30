@@ -301,12 +301,19 @@ class Matrix:
         if self.x != self.y:
             raise Exception(
                 f'solving a non-square matrix, {self}')
-        # TODO this doesn't work :(
-        # nor does np.solve()
-        # no idea what to do here
-        m = np.matrix(self.rows())
-        val, vec = np.linalg.eig(np.dot(m.T, m))
-        res = vec[:, np.argmin(val)]
+        _, s, vh = np.linalg.svd(np.matrix(self.rows()))
+        null_mask = (s < 1e-15)
+        null_space = np.compress(null_mask, vh, axis=0)
+        res = np.transpose(null_space)
+        if res.size == 0:
+            res = np.array([0 for x in range(self.y)])
+        else:
+            res_vect = []
+            for var in res.tolist():
+                for val in var:
+                    res_vect.append(val)
+                    break
+            res = np.array(res_vect)
         return Vector(list(res.flat))
 
     def rows(self):

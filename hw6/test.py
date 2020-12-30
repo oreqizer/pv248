@@ -212,15 +212,15 @@ def test_eval_solve():
     assert res == want, f'{res} == {want}'
 
     res = eval_root(parse('(solve (matrix (vector 1 2 0) (vector 0 4 1) (vector 2 0 -1)))'))
-    want = Vector([-0.4364357804719848, 0.21821789023599228, -0.8728715609439694])
+    want = Vector([-0.4364357804719846, 0.21821789023599236, -0.8728715609439694])
     assert res == want, f'{res} == {want}'
 
     assert_throw(lambda: eval_root(
         parse('(solve (matrix (vector 1 2 3) (vector 1 2 3)))')))
 
     res = eval_root(
-        parse('(solve (matrix (+ (vector 0 1) (vector 1 1)) (vector 2 3)))'))
-    want = Vector([-0.8506508083520399, 0.5257311121191335])
+        parse('(solve (matrix (+ (vector 0 1 0) (vector 1 1 0)) (vector 0 4 1)(vector 2 0 -1)))'))
+    want = Vector([-0.4364357804719846, 0.21821789023599236, -0.8728715609439694])
     assert res == want, f'{res} == {want}'
 
     print("test_eval_solve OK")
