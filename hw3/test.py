@@ -3,7 +3,7 @@ from lisp import parse_test, parse
 
 def test():
     res1 = parse_test("(id id)")
-    res2 = parse_test("(id  id)")
+    res2 = parse_test("( id  id   )")
     assert res1 == res2, f"{res1} == {res2}"
     
     res1 = parse_test('"str\\""')
@@ -58,10 +58,22 @@ def test():
     res2 = parse_test(str(res1))
     assert res1 == res2, f"{res1} == {res2}"
 
+    res = parse("()")
+    assert res is None, f"{res} is None"
+
     res = parse("()()")
     assert res is None, f"{res} is None"
 
     res = parse(".3")
+    assert res is None, f"{res} is None"
+
+    res = parse("-.3")
+    assert res is None, f"{res} is None"
+
+    res = parse("3.")
+    assert res is None, f"{res} is None"
+
+    res = parse("-3.")
     assert res is None, f"{res} is None"
 
     res = parse("(asd)0)")

@@ -6,6 +6,8 @@ import re
 from classes import Atom, Boolean, String, Number, Identifier, Compound
 
 
+## Overall very nice and clean code, I think you're missing only
+## 2 tricky cases, more on that below.
 def parse(s):
     try:
         tokens = tokenize(s)
@@ -24,9 +26,7 @@ def parser(token):
         return Atom('')
 
     if type(token) == list:
-        if len(token) == 0:
-            raise Exception("empty compounds not allowed")
-
+        ## What about empty compounds, are they allowed by the grammar?
         return Compound([parser(x) for x in token])
 
     if type(token) == str:
@@ -46,6 +46,7 @@ def parser(token):
         if is_identifier(token):
             return Identifier(token)
 
+    ## Actually nice error messages
     raise Exception(f"invalid token: {token}")
 
 
@@ -53,6 +54,12 @@ def tokenize(s):
     expr = s.strip()
     is_atom = not (len(expr) >= 2 and expr[0] in '([' and expr[-1] in ')]')
 
+    ## Nice documentation! I think it could be done without was_string
+    ## and stack, but hey, if it works it works. But this method is really
+    ## long, so it would be better to split it into smaller methods. Also
+    ## I don't understand why you use continue instead of elif? Maybe it's
+    ## a personal preference, but I don't find it any more readable, and
+    ## it just increases the length of this already huge method.
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
     stack = [words]    # Resulting stack
@@ -170,6 +177,12 @@ def tokenize(s):
 # === UTILS ===
 
 
+## love the name :D I opted for more boring "is_number"
+## you could've done the if outside of try section so it's
+## more readable, and then decide to try int(s) or float(s)
+## if s has decimal point in it. I didn't do int at all,
+## because it's just a subgroup of float, but having int
+## makes sense too.
 def maybe_number(s):
     try:
         if not s[0].isnumeric() and s[0] not in ('+', '-'):
@@ -178,15 +191,19 @@ def maybe_number(s):
         return int(s)
     except ValueError:
         try:
-            n = s[1:] if s[0] in ('+', '-') else s
-            if not n[0].isnumeric() or not n[-1].isnumeric():
-                return None
-                
+            ## You might be surprised that float() is a bit "too good"
+            ## for this, because it accepts more than the hw3 grammar.
+            ## Try to read the spec again and do some basic tests for
+            ## missing stuff in: [ sign ], digits, [ '.', digits ]
+            ## You already did the half of the error checking with that
+            ## if above actually, now just the other half.
             return float(s)
         except:
             return None
 
 
+## Idk if there is some performance advantage of set
+## vs array, but you could declare it as {}
 id_symbol = set(['!', '$', '%', '&', '*', '/',
                  ':', '<', '=', '>', '?', '_', '~'])
 id_special = set(['+', '-', '.', '@', '#'])
