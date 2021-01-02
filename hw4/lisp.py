@@ -5,8 +5,8 @@ from classes import Nick, Join, Message, Part, Replay, Atom, Boolean, String, Nu
 # === PARSER ===
 
 
-def parse(s):
-    root = parser(tokenize(s))
+async def parse(reader):
+    root = parser(await tokenize(reader))
     if type(root) is not Compound:
         raise Exception(
             f"invalid root format. want {Compound}, got {type(root)}")
@@ -207,10 +207,7 @@ def parser(token):
     raise Exception(f"invalid token: {token}")
 
 
-def tokenize(s):
-    expr = s.strip()
-    is_atom = not (len(expr) >= 2 and expr[0] in '([' and expr[-1] in ')]')
-
+async def tokenize(reader):
     word = ''          # Current word-in-progress
     words = []         # Resulting words of current compound
     stack = [words]    # Resulting stack
@@ -219,9 +216,12 @@ def tokenize(s):
     is_string = False  # Is the current word a string
     was_string = False # Was a string
 
-    i = 0
-    while len(expr) > 0:
-        c, expr = expr[0], expr[1:]
+    while True:
+        b = await reader.readexactly(1)
+        if len(b) == 0:
+            return None
+
+        c = b.decode()
         
         # Loop start
         if escaped:
@@ -252,15 +252,22 @@ def tokenize(s):
             word += c
             continue
 
+        if c.isspace():
+            if len(depth) == 0:
+                continue
+            if c != ' ':
+                raise Exception(f"invalid whitespace character in expression: {c}")
+            if len(word) > 0:
+                words.append(word)
+                word = ''
+                continue
+
         if c == '"':
             is_string = True
             word += c
             continue
 
         if c in '([':
-            if is_atom:
-                raise Exception("invalid atom")
-
             # Bracket/paren enter
             if len(depth) > 0:
                 stack.append([])
@@ -269,9 +276,6 @@ def tokenize(s):
             continue
 
         if c in ')]':
-            if is_atom:
-                raise Exception("invalid atom")
-
             # Paren leave
             if len(depth) == 0:
                 raise Exception("paren / bracket mismatch")
@@ -290,23 +294,10 @@ def tokenize(s):
                 continue
             continue
 
-        if c == ' ':
-            if is_atom:
-                raise Exception("invalid atom")
-
-            if len(word) > 0:
-                words.append(word)
-                word = ''
-                continue
-
         if c != ' ':
             word += c
 
-        i += 1
         # Loop end
-
-    if len(expr) > 0:
-        raise Exception("invalid input, leftover expression: {expr}")
 
     if is_string:
         raise Exception("string mismatch")
@@ -318,11 +309,7 @@ def tokenize(s):
         # Leftover
         words.append(word)
 
-    res = stack.pop()
-    if is_atom:
-        return res[0]
-
-    return res
+    return stack.pop()
 
 
 def maybe_number(s):

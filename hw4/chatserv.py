@@ -79,8 +79,7 @@ def make_handler(state):
                     await writer.wait_closed()
                     return
 
-                s = await reader.readline()
-                cmd = parse(s.decode())
+                cmd = await parse(reader)
                 if user is None:
                     # New connection
                     if type(cmd) != Nick:
