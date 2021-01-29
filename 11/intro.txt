@@ -1,0 +1,15 @@
+# Numeric Math
+
+Since Python is often used as a driver for numeric algorithms, with
+‹numpy› as the backend, we will try to explore some of its basic
+functions. The first part will focus on linear algebra.
+
+ 1. ‹linear.py› – warm up
+ 2. ‹volume.py› – volume of n-dimensional polyhedra [0.5 points]
+ 3. ‹null.py› – the nullspace (kernel) of a matrix
+
+While in the second we will look at signal processing.
+
+ 4. ‹histogram.py› – drawing histograms
+ 5. ‹sig.py› – generating signals [0.5 points]
+ 6. ‹dft.py› – analysing signals [0.5 points]

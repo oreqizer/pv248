@@ -1,0 +1,6 @@
+> why not just implement parser() right here?
+Because of some unit tests.
+
+To be honest, I never write much Python, and was using
+NumPy for the 1st time ever, thus not much efficiency.
+Anyway, thanks for the review.

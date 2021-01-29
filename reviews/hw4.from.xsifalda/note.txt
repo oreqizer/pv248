@@ -1,0 +1,3 @@
+Thanks, yea the OOP style was mostly due to copy/pasting
+code from other lisp HWs, and writing tests. Also, Python
+likes OOP so I went with that. I am normally a FP guy.

@@ -1,0 +1,24 @@
+# Testing
+
+This week will cover ‹hypothesis›, a rather useful tool for testing
+Python code. Hypothesis is a «property-based» testing system: unlike
+traditional unit testing, we do not specify exact inputs. Instead,
+we provide a description of an entire class of inputs; ‹hypothesis›
+then randomly samples the space of all inputs in that class,
+invoking our test cases for each such sample.
+
+Unlike other weeks, you won't get pre-made tests, since writing
+tests is the point of the exercises. To get started, try e.g.
+‹https://hypothesis.readthedocs.io/en/latest/quickstart.html›.
+
+We will look at two types of programs to use hypothesis with, first
+some integer and floating-point linear math:
+
+ 1. ‹inner.py› – properties of the inner vector product
+ 2. ‹cross.py› – same but cross product
+
+And some classic computer science problems:
+
+ 4. ‹sort.py› – sorting algorithms
+ 5. ‹bsearch.py› – binary search
+ 6. ‹heap.py› – binary heaps

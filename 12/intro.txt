@@ -1,0 +1,13 @@
+# Statistics
+
+The last set of exercises is focused on simple statistical
+processing of data. You can either use ‹numpy› (which is quite
+low-level) or ‹pandas› (which is usually much more comfortable and
+high-level).
+
+ 1. ‹stats.py› – warm up with basic stats
+ 2. ‹frames.py› – slicing and dicing data frames [submit for .5pt]
+ 3. ‹student.py› – the infamous T-test
+ 4. ‹anova.py› – (tbd) analysis of variance
+ 5. ‹outliers.py› – dealing with irregularities
+ 6. ‹regress.py› – linear regression with outliers [submit for .5pt]

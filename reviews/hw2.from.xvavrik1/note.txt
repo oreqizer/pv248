@@ -1,0 +1,2 @@
+Thanks for the compliments. As for dedupe, I went with slow and easy.
+Didn't want to waste time with long SQL on a homework.

@@ -51,7 +51,7 @@ simultaneous. Methods which implement the gameplay:
 After the game concludes, calling ‹restart()› keeps the connection
 to the server open, but wipes all other state. Ships can be laid out
 again and a new game can be joined or initiated. All initialization
-methods except ‹put_ship› are async, as is the ‹round()› method are
+methods except ‹put_ship› are async, as is the ‹round()› method
 (i.e. they are coroutines). All other methods are standard
 subroutines.
 
@@ -94,7 +94,7 @@ The basic protocol is as follows:
                    (ship 4 5 5 vertical)
                    (ship 3 6 5 vertical)
                    (ship 3 8 5 vertical)
-                   (ship 2 9 9 horiznontal))
+                   (ship 2 9 9 horizontal))
     
     the order of ships is mandatory, the first argument is the size
     of the ship and the other two numbers are the x and y

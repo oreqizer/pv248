@@ -1,0 +1,5 @@
+Thanks, I use autoformatter and probably forgot to run it in
+the last commit, thus the longer lines. I don't bother with
+type hints, as I don't know the precise syntax, and since I
+don't use Python as my work/project language (I write Go) then
+didn't bother with learning it just for homeworks.

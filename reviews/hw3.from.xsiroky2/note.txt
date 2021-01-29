@@ -1,0 +1,2 @@
+Yea I wanted to avoid recursion bcs of Python doesn't like it.
+I normally like recursions as well.
