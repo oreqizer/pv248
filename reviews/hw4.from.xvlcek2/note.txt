@@ -1,0 +1,5 @@
+Thanks for the review. Some things were purely out of laziness
+(like the parser(token) nomenclature), some because it still
+is just homework.
+
+Glad for your comments, I learned some stuff, deserved 100.
